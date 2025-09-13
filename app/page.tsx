@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { Float, Environment, OrbitControls, Html } from "@react-three/drei"
 import type * as THREE from "three"
@@ -24,15 +24,11 @@ import {
   Heart,
   Star,
   BookOpen,
-  Camera,
   Music,
   Utensils,
   Palette,
   Languages,
   Play,
-  Bookmark,
-  Share2,
-  Eye,
   Clock,
   Target,
   Lightbulb,
@@ -40,7 +36,14 @@ import {
   Accessibility,
   HelpCircle,
   MessageCircle,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react"
+
+import { AnimatedReveal } from "@/components/common/animated-reveal"
+import { ParallaxBackground } from "@/components/common/parallax-background"
+import { EnhancedButton } from "@/components/interactive/enhanced-button"
+import { cn } from "@/lib/utils"
 
 function smoothScrollTo(elementId: string) {
   const element = document.getElementById(elementId)
@@ -52,14 +55,24 @@ function smoothScrollTo(elementId: string) {
       setTimeout(() => navbar.classList.remove("animate-pulse"), 300)
     }
 
-    element.scrollIntoView({
+    // Get dynamic navbar height for accurate offset
+    const navbarHeight = navbar ? navbar.offsetHeight : 64
+    const additionalOffset = 16 // Extra padding for better visual spacing
+
+    // Calculate target position
+    const elementPosition = element.offsetTop
+    const offsetPosition = elementPosition - navbarHeight - additionalOffset
+
+    // Use smooth scroll with calculated position
+    window.scrollTo({
+      top: offsetPosition,
       behavior: "smooth",
-      block: "start",
-      inline: "nearest",
     })
 
-    // Focus management for accessibility
-    element.focus({ preventScroll: true })
+    // Focus management for accessibility - delay to ensure scroll completes
+    setTimeout(() => {
+      element.focus({ preventScroll: true })
+    }, 500)
   }
 }
 
@@ -248,7 +261,7 @@ export default function CulturalHeritagePage() {
   const [showCities, setShowCities] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filteredItems, setFilteredItems] = useState<any[]>([])
-  const [selectedCategory, setSelectedCategory] = useState("semua")
+  const [selectedCategory, setSelectedCategory] = useState("tari") // Start with a specific category instead of "semua"
   const [navSearchQuery, setNavSearchQuery] = useState("")
   const [showNavSearch, setShowNavSearch] = useState(false)
   const [bookmarkedItems, setBookmarkedItems] = useState<Set<number>>(new Set())
@@ -464,6 +477,10 @@ export default function CulturalHeritagePage() {
     setFilteredItems(filtered)
   }
 
+  useEffect(() => {
+    filterItems("", selectedCategory)
+  }, [])
+
   const handleGlobeClick = () => {
     setShowCities(true)
   }
@@ -487,7 +504,14 @@ export default function CulturalHeritagePage() {
     setBookmarkedItems(newBookmarks)
   }
 
-  const displayItems = searchQuery || selectedCategory !== "semua" ? filteredItems : culturalItems
+  const handleLearnMore = (itemId: number) => {
+    window.location.href = `/budaya/${itemId}`
+  }
+
+  const displayItems =
+    searchQuery || selectedCategory !== "semua"
+      ? filteredItems
+      : culturalItems.filter((item) => item.category === "tari") // Default to tari category
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -800,182 +824,254 @@ export default function CulturalHeritagePage() {
           )}
         </nav>
 
-        <section id="beranda" className="relative min-h-screen flex items-center" role="banner">
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-r from-amber-100/20 to-orange-100/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-gradient-to-l from-emerald-100/20 to-teal-100/20 rounded-full blur-3xl" />
-          </div>
-
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center relative z-10">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2 mb-4">
-                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                    <Star className="h-3 w-3 mr-1" />
-                    Platform Budaya Digital
-                  </Badge>
-                  <Badge variant="outline" className="bg-emerald-100/50 text-emerald-700 border-emerald-200">
-                    <Shield className="h-3 w-3 mr-1" />
-                    Terpercaya
-                  </Badge>
-                </div>
-
-                <h1 className="text-4xl md:text-6xl font-bold text-balance font-[family-name:var(--font-manrope)]">
-                  Jelajahi Warisan
-                  <span className="text-primary block">Budaya Jawa Timur</span>
-                  <span className="text-2xl md:text-3xl font-normal block mt-2 text-muted-foreground">
-                    yang Tak Ternilai
-                  </span>
-                </h1>
-
-                <p className="text-lg text-muted-foreground max-w-lg text-pretty leading-relaxed">
-                  Temukan kekayaan tradisi, budaya dan seni yang telah diwariskan turun temurun di kebudayaan Jawa
-                  Timur. Mari bersama-sama menjaga warisan budaya untuk generasi mendatang.
-                </p>
-
-                {/* User value proposition */}
-                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center space-x-2">
-                    <Eye className="h-4 w-4 text-primary" />
-                    <span>Eksplorasi Interaktif</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <BookOpen className="h-4 w-4 text-primary" />
-                    <span>Konten Edukatif</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Accessibility className="h-4 w-4 text-primary" />
-                    <span>Mudah Diakses</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Enhanced CTA buttons with better UX */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  size="lg"
-                  className="text-lg px-8 group relative overflow-hidden"
-                  onClick={() => handleNavClick("eksplorasi")}
-                  aria-label="Mulai menjelajahi budaya Jawa Timur"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <Compass className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
-                  Mulai Eksplorasi Budaya
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="text-lg px-8 bg-transparent group"
-                  onClick={() => handleNavClick("tentang")}
-                  aria-label="Pelajari lebih lanjut tentang platform"
-                >
-                  <BookOpen className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-200" />
-                  Pelajari Lebih Lanjut
-                </Button>
-              </div>
-
-              {/* Enhanced statistics with better visual hierarchy */}
-              <div className="grid grid-cols-3 gap-6 pt-8">
-                <div className="text-center group">
-                  <div className="text-2xl font-bold text-primary group-hover:scale-110 transition-transform duration-200">
-                    38
-                  </div>
-                  <div className="text-sm text-muted-foreground">Kabupaten Kota</div>
-                </div>
-                <div className="text-center group">
-                  <div className="text-2xl font-bold text-primary group-hover:scale-110 transition-transform duration-200">
-                    100+
-                  </div>
-                  <div className="text-sm text-muted-foreground">Kesenian Tradisional</div>
-                </div>
-                <div className="text-center group">
-                  <div className="text-2xl font-bold text-primary group-hover:scale-110 transition-transform duration-200">
-                    50+
-                  </div>
-                  <div className="text-sm text-muted-foreground">Kuliner Khas</div>
-                </div>
-              </div>
-
-              {/* Quick access buttons */}
-              <div className="flex flex-wrap gap-2 pt-4">
-                <Button variant="ghost" size="sm" className="text-xs" onClick={() => handleNavClick("eksplorasi")}>
-                  <Music className="h-3 w-3 mr-1" />
-                  Tari Tradisional
-                </Button>
-                <Button variant="ghost" size="sm" className="text-xs" onClick={() => handleNavClick("eksplorasi")}>
-                  <Utensils className="h-3 w-3 mr-1" />
-                  Kuliner Khas
-                </Button>
-                <Button variant="ghost" size="sm" className="text-xs" onClick={() => handleNavClick("eksplorasi")}>
-                  <Palette className="h-3 w-3 mr-1" />
-                  Kerajinan
-                </Button>
+        {/* Hero section with enhanced animations */}
+        <section id="beranda" className="pt-16 pb-20 relative overflow-hidden parallax-container" role="banner">
+          <ParallaxBackground speed={0.3} className="absolute inset-0 pointer-events-none z-0">
+            <div className="absolute top-20 left-10 w-32 h-32 opacity-[0.025] rotate-12">
+              <div className="w-full h-full text-amber-700 animate-float">
+                <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
+                  <path d="M50 10 C60 15 65 25 60 35 L65 50 C70 60 65 70 55 75 L50 90 L45 75 C35 70 30 60 35 50 L40 35 C35 25 40 15 50 10 Z" />
+                  <circle cx="45" cy="30" r="3" fill="white" />
+                  <circle cx="55" cy="30" r="3" fill="white" />
+                </svg>
               </div>
             </div>
+          </ParallaxBackground>
 
-            {/* Enhanced 3D globe section */}
-            <div className="h-96 lg:h-[600px] w-full relative">
-              <div className="absolute top-4 right-4 z-10">
-                <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
-                  <Globe className="h-3 w-3 mr-1" />
-                  Interaktif 3D
-                </Badge>
+          <ParallaxBackground speed={0.5} className="absolute inset-0 pointer-events-none z-0">
+            <div className="absolute top-40 right-20 w-24 h-24 opacity-[0.03] -rotate-45">
+              <div className="w-full h-full text-emerald-700 animate-float" style={{ animationDelay: "1s" }}>
+                <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
+                  <path d="M50 20 Q60 30 50 40 Q40 30 50 20 Z" />
+                  <path d="M50 60 Q60 70 50 80 Q40 70 50 60 Z" />
+                  <path d="M20 50 Q30 40 40 50 Q30 60 20 50 Z" />
+                  <path d="M80 50 Q70 40 60 50 Q70 60 80 50 Z" />
+                  <circle cx="50" cy="50" r="8" />
+                </svg>
               </div>
-              <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
-                <ambientLight intensity={0.4} />
-                <pointLight position={[10, 10, 10]} intensity={1} />
-                <pointLight position={[-10, -10, -10]} intensity={0.5} color="#3b82f6" />
-                <spotLight position={[0, 10, 0]} intensity={0.8} angle={0.3} penumbra={1} />
-                {showCities ? (
-                  <EastJavaCitiesView onBack={handleBackToGlobe} />
-                ) : (
-                  <IndonesianGlobe onGlobeClick={handleGlobeClick} />
-                )}
-                <Environment preset="city" />
-                <OrbitControls enableZoom={false} autoRotate={!showCities} autoRotateSpeed={0.5} enablePan={false} />
-              </Canvas>
+            </div>
+          </ParallaxBackground>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[600px]">
+              <AnimatedReveal animation="fade-up" delay={200}>
+                <div className="space-y-8">
+                  <div className="space-y-4">
+                    <AnimatedReveal animation="slide-right" delay={400}>
+                      <div className="flex items-center space-x-2 mb-4">
+                        <Badge className="bg-primary/10 text-primary border-primary/20 hover-glow">
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          Platform Digital Budaya
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className="bg-emerald-100/50 text-emerald-700 border-emerald-200 hover-lift"
+                        >
+                          <Shield className="h-3 w-3 mr-1" />
+                          Terpercaya
+                        </Badge>
+                      </div>
+                    </AnimatedReveal>
+
+                    <AnimatedReveal animation="fade-up" delay={600}>
+                      <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-manrope)] leading-tight">
+                        Warisan Budaya
+                        <span className="text-primary block animate-shimmer bg-gradient-to-r from-primary via-amber-500 to-primary bg-clip-text">
+                          Jawa Timur
+                        </span>
+                      </h1>
+                    </AnimatedReveal>
+
+                    <AnimatedReveal animation="fade-up" delay={800}>
+                      <p className="text-lg md:text-xl text-muted-foreground max-w-2xl text-pretty leading-relaxed">
+                        Jelajahi kekayaan budaya Jawa Timur melalui platform digital yang inovatif. Temukan kesenian
+                        tradisional, kuliner khas, bahasa daerah, dan warisan budaya yang telah diwariskan
+                        turun-temurun.
+                      </p>
+                    </AnimatedReveal>
+                  </div>
+
+                  <AnimatedReveal animation="scale-up" delay={1000}>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-center space-x-2 group">
+                        <div className="w-2 h-2 bg-primary rounded-full group-hover:animate-pulse-glow"></div>
+                        <span>Eksplorasi Interaktif</span>
+                      </div>
+                      <div className="flex items-center space-x-2 group">
+                        <div className="w-2 h-2 bg-primary rounded-full group-hover:animate-pulse-glow"></div>
+                        <span>Konten Edukatif</span>
+                      </div>
+                      <div className="flex items-center space-x-2 group">
+                        <div className="w-2 h-2 bg-primary rounded-full group-hover:animate-pulse-glow"></div>
+                        <span>Mudah Diakses</span>
+                      </div>
+                      <div className="flex items-center space-x-2 group">
+                        <div className="w-2 h-2 bg-primary rounded-full group-hover:animate-pulse-glow"></div>
+                        <span>Responsif</span>
+                      </div>
+                    </div>
+                  </AnimatedReveal>
+
+                  <AnimatedReveal animation="bounce-in" delay={1200}>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <EnhancedButton
+                        size="lg"
+                        effect="glow"
+                        className="text-lg px-8"
+                        onClick={() => handleNavClick("eksplorasi")}
+                        aria-label="Mulai menjelajahi budaya Jawa Timur"
+                      >
+                        <Compass className="h-5 w-5 mr-2" />
+                        Mulai Eksplorasi Budaya
+                      </EnhancedButton>
+                      <EnhancedButton
+                        variant="outline"
+                        size="lg"
+                        effect="lift"
+                        className="text-lg px-8 bg-transparent"
+                        onClick={() => handleNavClick("tentang")}
+                        aria-label="Pelajari lebih lanjut tentang platform"
+                      >
+                        <BookOpen className="h-5 w-5 mr-2" />
+                        Pelajari Lebih Lanjut
+                      </EnhancedButton>
+                    </div>
+                  </AnimatedReveal>
+
+                  <AnimatedReveal animation="fade-up" delay={1400}>
+                    <div className="grid grid-cols-3 gap-6 pt-8">
+                      <div className="text-center group hover-lift">
+                        <div className="text-2xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
+                          38
+                        </div>
+                        <div className="text-sm text-muted-foreground">Kabupaten Kota</div>
+                      </div>
+                      <div className="text-center group hover-lift">
+                        <div className="text-2xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
+                          100+
+                        </div>
+                        <div className="text-sm text-muted-foreground">Kesenian Tradisional</div>
+                      </div>
+                      <div className="text-center group hover-lift">
+                        <div className="text-2xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
+                          50+
+                        </div>
+                        <div className="text-sm text-muted-foreground">Kuliner Khas</div>
+                      </div>
+                    </div>
+                  </AnimatedReveal>
+
+                  {/* Quick access buttons with enhanced hover effects */}
+                  <AnimatedReveal animation="slide-left" delay={1600}>
+                    <div className="flex flex-wrap gap-2 pt-4">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs hover-glow"
+                        onClick={() => handleNavClick("eksplorasi")}
+                      >
+                        <Music className="h-3 w-3 mr-1" />
+                        Tari Tradisional
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs hover-glow"
+                        onClick={() => handleNavClick("eksplorasi")}
+                      >
+                        <Utensils className="h-3 w-3 mr-1" />
+                        Kuliner Khas
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs hover-glow"
+                        onClick={() => handleNavClick("eksplorasi")}
+                      >
+                        <Palette className="h-3 w-3 mr-1" />
+                        Kerajinan
+                      </Button>
+                    </div>
+                  </AnimatedReveal>
+                </div>
+              </AnimatedReveal>
+
+              {/* Enhanced 3D globe section with parallax */}
+              <AnimatedReveal animation="scale-up" delay={800}>
+                <div className="h-96 lg:h-[600px] w-full relative">
+                  <div className="absolute top-4 right-4 z-10">
+                    <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm hover-lift">
+                      <Globe className="h-3 w-3 mr-1" />
+                      Interaktif 3D
+                    </Badge>
+                  </div>
+                  <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
+                    <ambientLight intensity={0.4} />
+                    <pointLight position={[10, 10, 10]} intensity={1} />
+                    <pointLight position={[-10, -10, -10]} intensity={0.5} color="#3b82f6" />
+                    <spotLight position={[0, 10, 0]} intensity={0.8} angle={0.3} penumbra={1} />
+                    {showCities ? (
+                      <EastJavaCitiesView onBack={handleBackToGlobe} />
+                    ) : (
+                      <IndonesianGlobe onGlobeClick={handleGlobeClick} />
+                    )}
+                    <Environment preset="city" />
+                    <OrbitControls
+                      enableZoom={false}
+                      autoRotate={!showCities}
+                      autoRotateSpeed={0.5}
+                      enablePan={false}
+                    />
+                  </Canvas>
+                </div>
+              </AnimatedReveal>
             </div>
           </div>
         </section>
 
-        <section id="eksplorasi" className="py-20 bg-muted/30 relative" role="main">
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-10 left-10 w-32 h-32 opacity-[0.03]">
+        <section id="eksplorasi" className="py-20 bg-muted/30 relative scroll-mt-16" role="main">
+          <ParallaxBackground speed={0.2} className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-10 left-10 w-32 h-32 opacity-[0.03] animate-float">
               <svg viewBox="0 0 100 100" className="w-full h-full text-primary">
                 <path d="M50 5 L60 35 L90 35 L68 57 L78 87 L50 70 L22 87 L32 57 L10 35 L40 35 Z" fill="currentColor" />
               </svg>
             </div>
-            <div className="absolute bottom-10 right-10 w-28 h-28 opacity-[0.02] rotate-45">
+            <div
+              className="absolute bottom-10 right-10 w-28 h-28 opacity-[0.02] rotate-45 animate-float"
+              style={{ animationDelay: "2s" }}
+            >
               <svg viewBox="0 0 100 100" className="w-full h-full text-amber-600">
                 <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" strokeWidth="6" />
                 <circle cx="50" cy="50" r="15" fill="currentColor" />
               </svg>
             </div>
-          </div>
+          </ParallaxBackground>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center space-y-4 mb-16">
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                  <Compass className="h-3 w-3 mr-1" />
-                  Eksplorasi Budaya
-                </Badge>
-                <Badge variant="outline" className="bg-emerald-100/50 text-emerald-700 border-emerald-200">
-                  <Target className="h-3 w-3 mr-1" />
-                  Mudah Ditemukan
-                </Badge>
+            <AnimatedReveal animation="fade-up">
+              <div className="text-center space-y-4 mb-16">
+                <div className="flex items-center justify-center space-x-2 mb-4">
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 hover-glow">
+                    <Compass className="h-3 w-3 mr-1" />
+                    Eksplorasi Budaya
+                  </Badge>
+                  <Badge variant="outline" className="bg-emerald-100/50 text-emerald-700 border-emerald-200 hover-lift">
+                    <Target className="h-3 w-3 mr-1" />
+                    Mudah Ditemukan
+                  </Badge>
+                </div>
+
+                <h2 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-manrope)]">
+                  Eksplorasi
+                  <span className="text-primary block">Budaya Jawa Timur</span>
+                </h2>
+
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty leading-relaxed">
+                  Jelajahi kekayaan budaya Jawa Timur melalui berbagai aspek tradisi yang masih lestari hingga saat ini.
+                  Temukan kesenian, kuliner, bahasa, dan warisan budaya lainnya dengan mudah.
+                </p>
               </div>
-
-              <h2 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-manrope)]">
-                Eksplorasi
-                <span className="text-primary block">Budaya Jawa Timur</span>
-              </h2>
-
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty leading-relaxed">
-                Jelajahi kekayaan budaya Jawa Timur melalui berbagai aspek tradisi yang masih lestari hingga saat ini.
-                Temukan kesenian, kuliner, bahasa, dan warisan budaya lainnya dengan mudah.
-              </p>
-            </div>
+            </AnimatedReveal>
 
             {/* Enhanced search and filter interface */}
             <div className="max-w-4xl mx-auto mb-12 space-y-6">
@@ -1067,92 +1163,54 @@ export default function CulturalHeritagePage() {
               </div>
             </div>
 
-            {/* Enhanced content grid with better UCD */}
             <div
-              className={`grid gap-6 ${viewMode === "grid" ? "md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 max-w-4xl mx-auto"}`}
+              className={cn(
+                "grid gap-6 transition-all duration-500",
+                viewMode === "grid" ? "md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 max-w-4xl mx-auto",
+              )}
             >
-              {displayItems.map((item, index) => (
-                <Card
-                  key={item.id}
-                  className={`group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 hover:border-primary/20 ${
-                    viewMode === "list" ? "flex flex-row" : ""
-                  }`}
-                >
-                  {viewMode === "list" && (
-                    <div className="w-24 h-24 bg-gradient-to-br from-primary/10 to-primary/5 rounded-l-lg flex items-center justify-center">
-                      {item.category === "tari" && <Music className="h-8 w-8 text-primary" />}
-                      {item.category === "makanan" && <Utensils className="h-8 w-8 text-primary" />}
-                      {item.category === "batik" && <Palette className="h-8 w-8 text-primary" />}
-                      {item.category === "musik" && <Music className="h-8 w-8 text-primary" />}
-                      {item.category === "bahasa" && <Languages className="h-8 w-8 text-primary" />}
-                      {item.category === "kerajinan" && <Palette className="h-8 w-8 text-primary" />}
-                      {item.category === "wayang" && <Camera className="h-8 w-8 text-primary" />}
-                    </div>
-                  )}
-
-                  <div className={viewMode === "list" ? "flex-1" : ""}>
-                    <CardHeader className={viewMode === "list" ? "pb-2" : ""}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="secondary" className="font-medium">
-                            {item.badge}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {item.region}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleBookmark(item.id)}
-                            className="h-8 w-8 p-0 hover:bg-primary/10"
-                            aria-label={bookmarkedItems.has(item.id) ? "Hapus dari bookmark" : "Tambah ke bookmark"}
-                          >
-                            <Bookmark
-                              className={`h-4 w-4 ${bookmarkedItems.has(item.id) ? "fill-primary text-primary" : "text-muted-foreground"}`}
-                            />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 hover:bg-primary/10"
-                            aria-label="Bagikan konten"
-                          >
-                            <Share2 className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                        </div>
+              {filteredItems.map((item, index) => (
+                <AnimatedReveal key={item.id} animation="fade-up" delay={index * 100} className="group">
+                  <Card className="h-full hover-lift hover-glow transition-all duration-300 cursor-pointer border-2 hover:border-primary/20">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between mb-2">
+                        <Badge
+                          variant="secondary"
+                          className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                        >
+                          {item.badge}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleBookmark(item.id)
+                          }}
+                          className="h-8 w-8 p-0 hover:bg-primary/10 group-hover:scale-110 transition-all duration-200"
+                          aria-label={bookmarkedItems.has(item.id) ? "Hapus dari bookmark" : "Tambah ke bookmark"}
+                        >
+                          <Heart
+                            className={cn(
+                              "h-4 w-4 transition-colors",
+                              bookmarkedItems.has(item.id)
+                                ? "fill-red-500 text-red-500"
+                                : "text-muted-foreground hover:text-red-500",
+                            )}
+                          />
+                        </Button>
                       </div>
-
-                      <CardTitle className="font-[family-name:var(--font-manrope)] group-hover:text-primary transition-colors">
+                      <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors">
                         {item.title}
                       </CardTitle>
-                      <CardDescription className="text-primary font-medium">{item.subtitle}</CardDescription>
-
-                      {/* Enhanced metadata */}
-                      <div className="flex items-center space-x-4 text-xs text-muted-foreground mt-2">
-                        <div className="flex items-center space-x-1">
-                          <Clock className="h-3 w-3" />
-                          <span>{item.duration}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Target className="h-3 w-3" />
-                          <span>{item.difficulty}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Star className="h-3 w-3 fill-current text-amber-500" />
-                          <span>{item.popularity}%</span>
-                        </div>
-                      </div>
+                      <CardDescription className="text-sm font-medium text-primary/80">{item.subtitle}</CardDescription>
                     </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{item.description}</p>
 
-                    <CardContent className={viewMode === "list" ? "pt-0" : ""}>
-                      <p className="text-muted-foreground leading-relaxed mb-4">{item.description}</p>
-
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-1 mb-4">
-                        {item.tags.slice(0, 3).map((tag, tagIndex) => (
-                          <Badge key={tagIndex} variant="outline" className="text-xs">
+                      <div className="flex flex-wrap gap-1">
+                        {item.tags.slice(0, 3).map((tag) => (
+                          <Badge key={tag} variant="outline" className="text-xs hover-lift">
                             {tag}
                           </Badge>
                         ))}
@@ -1163,24 +1221,37 @@ export default function CulturalHeritagePage() {
                         )}
                       </div>
 
-                      {/* Action buttons */}
-                      <div className="flex items-center justify-between">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="group bg-transparent"
-                          onClick={() => (window.location.href = `/budaya/${item.id}`)}
-                        >
-                          <Eye className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-200" />
-                          Lihat Detail
-                        </Button>
-                        <div className="text-xs text-muted-foreground">
-                          Diperbarui {new Date(item.lastUpdated).toLocaleDateString("id-ID")}
+                      <div className="grid grid-cols-2 gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center space-x-1">
+                          <MapPin className="h-3 w-3" />
+                          <span>{item.region}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Clock className="h-3 w-3" />
+                          <span>{item.duration}</span>
                         </div>
                       </div>
+
+                      <div className="flex items-center justify-between pt-2">
+                        <div className="flex items-center space-x-1">
+                          <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                          <span className="text-sm font-medium">{(item.popularity / 20).toFixed(1)}</span>
+                          <span className="text-xs text-muted-foreground">({item.popularity}% populer)</span>
+                        </div>
+                        <EnhancedButton
+                          variant="ghost"
+                          size="sm"
+                          effect="shine"
+                          className="text-xs hover:bg-primary/10"
+                          onClick={() => handleLearnMore(item.id)} // Add navigation to detail page
+                        >
+                          Pelajari
+                          <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
+                        </EnhancedButton>
+                      </div>
                     </CardContent>
-                  </div>
-                </Card>
+                  </Card>
+                </AnimatedReveal>
               ))}
             </div>
 
@@ -1231,7 +1302,7 @@ export default function CulturalHeritagePage() {
           </div>
         </section>
 
-        <section id="tentang" className="py-20 relative" role="complementary">
+        <section id="tentang" className="py-20 relative scroll-mt-16" role="complementary">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-50/30 via-transparent to-orange-50/20" />
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-1/3 left-1/4 w-40 h-40 opacity-[0.02] -rotate-12">
@@ -1510,7 +1581,7 @@ export default function CulturalHeritagePage() {
           </div>
         </section>
 
-        <section id="kontak" className="py-20 bg-muted/30 relative" role="contentinfo">
+        <section id="kontak" className="py-20 bg-muted/30 relative scroll-mt-16" role="contentinfo">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center space-y-4 mb-16">
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 mb-4">
