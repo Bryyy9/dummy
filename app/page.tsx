@@ -582,7 +582,7 @@ export default function CulturalHeritagePage() {
 
       {/* Main content with higher z-index */}
       <div className="relative z-10">
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-background/98 backdrop-blur-xl supports-[backdrop-filter]:bg-background/90 border-b border-border/60 shadow-xl transition-all duration-300">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-b border-border/50 shadow-lg transition-all duration-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               {/* Enhanced logo with better accessibility */}
@@ -800,7 +800,7 @@ export default function CulturalHeritagePage() {
           )}
         </nav>
 
-        <section id="beranda" className="relative min-h-screen flex items-center pt-16" role="banner">
+        <section id="beranda" className="relative min-h-screen flex items-center" role="banner">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-r from-amber-100/20 to-orange-100/20 rounded-full blur-3xl" />
             <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-gradient-to-l from-emerald-100/20 to-teal-100/20 rounded-full blur-3xl" />
@@ -1165,7 +1165,12 @@ export default function CulturalHeritagePage() {
 
                       {/* Action buttons */}
                       <div className="flex items-center justify-between">
-                        <Button size="sm" variant="outline" className="group bg-transparent">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="group bg-transparent"
+                          onClick={() => (window.location.href = `/budaya/${item.id}`)}
+                        >
                           <Eye className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-200" />
                           Lihat Detail
                         </Button>
