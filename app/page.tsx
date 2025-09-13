@@ -591,7 +591,7 @@ export default function CulturalHeritagePage() {
                   <Globe className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <h1 className="text-xl font-bold text-primary font-[family-name:var(--font-manrope)] tracking-tight">
-                  UB Corpra
+                  {"UB Corpora"}
                 </h1>
                 <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
                   Budaya Jawa Timur
@@ -1682,7 +1682,7 @@ export default function CulturalHeritagePage() {
                   <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
                     <Globe className="h-5 w-5 text-primary-foreground" />
                   </div>
-                  <h3 className="text-lg font-bold text-primary">UB Corpra</h3>
+                  <h3 className="text-lg font-bold text-primary">UB Corpora</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Platform digital untuk melestarikan dan memperkenalkan warisan budaya Jawa Timur kepada dunia.
@@ -1780,7 +1780,7 @@ export default function CulturalHeritagePage() {
             </div>
 
             <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-              <p>&copy; 2024 UB Corpra. Semua hak cipta dilindungi. Dibuat dengan ❤️ untuk budaya Jawa Timur.</p>
+              <p>© 2025 UB Corpora. Semua hak cipta dilindungi. Dibuat dengan ❤️ untuk budaya Jawa Timur.</p>
             </div>
           </div>
         </footer>
