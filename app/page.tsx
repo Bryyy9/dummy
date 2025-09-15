@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import { Float, Environment, OrbitControls, Html } from "@react-three/drei";
 import type * as THREE from "three";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,7 @@ import {
 import { AnimatedReveal } from "@/components/common/animated-reveal";
 import { ParallaxBackground } from "@/components/common/parallax-background";
 import { EnhancedButton } from "@/components/interactive/enhanced-button";
+import { SafeCanvas } from "@/components/three/safe-canvas";
 import { cn } from "@/lib/utils";
 
 function smoothScrollTo(elementId: string) {
@@ -101,7 +102,7 @@ function IndonesianGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
 
   return (
     <Float speed={1.2} rotationIntensity={0.4} floatIntensity={0.6}>
-      <group>
+      <group scale={1.2}> {/* Tambahkan scale pada group utama */}
         {/* Main Earth Globe with enhanced interaction */}
         <mesh
           ref={globeRef}
@@ -110,7 +111,7 @@ function IndonesianGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
           onPointerOut={() => setHovered(false)}
           scale={clicked ? 1.05 : hovered ? 1.15 : 1}
         >
-          <sphereGeometry args={[1.8, 64, 64]} />
+          <sphereGeometry args={[2.2, 64, 64]} /> {/* Perbesar dari 1.8 ke 2.2 */}
           <meshStandardMaterial
             color={hovered ? "#1d4ed8" : "#1e40af"}
             roughness={0.4}
@@ -121,19 +122,19 @@ function IndonesianGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
         </mesh>
 
         {/* Enhanced Indonesian islands with better visual hierarchy */}
-        <mesh position={[-0.8, 0.3, 1.6]}>
-          <sphereGeometry args={[0.25, 16, 16]} />
+        <mesh position={[-1.0, 0.4, 2.0]}> {/* Sesuaikan posisi */}
+          <sphereGeometry args={[0.3, 16, 16]} /> {/* Perbesar dari 0.25 */}
           <meshStandardMaterial color="#16a34a" />
         </mesh>
 
-        <mesh position={[-0.2, -0.2, 1.75]}>
-          <boxGeometry args={[0.6, 0.15, 0.12]} />
+        <mesh position={[-0.3, -0.3, 2.1]}>
+          <boxGeometry args={[0.8, 0.2, 0.15]} /> {/* Perbesar */}
           <meshStandardMaterial color="#ca8a04" />
         </mesh>
 
         {/* East Java with enhanced visual prominence */}
-        <mesh position={[0.15, -0.2, 1.76]}>
-          <boxGeometry args={[0.2, 0.12, 0.08]} />
+        <mesh position={[0.2, -0.3, 2.12]}>
+          <boxGeometry args={[0.25, 0.15, 0.1]} /> {/* Perbesar */}
           <meshStandardMaterial
             color="#dc2626"
             emissive="#dc2626"
@@ -141,29 +142,29 @@ function IndonesianGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
           />
         </mesh>
 
-        <mesh position={[0.1, 0.4, 1.65]}>
-          <sphereGeometry args={[0.35, 16, 16]} />
+        <mesh position={[0.1, 0.5, 2.0]}>
+          <sphereGeometry args={[0.4, 16, 16]} /> {/* Perbesar */}
           <meshStandardMaterial color="#16a34a" />
         </mesh>
 
-        <mesh position={[0.6, 0.1, 1.6]}>
-          <sphereGeometry args={[0.2, 16, 16]} />
+        <mesh position={[0.8, 0.1, 1.9]}>
+          <sphereGeometry args={[0.25, 16, 16]} /> {/* Perbesar */}
           <meshStandardMaterial color="#16a34a" />
         </mesh>
 
-        <mesh position={[1.2, -0.1, 1.4]}>
-          <sphereGeometry args={[0.3, 16, 16]} />
+        <mesh position={[1.5, -0.1, 1.7]}>
+          <sphereGeometry args={[0.35, 16, 16]} /> {/* Perbesar */}
           <meshStandardMaterial color="#16a34a" />
         </mesh>
 
-        <mesh position={[0.4, -0.35, 1.7]}>
-          <sphereGeometry args={[0.08, 12, 12]} />
+        <mesh position={[0.5, -0.4, 2.05]}>
+          <sphereGeometry args={[0.1, 12, 12]} /> {/* Perbesar */}
           <meshStandardMaterial color="#16a34a" />
         </mesh>
 
         {/* Enhanced interactive tooltip with better UX */}
         {hovered && (
-          <Html position={[0, 2.8, 0]} center>
+          <Html position={[0, 3.5, 0]} center> {/* Sesuaikan posisi */}
             <div className="bg-background/95 backdrop-blur-sm px-6 py-4 rounded-xl border shadow-xl text-center animate-in fade-in-0 zoom-in-95 max-w-xs">
               <div className="text-base font-semibold text-foreground mb-1">
                 🇮🇩 Indonesia
@@ -179,7 +180,7 @@ function IndonesianGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
         )}
 
         {/* Atmospheric glow effect */}
-        <mesh scale={2.2}>
+        <mesh scale={2.8}> {/* Perbesar glow */}
           <sphereGeometry args={[1, 32, 32]} />
           <meshBasicMaterial
             color="#3b82f6"
@@ -196,6 +197,7 @@ function IndonesianGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
 function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
+
   const cities = [
     {
       name: "Surabaya",
@@ -205,41 +207,40 @@ function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
     },
     {
       name: "Malang",
-      position: [-1.5, 0.5, 0],
+      position: [-2.0, 0.7, 0], // Perbesar jarak
       color: "#ca8a04",
       description: "Kota Apel",
     },
     {
       name: "Kediri",
-      position: [-1, -0.5, 0],
+      position: [-1.3, -0.7, 0],
       color: "#16a34a",
       description: "Kota Tahu",
     },
     {
       name: "Jember",
-      position: [1.5, -0.5, 0],
+      position: [2.0, -0.7, 0],
       color: "#7c3aed",
       description: "Kota Tembakau",
     },
     {
       name: "Probolinggo",
-      position: [1, 0.8, 0],
+      position: [1.3, 1.0, 0],
       color: "#0ea5e9",
       description: "Kota Mangga",
     },
     {
       name: "Banyuwangi",
-      position: [2, -1, 0],
+      position: [2.7, -1.3, 0],
       color: "#f59e0b",
       description: "Sunrise of Java",
     },
   ];
-
-  return (
+    return (
     <Float speed={1} rotationIntensity={0.2} floatIntensity={0.4}>
-      <group>
+      <group scale={1.5}> {/* Tambahkan scale pada group utama */}
         {/* Back button in 3D space */}
-        <Html position={[-3, 2, 0]} center>
+        <Html position={[-4, 2.5, 0]} center> {/* Sesuaikan posisi */}
           <Button
             onClick={onBack}
             variant="outline"
@@ -252,7 +253,7 @@ function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
         </Html>
 
         {/* Title */}
-        <Html position={[0, 2.5, 0]} center>
+        <Html position={[0, 3.2, 0]} center> {/* Sesuaikan posisi */}
           <div className="bg-background/95 backdrop-blur-sm px-6 py-3 rounded-xl border shadow-xl text-center">
             <h3 className="text-lg font-bold text-foreground">
               Kota-kota di Jawa Timur
@@ -278,9 +279,9 @@ function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
               onPointerOut={() => {
                 document.body.style.cursor = "auto";
               }}
-              scale={selectedCity === city.name ? 1.3 : 1}
+              scale={selectedCity === city.name ? 1.5 : 1.2} 
             >
-              <sphereGeometry args={[0.3, 16, 16]} />
+              <sphereGeometry args={[0.4, 16, 16]} /> {/* Perbesar dari 0.3 */}
               <meshStandardMaterial
                 color={city.color}
                 emissive={city.color}
@@ -292,7 +293,7 @@ function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
             <Html
               position={[
                 city.position[0],
-                city.position[1] + 0.6,
+                city.position[1] + 0.8, // Sesuaikan posisi
                 city.position[2],
               ]}
               center
@@ -1134,6 +1135,7 @@ export default function CulturalHeritagePage() {
               </AnimatedReveal>
 
               {/* Enhanced 3D globe section with parallax */}
+              {/* Enhanced 3D globe section dengan SafeCanvas */}
               <AnimatedReveal animation="scale-up" delay={800}>
                 <div className="h-96 lg:h-[600px] w-full relative">
                   <div className="absolute top-4 right-4 z-10">
@@ -1145,18 +1147,26 @@ export default function CulturalHeritagePage() {
                       Interaktif 3D
                     </Badge>
                   </div>
-                  <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
-                    <ambientLight intensity={0.4} />
-                    <pointLight position={[10, 10, 10]} intensity={1} />
+                  <SafeCanvas 
+                    camera={{ 
+                      position: [0, 0, 8], // Perbesar jarak kamera dari 6 ke 8
+                      fov: 45, // Kurangi FOV dari 50 ke 45 untuk less distortion
+                      near: 0.1,
+                      far: 1000
+                    }}
+                    className="w-full h-full"
+                  >
+                    <ambientLight intensity={0.6} /> {/* Tingkatkan dari 0.4 */}
+                    <pointLight position={[10, 10, 10]} intensity={1.2} /> {/* Tingkatkan */}
                     <pointLight
                       position={[-10, -10, -10]}
-                      intensity={0.5}
+                      intensity={0.7} // Tingkatkan dari 0.5
                       color="#3b82f6"
                     />
                     <spotLight
-                      position={[0, 10, 0]}
-                      intensity={0.8}
-                      angle={0.3}
+                      position={[0, 15, 5]} // Sesuaikan posisi
+                      intensity={1.0} // Tingkatkan dari 0.8
+                      angle={0.4} // Perbesar angle
                       penumbra={1}
                     />
 
@@ -1168,12 +1178,14 @@ export default function CulturalHeritagePage() {
 
                     <Environment preset="city" />
                     <OrbitControls
-                      enableZoom={false}
+                      enableZoom={true} // Enable zoom untuk debugging
+                      minDistance={5} // Set minimum distance
+                      maxDistance={15} // Set maximum distance
                       autoRotate={!showCities}
                       autoRotateSpeed={0.5}
                       enablePan={false}
                     />
-                  </Canvas>
+                  </SafeCanvas>
                 </div>
               </AnimatedReveal>
             </div>
@@ -1376,7 +1388,7 @@ export default function CulturalHeritagePage() {
                   : "grid-cols-1 max-w-4xl mx-auto"
               )}
             >
-              {filteredItems.map((item, index) => (
+              {displayItems.map((item, index) => (
                 <AnimatedReveal
                   key={item.id}
                   animation="fade-up"
@@ -1429,7 +1441,7 @@ export default function CulturalHeritagePage() {
                       </p>
 
                       <div className="flex flex-wrap gap-1">
-                        {item.tags.slice(0, 3).map((tag) => (
+                        {item.tags.slice(0, 3).map((tag: string) => (
                           <Badge
                             key={tag}
                             variant="outline"
@@ -1712,7 +1724,7 @@ export default function CulturalHeritagePage() {
                     Animasi 3D
                   </Badge>
                 </div>
-                <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
+                <SafeCanvas camera={{ position: [0, 0, 8], fov: 45 }}>
                   <ambientLight intensity={0.6} />
                   <pointLight position={[10, 10, 10]} />
                   <Float speed={2} rotationIntensity={1} floatIntensity={2}>
@@ -1727,7 +1739,7 @@ export default function CulturalHeritagePage() {
                     autoRotate
                     autoRotateSpeed={1}
                   />
-                </Canvas>
+                </SafeCanvas>
               </div>
             </div>
           </div>
