@@ -1,13 +1,19 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { Canvas, useFrame } from "@react-three/fiber"
-import { Float, Environment, OrbitControls, Html } from "@react-three/drei"
-import type * as THREE from "three"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { useState, useRef, useEffect } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Float, Environment, OrbitControls, Html } from "@react-three/drei";
+import type * as THREE from "three";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Globe,
   Home,
@@ -38,60 +44,60 @@ import {
   MessageCircle,
   ArrowRight,
   Sparkles,
-} from "lucide-react"
+} from "lucide-react";
 
-import { AnimatedReveal } from "@/components/common/animated-reveal"
-import { ParallaxBackground } from "@/components/common/parallax-background"
-import { EnhancedButton } from "@/components/interactive/enhanced-button"
-import { cn } from "@/lib/utils"
+import { AnimatedReveal } from "@/components/common/animated-reveal";
+import { ParallaxBackground } from "@/components/common/parallax-background";
+import { EnhancedButton } from "@/components/interactive/enhanced-button";
+import { cn } from "@/lib/utils";
 
 function smoothScrollTo(elementId: string) {
-  const element = document.getElementById(elementId)
+  const element = document.getElementById(elementId);
   if (element) {
     // Add visual feedback for user action
-    const navbar = document.querySelector("nav")
+    const navbar = document.querySelector("nav");
     if (navbar) {
-      navbar.classList.add("animate-pulse")
-      setTimeout(() => navbar.classList.remove("animate-pulse"), 300)
+      navbar.classList.add("animate-pulse");
+      setTimeout(() => navbar.classList.remove("animate-pulse"), 300);
     }
 
     // Get dynamic navbar height for accurate offset
-    const navbarHeight = navbar ? navbar.offsetHeight : 64
-    const additionalOffset = 16 // Extra padding for better visual spacing
+    const navbarHeight = navbar ? navbar.offsetHeight : 64;
+    const additionalOffset = 16; // Extra padding for better visual spacing
 
     // Calculate target position
-    const elementPosition = element.offsetTop
-    const offsetPosition = elementPosition - navbarHeight - additionalOffset
+    const elementPosition = element.offsetTop;
+    const offsetPosition = elementPosition - navbarHeight - additionalOffset;
 
     // Use smooth scroll with calculated position
     window.scrollTo({
       top: offsetPosition,
       behavior: "smooth",
-    })
+    });
 
     // Focus management for accessibility - delay to ensure scroll completes
     setTimeout(() => {
-      element.focus({ preventScroll: true })
-    }, 500)
+      element.focus({ preventScroll: true });
+    }, 500);
   }
 }
 
 function IndonesianGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
-  const globeRef = useRef<THREE.Mesh>(null)
-  const [hovered, setHovered] = useState(false)
-  const [clicked, setClicked] = useState(false)
+  const globeRef = useRef<THREE.Mesh>(null);
+  const [hovered, setHovered] = useState(false);
+  const [clicked, setClicked] = useState(false);
 
   useFrame((state) => {
     if (globeRef.current) {
-      globeRef.current.rotation.y += hovered ? 0.005 : 0.003
+      globeRef.current.rotation.y += hovered ? 0.005 : 0.003;
     }
-  })
+  });
 
   const handleClick = () => {
-    setClicked(true)
-    setTimeout(() => setClicked(false), 200)
-    onGlobeClick()
-  }
+    setClicked(true);
+    setTimeout(() => setClicked(false), 200);
+    onGlobeClick();
+  };
 
   return (
     <Float speed={1.2} rotationIntensity={0.4} floatIntensity={0.6}>
@@ -159,9 +165,15 @@ function IndonesianGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
         {hovered && (
           <Html position={[0, 2.8, 0]} center>
             <div className="bg-background/95 backdrop-blur-sm px-6 py-4 rounded-xl border shadow-xl text-center animate-in fade-in-0 zoom-in-95 max-w-xs">
-              <div className="text-base font-semibold text-foreground mb-1">🇮🇩 Indonesia</div>
-              <div className="text-sm text-muted-foreground mb-2">Klik untuk menjelajahi Jawa Timur</div>
-              <div className="text-xs text-primary font-medium">Interaktif • 3D Experience</div>
+              <div className="text-base font-semibold text-foreground mb-1">
+                🇮🇩 Indonesia
+              </div>
+              <div className="text-sm text-muted-foreground mb-2">
+                Klik untuk menjelajahi Jawa Timur
+              </div>
+              <div className="text-xs text-primary font-medium">
+                Interaktif • 3D Experience
+              </div>
             </div>
           </Html>
         )}
@@ -169,24 +181,59 @@ function IndonesianGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
         {/* Atmospheric glow effect */}
         <mesh scale={2.2}>
           <sphereGeometry args={[1, 32, 32]} />
-          <meshBasicMaterial color="#3b82f6" transparent opacity={0.1} side={2} />
+          <meshBasicMaterial
+            color="#3b82f6"
+            transparent
+            opacity={0.1}
+            side={2}
+          />
         </mesh>
       </group>
     </Float>
-  )
+  );
 }
 
 function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
-  const [selectedCity, setSelectedCity] = useState<string | null>(null)
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
   const cities = [
-    { name: "Surabaya", position: [0, 0, 0], color: "#dc2626", description: "Kota Pahlawan" },
-    { name: "Malang", position: [-1.5, 0.5, 0], color: "#ca8a04", description: "Kota Apel" },
-    { name: "Kediri", position: [-1, -0.5, 0], color: "#16a34a", description: "Kota Tahu" },
-    { name: "Jember", position: [1.5, -0.5, 0], color: "#7c3aed", description: "Kota Tembakau" },
-    { name: "Probolinggo", position: [1, 0.8, 0], color: "#0ea5e9", description: "Kota Mangga" },
-    { name: "Banyuwangi", position: [2, -1, 0], color: "#f59e0b", description: "Sunrise of Java" },
-  ]
+    {
+      name: "Surabaya",
+      position: [0, 0, 0],
+      color: "#dc2626",
+      description: "Kota Pahlawan",
+    },
+    {
+      name: "Malang",
+      position: [-1.5, 0.5, 0],
+      color: "#ca8a04",
+      description: "Kota Apel",
+    },
+    {
+      name: "Kediri",
+      position: [-1, -0.5, 0],
+      color: "#16a34a",
+      description: "Kota Tahu",
+    },
+    {
+      name: "Jember",
+      position: [1.5, -0.5, 0],
+      color: "#7c3aed",
+      description: "Kota Tembakau",
+    },
+    {
+      name: "Probolinggo",
+      position: [1, 0.8, 0],
+      color: "#0ea5e9",
+      description: "Kota Mangga",
+    },
+    {
+      name: "Banyuwangi",
+      position: [2, -1, 0],
+      color: "#f59e0b",
+      description: "Sunrise of Java",
+    },
+  ];
 
   return (
     <Float speed={1} rotationIntensity={0.2} floatIntensity={0.4}>
@@ -207,8 +254,12 @@ function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
         {/* Title */}
         <Html position={[0, 2.5, 0]} center>
           <div className="bg-background/95 backdrop-blur-sm px-6 py-3 rounded-xl border shadow-xl text-center">
-            <h3 className="text-lg font-bold text-foreground">Kota-kota di Jawa Timur</h3>
-            <p className="text-sm text-muted-foreground mt-1">Klik untuk menjelajahi setiap kota</p>
+            <h3 className="text-lg font-bold text-foreground">
+              Kota-kota di Jawa Timur
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Klik untuk menjelajahi setiap kota
+            </p>
           </div>
         </Html>
 
@@ -217,13 +268,15 @@ function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
           <group key={city.name}>
             <mesh
               position={city.position as [number, number, number]}
-              onClick={() => setSelectedCity(selectedCity === city.name ? null : city.name)}
+              onClick={() =>
+                setSelectedCity(selectedCity === city.name ? null : city.name)
+              }
               onPointerOver={(e) => {
-                e.stopPropagation()
-                document.body.style.cursor = "pointer"
+                e.stopPropagation();
+                document.body.style.cursor = "pointer";
               }}
               onPointerOut={() => {
-                document.body.style.cursor = "auto"
+                document.body.style.cursor = "auto";
               }}
               scale={selectedCity === city.name ? 1.3 : 1}
             >
@@ -236,16 +289,31 @@ function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
             </mesh>
 
             {/* City label */}
-            <Html position={[city.position[0], city.position[1] + 0.6, city.position[2]]} center>
+            <Html
+              position={[
+                city.position[0],
+                city.position[1] + 0.6,
+                city.position[2],
+              ]}
+              center
+            >
               <div
                 className={`bg-background/90 backdrop-blur-sm px-3 py-2 rounded-lg border text-center transition-all duration-300 ${
-                  selectedCity === city.name ? "shadow-xl scale-110" : "shadow-md"
+                  selectedCity === city.name
+                    ? "shadow-xl scale-110"
+                    : "shadow-md"
                 }`}
               >
-                <div className="text-sm font-semibold text-foreground">{city.name}</div>
-                <div className="text-xs text-muted-foreground">{city.description}</div>
+                <div className="text-sm font-semibold text-foreground">
+                  {city.name}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {city.description}
+                </div>
                 {selectedCity === city.name && (
-                  <div className="text-xs text-primary mt-1 font-medium">Klik untuk detail</div>
+                  <div className="text-xs text-primary mt-1 font-medium">
+                    Klik untuk detail
+                  </div>
                 )}
               </div>
             </Html>
@@ -253,19 +321,21 @@ function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
         ))}
       </group>
     </Float>
-  )
+  );
 }
 
 export default function CulturalHeritagePage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [showCities, setShowCities] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filteredItems, setFilteredItems] = useState<any[]>([])
-  const [selectedCategory, setSelectedCategory] = useState("tari") // Start with a specific category instead of "semua"
-  const [navSearchQuery, setNavSearchQuery] = useState("")
-  const [showNavSearch, setShowNavSearch] = useState(false)
-  const [bookmarkedItems, setBookmarkedItems] = useState<Set<number>>(new Set())
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showCities, setShowCities] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("tari"); // Start with a specific category instead of "semua"
+  const [navSearchQuery, setNavSearchQuery] = useState("");
+  const [showNavSearch, setShowNavSearch] = useState(false);
+  const [bookmarkedItems, setBookmarkedItems] = useState<Set<number>>(
+    new Set()
+  );
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const culturalItems = [
     {
@@ -403,10 +473,15 @@ export default function CulturalHeritagePage() {
       tags: ["bambu", "kerajinan", "alam", "kreativitas", "ramah lingkungan"],
       lastUpdated: "2024-01-09",
     },
-  ]
+  ];
 
   const categories = [
-    { value: "semua", label: "Semua Kategori", icon: Globe, count: culturalItems.length },
+    {
+      value: "semua",
+      label: "Semua Kategori",
+      icon: Globe,
+      count: culturalItems.length,
+    },
     {
       value: "tari",
       label: "Tari Tradisional",
@@ -441,25 +516,26 @@ export default function CulturalHeritagePage() {
       value: "kerajinan",
       label: "Kerajinan",
       icon: Palette,
-      count: culturalItems.filter((item) => item.category === "kerajinan").length,
+      count: culturalItems.filter((item) => item.category === "kerajinan")
+        .length,
     },
-  ]
+  ];
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query)
-    filterItems(query, selectedCategory)
-  }
+    setSearchQuery(query);
+    filterItems(query, selectedCategory);
+  };
 
   const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category)
-    filterItems(searchQuery, category)
-  }
+    setSelectedCategory(category);
+    filterItems(searchQuery, category);
+  };
 
   const filterItems = (query: string, category: string) => {
-    let filtered = culturalItems
+    let filtered = culturalItems;
 
     if (category !== "semua") {
-      filtered = filtered.filter((item) => item.category === category)
+      filtered = filtered.filter((item) => item.category === category);
     }
 
     if (query.trim() !== "") {
@@ -470,48 +546,50 @@ export default function CulturalHeritagePage() {
           item.description.toLowerCase().includes(query.toLowerCase()) ||
           item.category.toLowerCase().includes(query.toLowerCase()) ||
           item.region.toLowerCase().includes(query.toLowerCase()) ||
-          item.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase())),
-      )
+          item.tags.some((tag) =>
+            tag.toLowerCase().includes(query.toLowerCase())
+          )
+      );
     }
 
-    setFilteredItems(filtered)
-  }
+    setFilteredItems(filtered);
+  };
 
   useEffect(() => {
-    filterItems("", selectedCategory)
-  }, [])
+    filterItems("", selectedCategory);
+  }, []);
 
   const handleGlobeClick = () => {
-    setShowCities(true)
-  }
+    setShowCities(true);
+  };
 
   const handleBackToGlobe = () => {
-    setShowCities(false)
-  }
+    setShowCities(false);
+  };
 
   const handleNavClick = (sectionId: string) => {
-    smoothScrollTo(sectionId)
-    setIsMenuOpen(false)
-  }
+    smoothScrollTo(sectionId);
+    setIsMenuOpen(false);
+  };
 
   const toggleBookmark = (itemId: number) => {
-    const newBookmarks = new Set(bookmarkedItems)
+    const newBookmarks = new Set(bookmarkedItems);
     if (newBookmarks.has(itemId)) {
-      newBookmarks.delete(itemId)
+      newBookmarks.delete(itemId);
     } else {
-      newBookmarks.add(itemId)
+      newBookmarks.add(itemId);
     }
-    setBookmarkedItems(newBookmarks)
-  }
+    setBookmarkedItems(newBookmarks);
+  };
 
   const handleLearnMore = (itemId: number) => {
-    window.location.href = `/budaya/${itemId}`
-  }
+    window.location.href = `/budaya/${itemId}`;
+  };
 
   const displayItems =
     searchQuery || selectedCategory !== "semua"
       ? filteredItems
-      : culturalItems.filter((item) => item.category === "tari") // Default to tari category
+      : culturalItems.filter((item) => item.category === "tari"); // Default to tari category
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -536,7 +614,11 @@ export default function CulturalHeritagePage() {
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-20 left-10 w-32 h-32 opacity-[0.025] rotate-12">
           <div className="w-full h-full text-amber-700">
-            <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
+            <svg
+              viewBox="0 0 100 100"
+              className="w-full h-full"
+              fill="currentColor"
+            >
               <path d="M50 10 C60 15 65 25 60 35 L65 50 C70 60 65 70 55 75 L50 90 L45 75 C35 70 30 60 35 50 L40 35 C35 25 40 15 50 10 Z" />
               <circle cx="45" cy="30" r="3" fill="white" />
               <circle cx="55" cy="30" r="3" fill="white" />
@@ -546,7 +628,11 @@ export default function CulturalHeritagePage() {
 
         <div className="absolute top-40 right-20 w-24 h-24 opacity-[0.03] -rotate-45">
           <div className="w-full h-full text-emerald-700">
-            <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
+            <svg
+              viewBox="0 0 100 100"
+              className="w-full h-full"
+              fill="currentColor"
+            >
               <path d="M50 20 Q60 30 50 40 Q40 30 50 20 Z" />
               <path d="M50 60 Q60 70 50 80 Q40 70 50 60 Z" />
               <path d="M20 50 Q30 40 40 50 Q30 60 20 50 Z" />
@@ -558,7 +644,11 @@ export default function CulturalHeritagePage() {
 
         <div className="absolute bottom-32 left-1/4 w-28 h-28 opacity-[0.02] rotate-45">
           <div className="w-full h-full text-orange-600">
-            <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
+            <svg
+              viewBox="0 0 100 100"
+              className="w-full h-full"
+              fill="currentColor"
+            >
               <rect x="20" y="60" width="60" height="30" />
               <polygon points="15,60 50,30 85,60" />
               <rect x="40" y="70" width="20" height="20" />
@@ -569,7 +659,11 @@ export default function CulturalHeritagePage() {
 
         <div className="absolute top-1/3 right-1/3 w-20 h-20 opacity-[0.03] -rotate-12">
           <div className="w-full h-full text-red-700">
-            <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
+            <svg
+              viewBox="0 0 100 100"
+              className="w-full h-full"
+              fill="currentColor"
+            >
               <path d="M50 10 L52 20 L48 30 L52 40 L48 50 L52 60 L48 70 L50 80 L48 70 L52 60 L48 50 L52 40 L48 30 L52 20 Z" />
               <ellipse cx="50" cy="15" rx="8" ry="4" />
             </svg>
@@ -578,7 +672,13 @@ export default function CulturalHeritagePage() {
 
         <div className="absolute bottom-1/4 right-1/4 w-36 h-36 opacity-[0.02] rotate-90">
           <div className="w-full h-full text-blue-700">
-            <svg viewBox="0 0 100 100" className="w-full h-full" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              viewBox="0 0 100 100"
+              className="w-full h-full"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M50 10 Q70 30 50 50 Q30 70 50 90 Q70 70 50 50 Q30 30 50 10" />
               <circle cx="50" cy="50" r="15" />
               <circle cx="50" cy="50" r="25" />
@@ -617,7 +717,10 @@ export default function CulturalHeritagePage() {
                 <h1 className="text-xl font-bold text-primary font-[family-name:var(--font-manrope)] tracking-tight">
                   {"UB Corpora"}
                 </h1>
-                <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
+                <Badge
+                  variant="secondary"
+                  className="text-xs hidden sm:inline-flex"
+                >
                   Budaya Jawa Timur
                 </Badge>
               </div>
@@ -672,13 +775,13 @@ export default function CulturalHeritagePage() {
                         onChange={(e) => setNavSearchQuery(e.target.value)}
                         className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 text-sm placeholder:text-muted-foreground/70"
                         onBlur={() => {
-                          if (!navSearchQuery) setShowNavSearch(false)
+                          if (!navSearchQuery) setShowNavSearch(false);
                         }}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && navSearchQuery) {
-                            handleSearch(navSearchQuery)
-                            handleNavClick("eksplorasi")
-                            setShowNavSearch(false)
+                            handleSearch(navSearchQuery);
+                            handleNavClick("eksplorasi");
+                            setShowNavSearch(false);
                           }
                         }}
                         autoFocus
@@ -688,8 +791,8 @@ export default function CulturalHeritagePage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          setShowNavSearch(false)
-                          setNavSearchQuery("")
+                          setShowNavSearch(false);
+                          setNavSearchQuery("");
                         }}
                         className="h-6 w-6 p-0 hover:bg-muted-foreground/10"
                         aria-label="Tutup pencarian"
@@ -707,7 +810,9 @@ export default function CulturalHeritagePage() {
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <Search className="h-4 w-4 group-hover:scale-110 transition-transform duration-200 relative z-10" />
-                      <span className="text-sm font-medium relative z-10">Cari</span>
+                      <span className="text-sm font-medium relative z-10">
+                        Cari
+                      </span>
                     </Button>
                   )}
                 </div>
@@ -742,7 +847,11 @@ export default function CulturalHeritagePage() {
                   className="p-2"
                   aria-label="Toggle menu mobile"
                 >
-                  {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                  {isMenuOpen ? (
+                    <X className="h-6 w-6" />
+                  ) : (
+                    <Menu className="h-6 w-6" />
+                  )}
                 </Button>
               </div>
             </div>
@@ -759,9 +868,9 @@ export default function CulturalHeritagePage() {
                     className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && navSearchQuery) {
-                        handleSearch(navSearchQuery)
-                        handleNavClick("eksplorasi")
-                        setShowNavSearch(false)
+                        handleSearch(navSearchQuery);
+                        handleNavClick("eksplorasi");
+                        setShowNavSearch(false);
                       }
                     }}
                     aria-label="Pencarian budaya mobile"
@@ -770,8 +879,8 @@ export default function CulturalHeritagePage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setShowNavSearch(false)
-                      setNavSearchQuery("")
+                      setShowNavSearch(false);
+                      setNavSearchQuery("");
                     }}
                     className="h-6 w-6 p-0"
                     aria-label="Tutup pencarian mobile"
@@ -825,11 +934,22 @@ export default function CulturalHeritagePage() {
         </nav>
 
         {/* Hero section with enhanced animations */}
-        <section id="beranda" className="pt-16 pb-20 relative overflow-hidden parallax-container" role="banner">
-          <ParallaxBackground speed={0.3} className="absolute inset-0 pointer-events-none z-0">
+        <section
+          id="beranda"
+          className="pt-16 pb-20 relative overflow-hidden parallax-container"
+          role="banner"
+        >
+          <ParallaxBackground
+            speed={0.3}
+            className="absolute inset-0 pointer-events-none z-0"
+          >
             <div className="absolute top-20 left-10 w-32 h-32 opacity-[0.025] rotate-12">
               <div className="w-full h-full text-amber-700 animate-float">
-                <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
+                <svg
+                  viewBox="0 0 100 100"
+                  className="w-full h-full"
+                  fill="currentColor"
+                >
                   <path d="M50 10 C60 15 65 25 60 35 L65 50 C70 60 65 70 55 75 L50 90 L45 75 C35 70 30 60 35 50 L40 35 C35 25 40 15 50 10 Z" />
                   <circle cx="45" cy="30" r="3" fill="white" />
                   <circle cx="55" cy="30" r="3" fill="white" />
@@ -838,10 +958,20 @@ export default function CulturalHeritagePage() {
             </div>
           </ParallaxBackground>
 
-          <ParallaxBackground speed={0.5} className="absolute inset-0 pointer-events-none z-0">
+          <ParallaxBackground
+            speed={0.5}
+            className="absolute inset-0 pointer-events-none z-0"
+          >
             <div className="absolute top-40 right-20 w-24 h-24 opacity-[0.03] -rotate-45">
-              <div className="w-full h-full text-emerald-700 animate-float" style={{ animationDelay: "1s" }}>
-                <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
+              <div
+                className="w-full h-full text-emerald-700 animate-float"
+                style={{ animationDelay: "1s" }}
+              >
+                <svg
+                  viewBox="0 0 100 100"
+                  className="w-full h-full"
+                  fill="currentColor"
+                >
                   <path d="M50 20 Q60 30 50 40 Q40 30 50 20 Z" />
                   <path d="M50 60 Q60 70 50 80 Q40 70 50 60 Z" />
                   <path d="M20 50 Q30 40 40 50 Q30 60 20 50 Z" />
@@ -884,9 +1014,10 @@ export default function CulturalHeritagePage() {
 
                     <AnimatedReveal animation="fade-up" delay={800}>
                       <p className="text-lg md:text-xl text-muted-foreground max-w-2xl text-pretty leading-relaxed">
-                        Jelajahi kekayaan budaya Jawa Timur melalui platform digital yang inovatif. Temukan kesenian
-                        tradisional, kuliner khas, bahasa daerah, dan warisan budaya yang telah diwariskan
-                        turun-temurun.
+                        Jelajahi kekayaan budaya Jawa Timur melalui platform
+                        digital yang inovatif. Temukan kesenian tradisional,
+                        kuliner khas, bahasa daerah, dan warisan budaya yang
+                        telah diwariskan turun-temurun.
                       </p>
                     </AnimatedReveal>
                   </div>
@@ -944,19 +1075,25 @@ export default function CulturalHeritagePage() {
                         <div className="text-2xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
                           38
                         </div>
-                        <div className="text-sm text-muted-foreground">Kabupaten Kota</div>
+                        <div className="text-sm text-muted-foreground">
+                          Kabupaten Kota
+                        </div>
                       </div>
                       <div className="text-center group hover-lift">
                         <div className="text-2xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
                           100+
                         </div>
-                        <div className="text-sm text-muted-foreground">Kesenian Tradisional</div>
+                        <div className="text-sm text-muted-foreground">
+                          Kesenian Tradisional
+                        </div>
                       </div>
                       <div className="text-center group hover-lift">
                         <div className="text-2xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
                           50+
                         </div>
-                        <div className="text-sm text-muted-foreground">Kuliner Khas</div>
+                        <div className="text-sm text-muted-foreground">
+                          Kuliner Khas
+                        </div>
                       </div>
                     </div>
                   </AnimatedReveal>
@@ -1000,7 +1137,10 @@ export default function CulturalHeritagePage() {
               <AnimatedReveal animation="scale-up" delay={800}>
                 <div className="h-96 lg:h-[600px] w-full relative">
                   <div className="absolute top-4 right-4 z-10">
-                    <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm hover-lift">
+                    <Badge
+                      variant="secondary"
+                      className="bg-background/80 backdrop-blur-sm hover-lift"
+                    >
                       <Globe className="h-3 w-3 mr-1" />
                       Interaktif 3D
                     </Badge>
@@ -1008,13 +1148,24 @@ export default function CulturalHeritagePage() {
                   <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
                     <ambientLight intensity={0.4} />
                     <pointLight position={[10, 10, 10]} intensity={1} />
-                    <pointLight position={[-10, -10, -10]} intensity={0.5} color="#3b82f6" />
-                    <spotLight position={[0, 10, 0]} intensity={0.8} angle={0.3} penumbra={1} />
+                    <pointLight
+                      position={[-10, -10, -10]}
+                      intensity={0.5}
+                      color="#3b82f6"
+                    />
+                    <spotLight
+                      position={[0, 10, 0]}
+                      intensity={0.8}
+                      angle={0.3}
+                      penumbra={1}
+                    />
+
                     {showCities ? (
                       <EastJavaCitiesView onBack={handleBackToGlobe} />
                     ) : (
                       <IndonesianGlobe onGlobeClick={handleGlobeClick} />
                     )}
+
                     <Environment preset="city" />
                     <OrbitControls
                       enableZoom={false}
@@ -1029,19 +1180,39 @@ export default function CulturalHeritagePage() {
           </div>
         </section>
 
-        <section id="eksplorasi" className="py-20 bg-muted/30 relative scroll-mt-16" role="main">
-          <ParallaxBackground speed={0.2} className="absolute inset-0 overflow-hidden pointer-events-none">
+        <section
+          id="eksplorasi"
+          className="py-20 bg-muted/30 relative scroll-mt-16"
+          role="main"
+        >
+          <ParallaxBackground
+            speed={0.2}
+            className="absolute inset-0 overflow-hidden pointer-events-none"
+          >
             <div className="absolute top-10 left-10 w-32 h-32 opacity-[0.03] animate-float">
               <svg viewBox="0 0 100 100" className="w-full h-full text-primary">
-                <path d="M50 5 L60 35 L90 35 L68 57 L78 87 L50 70 L22 87 L32 57 L10 35 L40 35 Z" fill="currentColor" />
+                <path
+                  d="M50 5 L60 35 L90 35 L68 57 L78 87 L50 70 L22 87 L32 57 L10 35 L40 35 Z"
+                  fill="currentColor"
+                />
               </svg>
             </div>
             <div
               className="absolute bottom-10 right-10 w-28 h-28 opacity-[0.02] rotate-45 animate-float"
               style={{ animationDelay: "2s" }}
             >
-              <svg viewBox="0 0 100 100" className="w-full h-full text-amber-600">
-                <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" strokeWidth="6" />
+              <svg
+                viewBox="0 0 100 100"
+                className="w-full h-full text-amber-600"
+              >
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="35"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="6"
+                />
                 <circle cx="50" cy="50" r="15" fill="currentColor" />
               </svg>
             </div>
@@ -1051,11 +1222,17 @@ export default function CulturalHeritagePage() {
             <AnimatedReveal animation="fade-up">
               <div className="text-center space-y-4 mb-16">
                 <div className="flex items-center justify-center space-x-2 mb-4">
-                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 hover-glow">
+                  <Badge
+                    variant="outline"
+                    className="bg-primary/10 text-primary border-primary/20 hover-glow"
+                  >
                     <Compass className="h-3 w-3 mr-1" />
                     Eksplorasi Budaya
                   </Badge>
-                  <Badge variant="outline" className="bg-emerald-100/50 text-emerald-700 border-emerald-200 hover-lift">
+                  <Badge
+                    variant="outline"
+                    className="bg-emerald-100/50 text-emerald-700 border-emerald-200 hover-lift"
+                  >
                     <Target className="h-3 w-3 mr-1" />
                     Mudah Ditemukan
                   </Badge>
@@ -1067,8 +1244,9 @@ export default function CulturalHeritagePage() {
                 </h2>
 
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty leading-relaxed">
-                  Jelajahi kekayaan budaya Jawa Timur melalui berbagai aspek tradisi yang masih lestari hingga saat ini.
-                  Temukan kesenian, kuliner, bahasa, dan warisan budaya lainnya dengan mudah.
+                  Jelajahi kekayaan budaya Jawa Timur melalui berbagai aspek
+                  tradisi yang masih lestari hingga saat ini. Temukan kesenian,
+                  kuliner, bahasa, dan warisan budaya lainnya dengan mudah.
                 </p>
               </div>
             </AnimatedReveal>
@@ -1101,11 +1279,15 @@ export default function CulturalHeritagePage() {
               {/* Enhanced category filters with counts */}
               <div className="flex flex-wrap gap-2 justify-center">
                 {categories.map((category) => {
-                  const IconComponent = category.icon
+                  const IconComponent = category.icon;
                   return (
                     <Button
                       key={category.value}
-                      variant={selectedCategory === category.value ? "default" : "outline"}
+                      variant={
+                        selectedCategory === category.value
+                          ? "default"
+                          : "outline"
+                      }
                       size="sm"
                       onClick={() => handleCategoryChange(category.value)}
                       className="rounded-full group relative overflow-hidden"
@@ -1114,11 +1296,14 @@ export default function CulturalHeritagePage() {
                       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <IconComponent className="h-4 w-4 mr-2 relative z-10" />
                       <span className="relative z-10">{category.label}</span>
-                      <Badge variant="secondary" className="ml-2 text-xs relative z-10">
+                      <Badge
+                        variant="secondary"
+                        className="ml-2 text-xs relative z-10"
+                      >
                         {category.count}
                       </Badge>
                     </Button>
-                  )
+                  );
                 })}
               </div>
 
@@ -1156,8 +1341,28 @@ export default function CulturalHeritagePage() {
                 {(searchQuery || selectedCategory !== "semua") && (
                   <div className="text-sm text-muted-foreground">
                     {displayItems.length > 0
-                      ? `Ditemukan ${displayItems.length} hasil${searchQuery ? ` untuk "${searchQuery}"` : ""}${selectedCategory !== "semua" ? ` dalam kategori ${categories.find((c) => c.value === selectedCategory)?.label}` : ""}`
-                      : `Tidak ada hasil${searchQuery ? ` untuk "${searchQuery}"` : ""}${selectedCategory !== "semua" ? ` dalam kategori ${categories.find((c) => c.value === selectedCategory)?.label}` : ""}`}
+                      ? `Ditemukan ${displayItems.length} hasil${
+                          searchQuery ? ` untuk "${searchQuery}"` : ""
+                        }${
+                          selectedCategory !== "semua"
+                            ? ` dalam kategori ${
+                                categories.find(
+                                  (c) => c.value === selectedCategory
+                                )?.label
+                              }`
+                            : ""
+                        }`
+                      : `Tidak ada hasil${
+                          searchQuery ? ` untuk "${searchQuery}"` : ""
+                        }${
+                          selectedCategory !== "semua"
+                            ? ` dalam kategori ${
+                                categories.find(
+                                  (c) => c.value === selectedCategory
+                                )?.label
+                              }`
+                            : ""
+                        }`}
                   </div>
                 )}
               </div>
@@ -1166,11 +1371,18 @@ export default function CulturalHeritagePage() {
             <div
               className={cn(
                 "grid gap-6 transition-all duration-500",
-                viewMode === "grid" ? "md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 max-w-4xl mx-auto",
+                viewMode === "grid"
+                  ? "md:grid-cols-2 lg:grid-cols-3"
+                  : "grid-cols-1 max-w-4xl mx-auto"
               )}
             >
               {filteredItems.map((item, index) => (
-                <AnimatedReveal key={item.id} animation="fade-up" delay={index * 100} className="group">
+                <AnimatedReveal
+                  key={item.id}
+                  animation="fade-up"
+                  delay={index * 100}
+                  className="group"
+                >
                   <Card className="h-full hover-lift hover-glow transition-all duration-300 cursor-pointer border-2 hover:border-primary/20">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between mb-2">
@@ -1184,18 +1396,22 @@ export default function CulturalHeritagePage() {
                           variant="ghost"
                           size="sm"
                           onClick={(e) => {
-                            e.stopPropagation()
-                            toggleBookmark(item.id)
+                            e.stopPropagation();
+                            toggleBookmark(item.id);
                           }}
                           className="h-8 w-8 p-0 hover:bg-primary/10 group-hover:scale-110 transition-all duration-200"
-                          aria-label={bookmarkedItems.has(item.id) ? "Hapus dari bookmark" : "Tambah ke bookmark"}
+                          aria-label={
+                            bookmarkedItems.has(item.id)
+                              ? "Hapus dari bookmark"
+                              : "Tambah ke bookmark"
+                          }
                         >
                           <Heart
                             className={cn(
                               "h-4 w-4 transition-colors",
                               bookmarkedItems.has(item.id)
                                 ? "fill-red-500 text-red-500"
-                                : "text-muted-foreground hover:text-red-500",
+                                : "text-muted-foreground hover:text-red-500"
                             )}
                           />
                         </Button>
@@ -1203,14 +1419,22 @@ export default function CulturalHeritagePage() {
                       <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors">
                         {item.title}
                       </CardTitle>
-                      <CardDescription className="text-sm font-medium text-primary/80">{item.subtitle}</CardDescription>
+                      <CardDescription className="text-sm font-medium text-primary/80">
+                        {item.subtitle}
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{item.description}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                        {item.description}
+                      </p>
 
                       <div className="flex flex-wrap gap-1">
                         {item.tags.slice(0, 3).map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs hover-lift">
+                          <Badge
+                            key={tag}
+                            variant="outline"
+                            className="text-xs hover-lift"
+                          >
                             {tag}
                           </Badge>
                         ))}
@@ -1235,8 +1459,12 @@ export default function CulturalHeritagePage() {
                       <div className="flex items-center justify-between pt-2">
                         <div className="flex items-center space-x-1">
                           <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                          <span className="text-sm font-medium">{(item.popularity / 20).toFixed(1)}</span>
-                          <span className="text-xs text-muted-foreground">({item.popularity}% populer)</span>
+                          <span className="text-sm font-medium">
+                            {(item.popularity / 20).toFixed(1)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            ({item.popularity}% populer)
+                          </span>
                         </div>
                         <EnhancedButton
                           variant="ghost"
@@ -1256,57 +1484,72 @@ export default function CulturalHeritagePage() {
             </div>
 
             {/* Enhanced no results state with better UX */}
-            {(searchQuery || selectedCategory !== "semua") && displayItems.length === 0 && (
-              <div className="text-center py-16">
-                <div className="mb-6">
-                  <div className="w-24 h-24 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Search className="h-12 w-12 text-muted-foreground/50" />
+            {(searchQuery || selectedCategory !== "semua") &&
+              displayItems.length === 0 && (
+                <div className="text-center py-16">
+                  <div className="mb-6">
+                    <div className="w-24 h-24 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Search className="h-12 w-12 text-muted-foreground/50" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
+                      Tidak menemukan hasil yang sesuai
+                    </h3>
+                    <p className="text-muted-foreground mb-6">
+                      Coba gunakan kata kunci yang berbeda atau pilih kategori
+                      lain untuk menemukan konten budaya yang Anda cari.
+                    </p>
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">Tidak menemukan hasil yang sesuai</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Coba gunakan kata kunci yang berbeda atau pilih kategori lain untuk menemukan konten budaya yang
-                    Anda cari.
-                  </p>
-                </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-                  <Button variant="outline" onClick={() => handleSearch("")}>
-                    <X className="h-4 w-4 mr-2" />
-                    Hapus Pencarian
-                  </Button>
-                  <Button variant="outline" onClick={() => handleCategoryChange("semua")}>
-                    <Globe className="h-4 w-4 mr-2" />
-                    Tampilkan Semua Kategori
-                  </Button>
-                </div>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+                    <Button variant="outline" onClick={() => handleSearch("")}>
+                      <X className="h-4 w-4 mr-2" />
+                      Hapus Pencarian
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleCategoryChange("semua")}
+                    >
+                      <Globe className="h-4 w-4 mr-2" />
+                      Tampilkan Semua Kategori
+                    </Button>
+                  </div>
 
-                {/* Suggested searches */}
-                <div className="text-sm text-muted-foreground">
-                  <p className="mb-2">Coba cari:</p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {["reog", "batik", "rawon", "gamelan", "wayang"].map((suggestion) => (
-                      <Button
-                        key={suggestion}
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleSearch(suggestion)}
-                        className="text-xs"
-                      >
-                        {suggestion}
-                      </Button>
-                    ))}
+                  {/* Suggested searches */}
+                  <div className="text-sm text-muted-foreground">
+                    <p className="mb-2">Coba cari:</p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {["reog", "batik", "rawon", "gamelan", "wayang"].map(
+                        (suggestion) => (
+                          <Button
+                            key={suggestion}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleSearch(suggestion)}
+                            className="text-xs"
+                          >
+                            {suggestion}
+                          </Button>
+                        )
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         </section>
 
-        <section id="tentang" className="py-20 relative scroll-mt-16" role="complementary">
+        <section
+          id="tentang"
+          className="py-20 relative scroll-mt-16"
+          role="complementary"
+        >
           <div className="absolute inset-0 bg-gradient-to-br from-amber-50/30 via-transparent to-orange-50/20" />
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-1/3 left-1/4 w-40 h-40 opacity-[0.02] -rotate-12">
-              <svg viewBox="0 0 100 100" className="w-full h-full text-emerald-600">
+              <svg
+                viewBox="0 0 100 100"
+                className="w-full h-full text-emerald-600"
+              >
                 <polygon points="50,10 90,90 10,90" fill="currentColor" />
               </svg>
             </div>
@@ -1319,7 +1562,10 @@ export default function CulturalHeritagePage() {
                   <Heart className="h-3 w-3 mr-1" />
                   Warisan Kita
                 </Badge>
-                <Badge variant="outline" className="bg-emerald-100/50 text-emerald-700 border-emerald-200">
+                <Badge
+                  variant="outline"
+                  className="bg-emerald-100/50 text-emerald-700 border-emerald-200"
+                >
                   <Shield className="h-3 w-3 mr-1" />
                   Terjaga & Lestari
                 </Badge>
@@ -1331,8 +1577,10 @@ export default function CulturalHeritagePage() {
               </h2>
 
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty leading-relaxed">
-                UB Corpra adalah platform digital yang inovatif yang menggabungkan teknologi modern dengan kearifan
-                lokal untuk melestarikan dan memperkenalkan warisan budaya Jawa Timur kepada dunia.
+                UB Corpra adalah platform digital yang inovatif yang
+                menggabungkan teknologi modern dengan kearifan lokal untuk
+                melestarikan dan memperkenalkan warisan budaya Jawa Timur kepada
+                dunia.
               </p>
             </div>
 
@@ -1343,14 +1591,18 @@ export default function CulturalHeritagePage() {
                   <CardHeader>
                     <div className="flex items-center space-x-2 mb-2">
                       <Target className="h-5 w-5 text-primary" />
-                      <CardTitle className="font-[family-name:var(--font-manrope)]">Misi Kami</CardTitle>
+                      <CardTitle className="font-[family-name:var(--font-manrope)]">
+                        Misi Kami
+                      </CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground leading-relaxed">
-                      Menyediakan platform digital yang mudah diakses untuk memperkenalkan, mempelajari, dan
-                      melestarikan warisan budaya Jawa Timur yang kaya dan beragam. Kami berkomitmen untuk menjembatani
-                      generasi muda dengan tradisi leluhur melalui teknologi interaktif dan konten edukatif yang
+                      Menyediakan platform digital yang mudah diakses untuk
+                      memperkenalkan, mempelajari, dan melestarikan warisan
+                      budaya Jawa Timur yang kaya dan beragam. Kami berkomitmen
+                      untuk menjembatani generasi muda dengan tradisi leluhur
+                      melalui teknologi interaktif dan konten edukatif yang
                       menarik.
                     </p>
                   </CardContent>
@@ -1361,14 +1613,18 @@ export default function CulturalHeritagePage() {
                   <CardHeader>
                     <div className="flex items-center space-x-2 mb-2">
                       <Lightbulb className="h-5 w-5 text-primary" />
-                      <CardTitle className="font-[family-name:var(--font-manrope)]">Visi Kami</CardTitle>
+                      <CardTitle className="font-[family-name:var(--font-manrope)]">
+                        Visi Kami
+                      </CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground leading-relaxed">
-                      Menjadi jembatan antara tradisi masa lalu dan generasi masa depan, memastikan warisan budaya Jawa
-                      Timur tetap hidup, berkembang, dan dikenal luas. Kami ingin menciptakan ekosistem digital yang
-                      mendukung pelestarian budaya berkelanjutan dan aksesible bagi semua kalangan.
+                      Menjadi jembatan antara tradisi masa lalu dan generasi
+                      masa depan, memastikan warisan budaya Jawa Timur tetap
+                      hidup, berkembang, dan dikenal luas. Kami ingin
+                      menciptakan ekosistem digital yang mendukung pelestarian
+                      budaya berkelanjutan dan aksesible bagi semua kalangan.
                     </p>
                   </CardContent>
                 </Card>
@@ -1378,7 +1634,9 @@ export default function CulturalHeritagePage() {
                   <CardHeader>
                     <div className="flex items-center space-x-2 mb-2">
                       <Star className="h-5 w-5 text-primary" />
-                      <CardTitle className="font-[family-name:var(--font-manrope)]">Fitur Unggulan</CardTitle>
+                      <CardTitle className="font-[family-name:var(--font-manrope)]">
+                        Fitur Unggulan
+                      </CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -1389,11 +1647,15 @@ export default function CulturalHeritagePage() {
                       </li>
                       <li className="flex items-center space-x-3">
                         <div className="w-2 h-2 bg-primary rounded-full"></div>
-                        <span>Database lengkap kesenian dan tradisi Jawa Timur</span>
+                        <span>
+                          Database lengkap kesenian dan tradisi Jawa Timur
+                        </span>
                       </li>
                       <li className="flex items-center space-x-3">
                         <div className="w-2 h-2 bg-primary rounded-full"></div>
-                        <span>Pencarian cerdas untuk menemukan konten budaya</span>
+                        <span>
+                          Pencarian cerdas untuk menemukan konten budaya
+                        </span>
                       </li>
                       <li className="flex items-center space-x-3">
                         <div className="w-2 h-2 bg-primary rounded-full"></div>
@@ -1417,16 +1679,24 @@ export default function CulturalHeritagePage() {
                     <div className="flex items-center space-x-2 mb-3">
                       <div className="flex space-x-1">
                         {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                          <Star
+                            key={i}
+                            className="h-4 w-4 fill-amber-400 text-amber-400"
+                          />
                         ))}
                       </div>
-                      <span className="text-sm font-medium">4.9/5 dari pengguna</span>
+                      <span className="text-sm font-medium">
+                        4.9/5 dari pengguna
+                      </span>
                     </div>
                     <p className="text-sm text-muted-foreground italic">
-                      "Platform yang luar biasa untuk mempelajari budaya Jawa Timur. Sangat mudah digunakan dan
-                      kontennya sangat lengkap!"
+                      "Platform yang luar biasa untuk mempelajari budaya Jawa
+                      Timur. Sangat mudah digunakan dan kontennya sangat
+                      lengkap!"
                     </p>
-                    <div className="text-xs text-muted-foreground mt-2">- Pengguna Platform</div>
+                    <div className="text-xs text-muted-foreground mt-2">
+                      - Pengguna Platform
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -1434,7 +1704,10 @@ export default function CulturalHeritagePage() {
               {/* Enhanced 3D visualization */}
               <div className="h-96 w-full relative">
                 <div className="absolute top-4 right-4 z-10">
-                  <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
+                  <Badge
+                    variant="secondary"
+                    className="bg-background/80 backdrop-blur-sm"
+                  >
                     <Play className="h-3 w-3 mr-1" />
                     Animasi 3D
                   </Badge>
@@ -1449,7 +1722,11 @@ export default function CulturalHeritagePage() {
                     </mesh>
                   </Float>
                   <Environment preset="city" />
-                  <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1} />
+                  <OrbitControls
+                    enableZoom={false}
+                    autoRotate
+                    autoRotateSpeed={1}
+                  />
                 </Canvas>
               </div>
             </div>
@@ -1469,14 +1746,20 @@ export default function CulturalHeritagePage() {
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center space-y-4 mb-16">
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 mb-4">
+              <Badge
+                variant="outline"
+                className="bg-primary/10 text-primary border-primary/20 mb-4"
+              >
                 <Award className="h-3 w-3 mr-1" />
                 Pencapaian Platform
               </Badge>
 
-              <h2 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-manrope)]">Pencapaian Kami</h2>
+              <h2 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-manrope)]">
+                Pencapaian Kami
+              </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-                Bangga menjadi bagian dari pelestarian budaya Jawa Timur dengan dukungan komunitas yang luas
+                Bangga menjadi bagian dari pelestarian budaya Jawa Timur dengan
+                dukungan komunitas yang luas
               </p>
             </div>
 
@@ -1489,8 +1772,12 @@ export default function CulturalHeritagePage() {
                   <CardTitle className="text-3xl font-bold group-hover:text-primary transition-colors">
                     10,000+
                   </CardTitle>
-                  <CardDescription className="font-medium">Pengguna Aktif</CardDescription>
-                  <div className="text-xs text-muted-foreground mt-2">Tumbuh 25% setiap bulan</div>
+                  <CardDescription className="font-medium">
+                    Pengguna Aktif
+                  </CardDescription>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    Tumbuh 25% setiap bulan
+                  </div>
                 </CardHeader>
               </Card>
 
@@ -1499,9 +1786,15 @@ export default function CulturalHeritagePage() {
                   <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                     <Award className="h-8 w-8 text-primary" />
                   </div>
-                  <CardTitle className="text-3xl font-bold group-hover:text-primary transition-colors">50+</CardTitle>
-                  <CardDescription className="font-medium">Item Budaya</CardDescription>
-                  <div className="text-xs text-muted-foreground mt-2">Terus bertambah setiap minggu</div>
+                  <CardTitle className="text-3xl font-bold group-hover:text-primary transition-colors">
+                    50+
+                  </CardTitle>
+                  <CardDescription className="font-medium">
+                    Item Budaya
+                  </CardDescription>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    Terus bertambah setiap minggu
+                  </div>
                 </CardHeader>
               </Card>
 
@@ -1510,9 +1803,15 @@ export default function CulturalHeritagePage() {
                   <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                     <MapPin className="h-8 w-8 text-primary" />
                   </div>
-                  <CardTitle className="text-3xl font-bold group-hover:text-primary transition-colors">7</CardTitle>
-                  <CardDescription className="font-medium">Kota Jawa Timur</CardDescription>
-                  <div className="text-xs text-muted-foreground mt-2">Target 38 kabupaten/kota</div>
+                  <CardTitle className="text-3xl font-bold group-hover:text-primary transition-colors">
+                    7
+                  </CardTitle>
+                  <CardDescription className="font-medium">
+                    Kota Jawa Timur
+                  </CardDescription>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    Target 38 kabupaten/kota
+                  </div>
                 </CardHeader>
               </Card>
             </div>
@@ -1523,7 +1822,10 @@ export default function CulturalHeritagePage() {
         <section className="py-20 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center space-y-4 mb-16">
-              <Badge variant="outline" className="bg-emerald-100/50 text-emerald-700 border-emerald-200 mb-4">
+              <Badge
+                variant="outline"
+                className="bg-emerald-100/50 text-emerald-700 border-emerald-200 mb-4"
+              >
                 <Heart className="h-3 w-3 mr-1" />
                 Nilai-Nilai Kami
               </Badge>
@@ -1539,12 +1841,14 @@ export default function CulturalHeritagePage() {
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Accessibility className="h-6 w-6 text-primary" />
                   </div>
-                  <CardTitle className="font-[family-name:var(--font-manrope)]">Aksesibilitas</CardTitle>
+                  <CardTitle className="font-[family-name:var(--font-manrope)]">
+                    Aksesibilitas
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    Memastikan platform budaya dapat diakses oleh semua kalangan tanpa terkecuali, dengan antarmuka yang
-                    ramah pengguna.
+                    Memastikan platform budaya dapat diakses oleh semua kalangan
+                    tanpa terkecuali, dengan antarmuka yang ramah pengguna.
                   </p>
                 </CardContent>
               </Card>
@@ -1554,12 +1858,14 @@ export default function CulturalHeritagePage() {
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <BookOpen className="h-6 w-6 text-primary" />
                   </div>
-                  <CardTitle className="font-[family-name:var(--font-manrope)]">Inovasi</CardTitle>
+                  <CardTitle className="font-[family-name:var(--font-manrope)]">
+                    Inovasi
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    Menggabungkan teknologi modern dengan kearifan tradisional untuk menciptakan pengalaman belajar yang
-                    unik dan menarik.
+                    Menggabungkan teknologi modern dengan kearifan tradisional
+                    untuk menciptakan pengalaman belajar yang unik dan menarik.
                   </p>
                 </CardContent>
               </Card>
@@ -1569,11 +1875,14 @@ export default function CulturalHeritagePage() {
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Shield className="h-6 w-6 text-primary" />
                   </div>
-                  <CardTitle className="font-[family-name:var(--font-manrope)]">Kelestarian</CardTitle>
+                  <CardTitle className="font-[family-name:var(--font-manrope)]">
+                    Kelestarian
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    Berkomitmen untuk menjaga dan melestarikan warisan budaya Jawa Timur untuk generasi masa depan.
+                    Berkomitmen untuk menjaga dan melestarikan warisan budaya
+                    Jawa Timur untuk generasi masa depan.
                   </p>
                 </CardContent>
               </Card>
@@ -1581,29 +1890,41 @@ export default function CulturalHeritagePage() {
           </div>
         </section>
 
-        <section id="kontak" className="py-20 bg-muted/30 relative scroll-mt-16" role="contentinfo">
+        <section
+          id="kontak"
+          className="py-20 bg-muted/30 relative scroll-mt-16"
+          role="contentinfo"
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center space-y-4 mb-16">
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 mb-4">
+              <Badge
+                variant="outline"
+                className="bg-primary/10 text-primary border-primary/20 mb-4"
+              >
                 <MessageCircle className="h-3 w-3 mr-1" />
                 Mari Berkolaborasi
               </Badge>
 
               <h2 className="text-3xl md:text-4xl font-bold font-[family-name:var(--font-manrope)]">
                 Mari Berkolaborasi
-                <span className="text-primary block">untuk Budaya Jawa Timur</span>
+                <span className="text-primary block">
+                  untuk Budaya Jawa Timur
+                </span>
               </h2>
 
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-                Kami terbuka untuk berkolaborasi dengan berbagai pihak yang peduli dengan pelestarian budaya Jawa Timur.
-                Mari bersama-sama menjaga warisan budaya untuk generasi mendatang.
+                Kami terbuka untuk berkolaborasi dengan berbagai pihak yang
+                peduli dengan pelestarian budaya Jawa Timur. Mari bersama-sama
+                menjaga warisan budaya untuk generasi mendatang.
               </p>
             </div>
 
             <div className="grid lg:grid-cols-2 gap-12">
               {/* Enhanced collaboration options */}
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold mb-6">Cara Berkolaborasi</h3>
+                <h3 className="text-xl font-semibold mb-6">
+                  Cara Berkolaborasi
+                </h3>
 
                 <div className="grid gap-4">
                   <Card className="group hover:shadow-lg transition-all duration-300 hover:border-primary/20">
@@ -1613,7 +1934,9 @@ export default function CulturalHeritagePage() {
                           <Users className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <CardTitle className="text-base">Pertanyaan Umum</CardTitle>
+                          <CardTitle className="text-base">
+                            Pertanyaan Umum
+                          </CardTitle>
                           <CardDescription className="text-sm">
                             Informasi umum tentang platform dan budaya
                           </CardDescription>
@@ -1629,7 +1952,9 @@ export default function CulturalHeritagePage() {
                           <Heart className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <CardTitle className="text-base">Kolaborasi</CardTitle>
+                          <CardTitle className="text-base">
+                            Kolaborasi
+                          </CardTitle>
                           <CardDescription className="text-sm">
                             Kerjasama penelitian, dokumentasi, dan pengembangan
                           </CardDescription>
@@ -1645,7 +1970,9 @@ export default function CulturalHeritagePage() {
                           <BookOpen className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <CardTitle className="text-base">Kontribusi Konten</CardTitle>
+                          <CardTitle className="text-base">
+                            Kontribusi Konten
+                          </CardTitle>
                           <CardDescription className="text-sm">
                             Berbagi pengetahuan dan dokumentasi budaya
                           </CardDescription>
@@ -1677,21 +2004,37 @@ export default function CulturalHeritagePage() {
                       <MessageCircle className="h-5 w-5 mr-2 text-primary" />
                       Kirim Pesan
                     </CardTitle>
-                    <CardDescription>Isi formulir di bawah ini untuk menghubungi tim kami</CardDescription>
+                    <CardDescription>
+                      Isi formulir di bawah ini untuk menghubungi tim kami
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label htmlFor="firstName" className="text-sm font-medium">
+                        <label
+                          htmlFor="firstName"
+                          className="text-sm font-medium"
+                        >
                           Nama Depan *
                         </label>
-                        <Input id="firstName" placeholder="Masukkan nama depan" required aria-required="true" />
+                        <Input
+                          id="firstName"
+                          placeholder="Masukkan nama depan"
+                          required
+                          aria-required="true"
+                        />
                       </div>
                       <div className="space-y-2">
-                        <label htmlFor="lastName" className="text-sm font-medium">
+                        <label
+                          htmlFor="lastName"
+                          className="text-sm font-medium"
+                        >
                           Nama Belakang
                         </label>
-                        <Input id="lastName" placeholder="Masukkan nama belakang" />
+                        <Input
+                          id="lastName"
+                          placeholder="Masukkan nama belakang"
+                        />
                       </div>
                     </div>
 
@@ -1699,14 +2042,25 @@ export default function CulturalHeritagePage() {
                       <label htmlFor="email" className="text-sm font-medium">
                         Email *
                       </label>
-                      <Input id="email" type="email" placeholder="nama@email.com" required aria-required="true" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="nama@email.com"
+                        required
+                        aria-required="true"
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <label htmlFor="subject" className="text-sm font-medium">
                         Subjek *
                       </label>
-                      <Input id="subject" placeholder="Topik pesan Anda" required aria-required="true" />
+                      <Input
+                        id="subject"
+                        placeholder="Topik pesan Anda"
+                        required
+                        aria-required="true"
+                      />
                     </div>
 
                     <div className="space-y-2">
@@ -1723,8 +2077,15 @@ export default function CulturalHeritagePage() {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                      <input type="checkbox" id="newsletter" className="rounded border-input" />
-                      <label htmlFor="newsletter" className="text-sm text-muted-foreground">
+                      <input
+                        type="checkbox"
+                        id="newsletter"
+                        className="rounded border-input"
+                      />
+                      <label
+                        htmlFor="newsletter"
+                        className="text-sm text-muted-foreground"
+                      >
                         Saya ingin menerima update tentang budaya Jawa Timur
                       </label>
                     </div>
@@ -1735,7 +2096,8 @@ export default function CulturalHeritagePage() {
                     </Button>
 
                     <p className="text-xs text-muted-foreground text-center">
-                      Dengan mengirim pesan, Anda menyetujui kebijakan privasi kami
+                      Dengan mengirim pesan, Anda menyetujui kebijakan privasi
+                      kami
                     </p>
                   </CardContent>
                 </Card>
@@ -1756,7 +2118,8 @@ export default function CulturalHeritagePage() {
                   <h3 className="text-lg font-bold text-primary">UB Corpora</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Platform digital untuk melestarikan dan memperkenalkan warisan budaya Jawa Timur kepada dunia.
+                  Platform digital untuk melestarikan dan memperkenalkan warisan
+                  budaya Jawa Timur kepada dunia.
                 </p>
               </div>
 
@@ -1764,7 +2127,10 @@ export default function CulturalHeritagePage() {
                 <h4 className="font-semibold mb-4">Navigasi</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>
-                    <button onClick={() => handleNavClick("beranda")} className="hover:text-primary transition-colors">
+                    <button
+                      onClick={() => handleNavClick("beranda")}
+                      className="hover:text-primary transition-colors"
+                    >
                       Beranda
                     </button>
                   </li>
@@ -1777,12 +2143,18 @@ export default function CulturalHeritagePage() {
                     </button>
                   </li>
                   <li>
-                    <button onClick={() => handleNavClick("tentang")} className="hover:text-primary transition-colors">
+                    <button
+                      onClick={() => handleNavClick("tentang")}
+                      className="hover:text-primary transition-colors"
+                    >
                       Tentang
                     </button>
                   </li>
                   <li>
-                    <button onClick={() => handleNavClick("kontak")} className="hover:text-primary transition-colors">
+                    <button
+                      onClick={() => handleNavClick("kontak")}
+                      className="hover:text-primary transition-colors"
+                    >
                       Kontak
                     </button>
                   </li>
@@ -1795,8 +2167,8 @@ export default function CulturalHeritagePage() {
                   <li>
                     <button
                       onClick={() => {
-                        handleCategoryChange("tari")
-                        handleNavClick("eksplorasi")
+                        handleCategoryChange("tari");
+                        handleNavClick("eksplorasi");
                       }}
                       className="hover:text-primary transition-colors"
                     >
@@ -1806,8 +2178,8 @@ export default function CulturalHeritagePage() {
                   <li>
                     <button
                       onClick={() => {
-                        handleCategoryChange("makanan")
-                        handleNavClick("eksplorasi")
+                        handleCategoryChange("makanan");
+                        handleNavClick("eksplorasi");
                       }}
                       className="hover:text-primary transition-colors"
                     >
@@ -1817,8 +2189,8 @@ export default function CulturalHeritagePage() {
                   <li>
                     <button
                       onClick={() => {
-                        handleCategoryChange("batik")
-                        handleNavClick("eksplorasi")
+                        handleCategoryChange("batik");
+                        handleNavClick("eksplorasi");
                       }}
                       className="hover:text-primary transition-colors"
                     >
@@ -1828,8 +2200,8 @@ export default function CulturalHeritagePage() {
                   <li>
                     <button
                       onClick={() => {
-                        handleCategoryChange("musik")
-                        handleNavClick("eksplorasi")
+                        handleCategoryChange("musik");
+                        handleNavClick("eksplorasi");
                       }}
                       className="hover:text-primary transition-colors"
                     >
@@ -1851,11 +2223,14 @@ export default function CulturalHeritagePage() {
             </div>
 
             <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-              <p>© 2025 UB Corpora. Semua hak cipta dilindungi. Dibuat dengan ❤️ untuk budaya Jawa Timur.</p>
+              <p>
+                © 2025 UB Corpora. Semua hak cipta dilindungi. Dibuat dengan ❤️
+                untuk budaya Jawa Timur.
+              </p>
             </div>
           </div>
         </footer>
       </div>
     </div>
-  )
+  );
 }
