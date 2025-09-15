@@ -539,6 +539,7 @@ export default function CulturalHeritagePage() {
       filtered = filtered.filter((item) => item.category === category);
     }
 
+    // Kemudian filter berdasarkan query pencarian
     if (query.trim() !== "") {
       filtered = filtered.filter(
         (item) =>
@@ -547,7 +548,7 @@ export default function CulturalHeritagePage() {
           item.description.toLowerCase().includes(query.toLowerCase()) ||
           item.category.toLowerCase().includes(query.toLowerCase()) ||
           item.region.toLowerCase().includes(query.toLowerCase()) ||
-          item.tags.some((tag) =>
+          item.tags.some((tag: string) =>
             tag.toLowerCase().includes(query.toLowerCase())
           )
       );
@@ -556,8 +557,11 @@ export default function CulturalHeritagePage() {
     setFilteredItems(filtered);
   };
 
+    // Perbaiki useEffect untuk inisialisasi
   useEffect(() => {
-    filterItems("", selectedCategory);
+    // Saat pertama kali load, tampilkan semua item, bukan hanya tari
+    setSelectedCategory("semua"); // Ubah dari "tari" ke "semua"
+    filterItems("", "semua"); // Ubah dari "tari" ke "semua"
   }, []);
 
   const handleGlobeClick = () => {
@@ -587,10 +591,7 @@ export default function CulturalHeritagePage() {
     window.location.href = `/budaya/${itemId}`;
   };
 
-  const displayItems =
-    searchQuery || selectedCategory !== "semua"
-      ? filteredItems
-      : culturalItems.filter((item) => item.category === "tari"); // Default to tari category
+  const displayItems = filteredItems; // Default to tari category
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
