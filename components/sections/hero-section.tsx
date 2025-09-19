@@ -7,12 +7,13 @@ import { AnimatedReveal } from "@/components/common/animated-reveal"
 import { EnhancedButton } from "@/components/interactive/enhanced-button"
 import { ParallaxBackground } from "@/components/common/parallax-background"
 import { SafeCanvas } from "@/components/three/safe-canvas"
-import { Environment, OrbitControls } from "@react-three/drei"
+import { Environment, OrbitControls, Html, useTexture } from "@react-three/drei"
 import { useCulturalStats } from "@/hooks/use-cultural-stats"
 import { useNavigation } from "@/hooks/use-navigation"
-import { useRef } from "react"
-import { useFrame } from "@react-three/fiber"
-import type { Mesh } from "three"
+import { useRef, useState, Suspense } from "react"
+import { useFrame, useThree } from "@react-three/fiber"
+import type { Group } from "three"
+import * as THREE from "three"
 
 interface HeroSectionProps {
   onNavClick: (section: string) => void
@@ -21,49 +22,254 @@ interface HeroSectionProps {
   onBackToGlobe: () => void
 }
 
-function IndonesianGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
-  const meshRef = useRef<Mesh>(null)
+function LoadingSpinner() {
+  return (
+    <Html center>
+      <div className="flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <span className="ml-2 text-sm text-muted-foreground">Loading Earth...</span>
+      </div>
+    </Html>
+  )
+}
 
-  // Auto rotation animation
+function RealisticEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
+  const groupRef = useRef<Group>(null)
+  const earthRef = useRef<THREE.Mesh>(null)
+  const cloudsRef = useRef<THREE.Mesh>(null)
+  const [hovered, setHovered] = useState(false)
+  const [isZooming, setIsZooming] = useState(false)
+  const { camera } = useThree()
+
+  const earthTexture = useTexture("/textures/TERRE_baseColor.jpeg")
+  const cloudsTexture = useTexture("/textures/NUAGES_baseColor.png")
+  const normalTexture = useTexture("/textures/TERRE_emissive.jpeg")
+  const roughnessTexture = useTexture("/textures/TERRE_metallicRoughness.png")
+
   useFrame((state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.2
+    if (groupRef.current && !isZooming) {
+      groupRef.current.rotation.y += delta * (hovered ? 0.1 : 0.15)
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1
+      const targetScale = hovered ? 1.05 : 1
+      groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale }, 0.1)
+    }
+
+    if (isZooming && groupRef.current) {
+      const zoomProgress = Math.min((state.clock.elapsedTime - (groupRef.current as any).zoomStartTime) / 2, 1)
+      const easeOut = 1 - Math.pow(1 - zoomProgress, 3)
+
+      const targetScale = 2 + easeOut * 8
+      groupRef.current.scale.setScalar(targetScale)
+      groupRef.current.rotation.y += delta * (2 + easeOut * 3)
+
+      const targetZ = 8 - easeOut * 6
+      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.1)
+
+      if (zoomProgress >= 1) {
+        onGlobeClick()
+      }
+    }
+
+    if (cloudsRef.current) {
+      cloudsRef.current.rotation.y += delta * 0.05
     }
   })
 
+  const handleClick = (e: any) => {
+    e.stopPropagation()
+    if (!isZooming) {
+      setIsZooming(true)
+      if (groupRef.current) {
+        ;(groupRef.current as any).zoomStartTime = performance.now() / 1000
+      }
+    }
+  }
+
   return (
-    <mesh
-      ref={meshRef}
-      onClick={onGlobeClick}
-      scale={[2, 2, 2]}
+    <group
+      ref={groupRef}
+      onClick={handleClick}
       onPointerOver={(e) => {
         e.stopPropagation()
+        setHovered(true)
         document.body.style.cursor = "pointer"
       }}
       onPointerOut={(e) => {
         e.stopPropagation()
+        setHovered(false)
         document.body.style.cursor = "auto"
       }}
+      scale={[2, 2, 2]}
+      rotation={[Math.PI, 0, 0]}
     >
-      <sphereGeometry args={[1, 32, 32]} />
-      <meshStandardMaterial
-        color="#4a90e2"
-        roughness={0.7}
-        metalness={0.1}
-        emissive="#001122"
-        emissiveIntensity={0.1}
-      />
-    </mesh>
+      <mesh ref={earthRef}>
+        <sphereGeometry args={[1, 64, 64]} />
+        <meshStandardMaterial
+          map={earthTexture}
+          normalMap={normalTexture}
+          roughnessMap={roughnessTexture}
+          roughness={0.8}
+          metalness={0.1}
+          emissive="#001122"
+          emissiveIntensity={0.1}
+        />
+      </mesh>
+
+      <mesh ref={cloudsRef} scale={[1.01, 1.01, 1.01]}>
+        <sphereGeometry args={[32, 32]} />
+        <meshStandardMaterial
+          map={cloudsTexture}
+          transparent
+          opacity={0.4}
+          alphaMap={cloudsTexture}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      <mesh scale={[1.02, 1.02, 1.02]}>
+        <sphereGeometry args={[1, 32, 32]} />
+        <meshBasicMaterial color="#4a90e2" transparent opacity={hovered ? 0.15 : 0.08} side={THREE.BackSide} />
+      </mesh>
+
+      {isZooming && (
+        <group>
+          {Array.from({ length: 20 }, (_, i) => (
+            <mesh key={i} position={[(Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4]}>
+              <sphereGeometry args={[0.02, 8, 8]} />
+              <meshBasicMaterial color="#4a90e2" transparent opacity={0.6} />
+            </mesh>
+          ))}
+        </group>
+      )}
+    </group>
+  )
+}
+
+function FallbackEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
+  const groupRef = useRef<Group>(null)
+  const [hovered, setHovered] = useState(false)
+  const [isZooming, setIsZooming] = useState(false)
+  const { camera } = useThree()
+
+  useFrame((state, delta) => {
+    if (groupRef.current && !isZooming) {
+      groupRef.current.rotation.y += delta * (hovered ? 0.1 : 0.15)
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1
+      const targetScale = hovered ? 1.05 : 1
+      groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale }, 0.1)
+    }
+
+    if (isZooming && groupRef.current) {
+      const zoomProgress = Math.min((state.clock.elapsedTime - (groupRef.current as any).zoomStartTime) / 2, 1)
+      const easeOut = 1 - Math.pow(1 - zoomProgress, 3)
+
+      const targetScale = 2 + easeOut * 8
+      groupRef.current.scale.setScalar(targetScale)
+      groupRef.current.rotation.y += delta * (2 + easeOut * 3)
+
+      const targetZ = 8 - easeOut * 6
+      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.1)
+
+      if (zoomProgress >= 1) {
+        onGlobeClick()
+      }
+    }
+  })
+
+  const handleClick = (e: any) => {
+    e.stopPropagation()
+    if (!isZooming) {
+      setIsZooming(true)
+      if (groupRef.current) {
+        ;(groupRef.current as any).zoomStartTime = performance.now() / 1000
+      }
+    }
+  }
+
+  return (
+    <group
+      ref={groupRef}
+      onClick={handleClick}
+      onPointerOver={(e) => {
+        e.stopPropagation()
+        setHovered(true)
+        document.body.style.cursor = "pointer"
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation()
+        setHovered(false)
+        document.body.style.cursor = "auto"
+      }}
+      scale={[2, 2, 2]}
+      rotation={[Math.PI, 0, 0]}
+    >
+      <mesh>
+        <sphereGeometry args={[1, 64, 64]} />
+        <meshStandardMaterial
+          color="#4a90e2"
+          roughness={0.7}
+          metalness={0.1}
+          emissive="#001122"
+          emissiveIntensity={0.1}
+        />
+      </mesh>
+
+      <mesh scale={[1.02, 1.02, 1.02]}>
+        <sphereGeometry args={[1, 32, 32]} />
+        <meshBasicMaterial color="#4a90e2" transparent opacity={hovered ? 0.15 : 0.08} side={THREE.BackSide} />
+      </mesh>
+    </group>
+  )
+}
+
+function EarthGlobeWithFallback({ onGlobeClick }: { onGlobeClick: () => void }) {
+  return (
+    <Suspense fallback={<FallbackEarthGlobe onGlobeClick={onGlobeClick} />}>
+      <RealisticEarthGlobe onGlobeClick={onGlobeClick} />
+    </Suspense>
   )
 }
 
 function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
-  // 3D cities view implementation would go here
+  const groupRef = useRef<Group>(null)
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.3
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * 0.2
+    }
+  })
+
   return (
-    <mesh onClick={onBack}>
-      <boxGeometry args={[3, 3, 3]} />
-      <meshStandardMaterial color="#10b981" />
-    </mesh>
+    <group ref={groupRef} onClick={onBack}>
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[2, 2, 2]} />
+        <meshStandardMaterial
+          color="#10b981"
+          emissive="#064e3b"
+          emissiveIntensity={0.2}
+          roughness={0.3}
+          metalness={0.1}
+        />
+      </mesh>
+
+      {Array.from({ length: 8 }, (_, i) => {
+        const angle = (i / 8) * Math.PI * 2
+        const radius = 4
+        return (
+          <mesh key={i} position={[Math.cos(angle) * radius, Math.sin(i * 0.5) * 0.5, Math.sin(angle) * radius]}>
+            <boxGeometry args={[0.8, 1.5, 0.8]} />
+            <meshStandardMaterial color="#059669" emissive="#065f46" emissiveIntensity={0.1} />
+          </mesh>
+        )
+      })}
+
+      <Html position={[0, 3, 0]} center>
+        <div className="bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-muted-foreground">
+          Click to return to Earth
+        </div>
+      </Html>
+    </group>
   )
 }
 
@@ -72,16 +278,13 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
   const { handleGlobeNavigation, handleCategoryNavigation } = useNavigation()
 
   const handleGlobeInteraction = () => {
-    onGlobeClick()
-    // Navigate to map page after a short delay to show the interaction
     setTimeout(() => {
       handleGlobeNavigation()
-    }, 1000)
+    }, 2000)
   }
 
   return (
     <section id="beranda" className="pt-16 pb-20 relative overflow-hidden parallax-container" role="banner">
-      {/* Background decorations */}
       <ParallaxBackground speed={0.3} className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute top-20 left-10 w-32 h-32 opacity-[0.025] rotate-12">
           <div className="w-full h-full text-amber-700 animate-float">
@@ -110,7 +313,6 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[600px]">
-          {/* Content */}
           <AnimatedReveal animation="fade-up" delay={200}>
             <div className="space-y-8">
               <div className="space-y-4">
@@ -147,7 +349,6 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
                 </AnimatedReveal>
               </div>
 
-              {/* Features */}
               <AnimatedReveal animation="scale-up" delay={1000}>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center space-x-2 group">
@@ -169,7 +370,6 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
                 </div>
               </AnimatedReveal>
 
-              {/* Action buttons */}
               <AnimatedReveal animation="bounce-in" delay={1200}>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <EnhancedButton
@@ -196,7 +396,6 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
                 </div>
               </AnimatedReveal>
 
-              {/* Stats */}
               <AnimatedReveal animation="fade-up" delay={1400}>
                 <div className="grid grid-cols-3 gap-6 pt-8">
                   <div className="text-center group hover-lift">
@@ -220,7 +419,6 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
                 </div>
               </AnimatedReveal>
 
-              {/* Quick access buttons */}
               <AnimatedReveal animation="slide-left" delay={1600}>
                 <div className="flex flex-wrap gap-2 pt-4">
                   <Button
@@ -255,15 +453,15 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
             </div>
           </AnimatedReveal>
 
-          {/* 3D Globe */}
           <AnimatedReveal animation="scale-up" delay={800}>
             <div className="h-96 lg:h-[600px] w-full relative">
               <div className="absolute top-4 right-4 z-10">
                 <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm hover-lift">
                   <Globe className="h-3 w-3 mr-1" />
-                  Interaktif 3D
+                  Interactive 3D Earth
                 </Badge>
               </div>
+
               <SafeCanvas
                 camera={{
                   position: [0, 0, 8],
@@ -272,26 +470,66 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
                   far: 1000,
                 }}
                 className="w-full h-full cursor-pointer"
+                gl={{
+                  antialias: true,
+                  alpha: true,
+                  powerPreference: "high-performance",
+                }}
               >
-                <ambientLight intensity={0.6} />
-                <pointLight position={[10, 10, 10]} intensity={1.2} />
-                <pointLight position={[-10, -10, -10]} intensity={0.7} color="#3b82f6" />
-                <spotLight position={[0, 15, 5]} intensity={1.0} angle={0.4} penumbra={1} />
-                {showCities ? (
-                  <EastJavaCitiesView onBack={onBackToGlobe} />
-                ) : (
-                  <IndonesianGlobe onGlobeClick={handleGlobeInteraction} />
-                )}
-                <Environment preset="city" />
+                <ambientLight intensity={0.4} />
+                <pointLight position={[10, 10, 10]} intensity={1.5} color="#ffffff" />
+                <pointLight position={[-10, -10, -10]} intensity={0.8} color="#4a90e2" />
+                <spotLight position={[0, 20, 10]} intensity={1.2} angle={0.3} penumbra={1} color="#fbbf24" />
+                <directionalLight position={[5, 5, 5]} intensity={0.6} color="#ffffff" />
+
+                <Suspense fallback={<LoadingSpinner />}>
+                  {showCities ? (
+                    <EastJavaCitiesView onBack={onBackToGlobe} />
+                  ) : (
+                    <EarthGlobeWithFallback onGlobeClick={handleGlobeInteraction} />
+                  )}
+                </Suspense>
+
+                <Environment preset="sunset" />
+
                 <OrbitControls
                   enableZoom={true}
                   minDistance={5}
                   maxDistance={15}
                   autoRotate={!showCities}
-                  autoRotateSpeed={0.5}
+                  autoRotateSpeed={0.3}
                   enablePan={false}
+                  enableDamping={true}
+                  dampingFactor={0.05}
+                  rotateSpeed={0.5}
+                  zoomSpeed={0.8}
+                  minPolarAngle={Math.PI * 0.2}
+                  maxPolarAngle={Math.PI * 0.8}
                 />
               </SafeCanvas>
+
+              <div className="absolute bottom-4 left-4 z-10">
+                <div className="bg-background/80 backdrop-blur-sm px-3 py-2 rounded-lg text-xs text-muted-foreground space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                    <span>Drag to rotate</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 bg-secondary rounded-full animate-pulse"
+                      style={{ animationDelay: "0.5s" }}
+                    ></div>
+                    <span>Scroll to zoom</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 bg-accent rounded-full animate-pulse"
+                      style={{ animationDelay: "1s" }}
+                    ></div>
+                    <span>Click for dramatic zoom</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </AnimatedReveal>
         </div>
