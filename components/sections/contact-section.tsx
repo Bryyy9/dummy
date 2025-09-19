@@ -1,0 +1,187 @@
+"use client"
+
+import type React from "react"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Mail, Phone, MapPin, Send, MessageCircle, Users } from "lucide-react"
+import { AnimatedReveal } from "@/components/common/animated-reveal"
+import { EnhancedButton } from "@/components/interactive/enhanced-button"
+
+export function ContactSection() {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Handle form submission
+    console.log("Form submitted")
+  }
+
+  return (
+    <section
+      id="kontak"
+      className="py-20 bg-gradient-to-br from-muted/30 via-background to-muted/20 relative overflow-hidden"
+    >
+      {/* Background decorations */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 right-10 w-32 h-32 opacity-[0.03] -rotate-12">
+          <div className="w-full h-full text-primary animate-float" style={{ animationDelay: "1s" }}>
+            <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
+              <path d="M50 20 Q60 30 50 40 Q40 30 50 20 Z" />
+              <path d="M50 60 Q60 70 50 80 Q40 70 50 60 Z" />
+              <path d="M20 50 Q30 40 40 50 Q30 60 20 50 Z" />
+              <path d="M80 50 Q70 40 60 50 Q70 60 80 50 Z" />
+              <circle cx="50" cy="50" r="8" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-16">
+          <AnimatedReveal animation="fade-up" delay={200}>
+            <Badge className="bg-primary/10 text-primary border-primary/20 mb-4">
+              <MessageCircle className="h-3 w-3 mr-1" />
+              Hubungi Kami
+            </Badge>
+          </AnimatedReveal>
+
+          <AnimatedReveal animation="fade-up" delay={400}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">
+              Mari Berkolaborasi
+              <span className="text-primary block">Melestarikan Budaya</span>
+            </h2>
+          </AnimatedReveal>
+
+          <AnimatedReveal animation="fade-up" delay={600}>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto text-pretty leading-relaxed">
+              Kami terbuka untuk kolaborasi, saran, dan kontribusi dari semua pihak yang peduli dengan pelestarian
+              budaya Jawa Timur.
+            </p>
+          </AnimatedReveal>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-12">
+          {/* Contact Information */}
+          <AnimatedReveal animation="slide-right" delay={800}>
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-2xl font-bold mb-6">Informasi Kontak</h3>
+
+                <div className="space-y-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Mail className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Email</h4>
+                      <p className="text-muted-foreground">info@budayajatim.id</p>
+                      <p className="text-muted-foreground">kolaborasi@budayajatim.id</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Phone className="h-6 w-6 text-emerald-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Telepon</h4>
+                      <p className="text-muted-foreground">+62 31 1234 5678</p>
+                      <p className="text-muted-foreground">+62 812 3456 7890</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <MapPin className="h-6 w-6 text-amber-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Alamat</h4>
+                      <p className="text-muted-foreground">
+                        Jl. Budaya Nusantara No. 123
+                        <br />
+                        Surabaya, Jawa Timur 60123
+                        <br />
+                        Indonesia
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-primary/5 to-primary/10">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <Users className="h-6 w-6 text-primary" />
+                    <h4 className="font-semibold">Bergabung dengan Komunitas</h4>
+                  </div>
+                  <p className="text-muted-foreground mb-4 text-pretty">
+                    Ikuti media sosial kami untuk mendapatkan update terbaru tentang budaya Jawa Timur dan kegiatan
+                    komunitas.
+                  </p>
+                  <div className="flex space-x-3">
+                    <Button variant="outline" size="sm">
+                      Facebook
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Instagram
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Twitter
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </AnimatedReveal>
+
+          {/* Contact Form */}
+          <AnimatedReveal animation="slide-left" delay={1000}>
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold mb-6">Kirim Pesan</h3>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-medium mb-2">
+                        Nama Lengkap
+                      </label>
+                      <Input id="name" placeholder="Masukkan nama lengkap" required />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium mb-2">
+                        Email
+                      </label>
+                      <Input id="email" type="email" placeholder="nama@email.com" required />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="subject" className="block text-sm font-medium mb-2">
+                      Subjek
+                    </label>
+                    <Input id="subject" placeholder="Subjek pesan" required />
+                  </div>
+
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium mb-2">
+                      Pesan
+                    </label>
+                    <Textarea id="message" placeholder="Tulis pesan Anda di sini..." rows={6} required />
+                  </div>
+
+                  <EnhancedButton type="submit" size="lg" effect="glow" className="w-full">
+                    <Send className="h-5 w-5 mr-2" />
+                    Kirim Pesan
+                  </EnhancedButton>
+                </form>
+              </CardContent>
+            </Card>
+          </AnimatedReveal>
+        </div>
+      </div>
+    </section>
+  )
+}
