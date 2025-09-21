@@ -1,13 +1,11 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Sparkles, Shield, Compass, BookOpen, Music, Utensils, Palette, Globe } from "lucide-react"
+import { Sparkles, BookOpen, Globe, Play, Users, TrendingUp } from "lucide-react"
 import { AnimatedReveal } from "@/components/common/animated-reveal"
 import { EnhancedButton } from "@/components/interactive/enhanced-button"
-import { ParallaxBackground } from "@/components/common/parallax-background"
 import { SafeCanvas } from "@/components/three/safe-canvas"
-import { Environment, OrbitControls, Html, useTexture } from "@react-three/drei"
+import { Environment, OrbitControls, Html } from "@react-three/drei"
 import { useCulturalStats } from "@/hooks/use-cultural-stats"
 import { useNavigation } from "@/hooks/use-navigation"
 import { useRef, useState, Suspense } from "react"
@@ -27,71 +25,60 @@ function LoadingSpinner() {
     <Html center>
       <div className="flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        <span className="ml-2 text-sm text-muted-foreground">Loading Earth...</span>
+        <span className="ml-2 text-sm text-muted-foreground">Loading 3D Sphere...</span>
       </div>
     </Html>
   )
 }
 
-function RealisticEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
+function ModernSphere({ onGlobeClick }: { onGlobeClick: () => void }) {
   const groupRef = useRef<Group>(null)
-  const earthRef = useRef<THREE.Mesh>(null)
-  const cloudsRef = useRef<THREE.Mesh>(null)
+  const sphereRef = useRef<THREE.Mesh>(null)
   const [hovered, setHovered] = useState(false)
   const [isZooming, setIsZooming] = useState(false)
   const [zoomStartTime, setZoomStartTime] = useState(0)
   const { camera } = useThree()
 
-  const earthTexture = useTexture("/textures/TERRE_baseColor.jpeg")
-  const cloudsTexture = useTexture("/textures/NUAGES_baseColor.png")
-  const normalTexture = useTexture("/textures/TERRE_emissive.jpeg")
-  const roughnessTexture = useTexture("/textures/TERRE_metallicRoughness.png")
-
   useFrame((state, delta) => {
     if (groupRef.current && !isZooming) {
-      // Normal rotation and floating
-      groupRef.current.rotation.y += delta * (hovered ? 0.08 : 0.12)
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.08
-      
-      // Smooth scale transition on hover
-      const targetScale = hovered ? 1.03 : 1
-      groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale }, 0.08)
+      // Smooth rotation and floating
+      groupRef.current.rotation.y += delta * (hovered ? 0.15 : 0.08)
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.2) * 0.1
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.1
+
+      // Scale on hover
+      const targetScale = hovered ? 1.1 : 1
+      groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale }, 0.1)
     }
 
     if (isZooming && groupRef.current) {
       const elapsed = state.clock.elapsedTime - zoomStartTime
-      const duration = 1.8 // Reduced from 2 seconds
+      const duration = 2
       const progress = Math.min(elapsed / duration, 1)
-      
-      // Smooth easing function (ease-out cubic)
-      const easeOut = 1 - Math.pow(1 - progress, 2.5)
 
-      // Smooth scale transition
-      const startScale = 2
-      const endScale = 4.5 // Reduced from 10
+      const easeOut = 1 - Math.pow(1 - progress, 3)
+
+      const startScale = 1.5
+      const endScale = 5
       const currentScale = startScale + (endScale - startScale) * easeOut
       groupRef.current.scale.setScalar(currentScale)
 
-      // Gentle rotation acceleration
-      groupRef.current.rotation.y += delta * (0.5 + easeOut * 1.2)
-
-      // Smooth camera movement
-      const startZ = 8
-      const endZ = 5.5 // Less dramatic zoom
-      const targetZ = startZ - (startZ - endZ) * easeOut
-      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.06)
-
-      // Add subtle floating during zoom
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * (0.15 * easeOut)
+      groupRef.current.rotation.y += delta * (0.8 + easeOut * 1.5)
 
       if (progress >= 1) {
         onGlobeClick()
       }
     }
 
-    // Clouds rotation
-    if (cloudsRef.current) {
-      cloudsRef.current.rotation.y += delta * 0.03
+    // Dynamic material color based on time
+    if (sphereRef.current) {
+      const material = sphereRef.current.material as THREE.MeshStandardMaterial
+      const time = state.clock.elapsedTime
+      const r = Math.sin(time * 0.5) * 0.3 + 0.4
+      const g = Math.sin(time * 0.3 + 2) * 0.3 + 0.4
+      const b = Math.sin(time * 0.7 + 4) * 0.3 + 0.7
+      material.color.setRGB(r, g, b)
+      material.emissiveIntensity = hovered ? 0.3 : 0.1
     }
   })
 
@@ -117,204 +104,89 @@ function RealisticEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
         setHovered(false)
         document.body.style.cursor = "auto"
       }}
-      scale={[2, 2, 2]}
-      rotation={[Math.PI, 0, 0]}
+      scale={[1.5, 1.5, 1.5]}
     >
-      <mesh ref={earthRef}>
+      {/* Main sphere */}
+      <mesh ref={sphereRef}>
         <sphereGeometry args={[1, 64, 64]} />
         <meshStandardMaterial
-          map={earthTexture}
-          normalMap={normalTexture}
-          roughnessMap={roughnessTexture}
-          roughness={0.8}
-          metalness={0.1}
-          emissive="#001122"
+          color="#6366f1"
+          roughness={0.2}
+          metalness={0.8}
+          emissive="#6366f1"
           emissiveIntensity={0.1}
         />
       </mesh>
 
-      <mesh ref={cloudsRef} scale={[1.01, 1.01, 1.01]}>
-        <sphereGeometry args={[32, 32]} />
-        <meshStandardMaterial
-          map={cloudsTexture}
-          transparent
-          opacity={0.4}
-          alphaMap={cloudsTexture}
-          side={THREE.DoubleSide}
-        />
+      {/* Outer glow ring */}
+      <mesh scale={[1.2, 1.2, 1.2]}>
+        <torusGeometry args={[1, 0.02, 16, 100]} />
+        <meshBasicMaterial color="#8b5cf6" transparent opacity={hovered ? 0.8 : 0.4} />
       </mesh>
 
-      {/* Subtle atmosphere glow */}
-      <mesh scale={[1.02, 1.02, 1.02]}>
-        <sphereGeometry args={[1, 32, 32]} />
-        <meshBasicMaterial 
-          color="#4a90e2" 
-          transparent 
-          opacity={hovered ? 0.12 : 0.06} 
-          side={THREE.BackSide} 
-        />
-      </mesh>
-
-      {/* Subtle particle effect during zoom */}
-      {isZooming && (
-        <group>
-          {Array.from({ length: 12 }, (_, i) => (
-            <mesh 
-              key={i} 
-              position={[
-                (Math.random() - 0.5) * 3, 
-                (Math.random() - 0.5) * 3, 
-                (Math.random() - 0.5) * 3
-              ]}
-            >
-              <sphereGeometry args={[0.015, 8, 8]} />
-              <meshBasicMaterial 
-                color="#4a90e2" 
-                transparent 
-                opacity={0.4} 
-              />
-            </mesh>
-          ))}
-        </group>
-      )}
-    </group>
-  )
-}
-
-function FallbackEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
-  const groupRef = useRef<Group>(null)
-  const [hovered, setHovered] = useState(false)
-  const [isZooming, setIsZooming] = useState(false)
-  const [zoomStartTime, setZoomStartTime] = useState(0)
-  const { camera } = useThree()
-
-  useFrame((state, delta) => {
-    if (groupRef.current && !isZooming) {
-      groupRef.current.rotation.y += delta * (hovered ? 0.08 : 0.12)
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.08
-      const targetScale = hovered ? 1.03 : 1
-      groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale }, 0.08)
-    }
-
-    if (isZooming && groupRef.current) {
-      const elapsed = state.clock.elapsedTime - zoomStartTime
-      const duration = 1.8
-      const progress = Math.min(elapsed / duration, 1)
-      const easeOut = 1 - Math.pow(1 - progress, 2.5)
-
-      const startScale = 2
-      const endScale = 4.5
-      const currentScale = startScale + (endScale - startScale) * easeOut
-      groupRef.current.scale.setScalar(currentScale)
-      groupRef.current.rotation.y += delta * (0.5 + easeOut * 1.2)
-
-      const startZ = 8
-      const endZ = 5.5
-      const targetZ = startZ - (startZ - endZ) * easeOut
-      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.06)
-
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * (0.15 * easeOut)
-
-      if (progress >= 1) {
-        onGlobeClick()
-      }
-    }
-  })
-
-  const handleClick = (e: any) => {
-    e.stopPropagation()
-    if (!isZooming) {
-      setIsZooming(true)
-      setZoomStartTime(performance.now() / 1000)
-    }
-  }
-
-  return (
-    <group
-      ref={groupRef}
-      onClick={handleClick}
-      onPointerOver={(e) => {
-        e.stopPropagation()
-        setHovered(true)
-        document.body.style.cursor = "pointer"
-      }}
-      onPointerOut={(e) => {
-        e.stopPropagation()
-        setHovered(false)
-        document.body.style.cursor = "auto"
-      }}
-      scale={[2, 2, 2]}
-      rotation={[Math.PI, 0, 0]}
-    >
-      <mesh>
-        <sphereGeometry args={[1, 64, 64]} />
-        <meshStandardMaterial
-          color="#4a90e2"
-          roughness={0.7}
-          metalness={0.1}
-          emissive="#001122"
-          emissiveIntensity={0.1}
-        />
-      </mesh>
-
-      <mesh scale={[1.02, 1.02, 1.02]}>
-        <sphereGeometry args={[1, 32, 32]} />
-        <meshBasicMaterial 
-          color="#4a90e2" 
-          transparent 
-          opacity={hovered ? 0.12 : 0.06} 
-          side={THREE.BackSide} 
-        />
-      </mesh>
-    </group>
-  )
-}
-
-function EarthGlobeWithFallback({ onGlobeClick }: { onGlobeClick: () => void }) {
-  return (
-    <Suspense fallback={<FallbackEarthGlobe onGlobeClick={onGlobeClick} />}>
-      <RealisticEarthGlobe onGlobeClick={onGlobeClick} />
-    </Suspense>
-  )
-}
-
-function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
-  const groupRef = useRef<Group>(null)
-
-  useFrame((state, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.2 // Reduced rotation speed
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1 // Reduced floating
-    }
-  })
-
-  return (
-    <group ref={groupRef} onClick={onBack}>
-      <mesh position={[0, 0, 0]}>
-        <boxGeometry args={[2, 2, 2]} />
-        <meshStandardMaterial
-          color="#10b981"
-          emissive="#064e3b"
-          emissiveIntensity={0.2}
-          roughness={0.3}
-          metalness={0.1}
-        />
-      </mesh>
-
+      {/* Floating particles around sphere */}
       {Array.from({ length: 8 }, (_, i) => {
         const angle = (i / 8) * Math.PI * 2
-        const radius = 4
+        const radius = 2
         return (
-          <mesh key={i} position={[Math.cos(angle) * radius, Math.sin(i * 0.5) * 0.5, Math.sin(angle) * radius]}>
-            <boxGeometry args={[0.8, 1.5, 0.8]} />
-            <meshStandardMaterial color="#059669" emissive="#065f46" emissiveIntensity={0.1} />
+          <mesh key={i} position={[Math.cos(angle) * radius, Math.sin(i * 0.5) * 0.3, Math.sin(angle) * radius]}>
+            <sphereGeometry args={[0.03, 8, 8]} />
+            <meshBasicMaterial color="#a855f7" transparent opacity={0.6} />
           </mesh>
         )
       })}
 
-      <Html position={[0, 3, 0]} center>
-        <div className="bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-muted-foreground">
-          Click to return to Earth
+      {/* Atmosphere glow */}
+      <mesh scale={[1.3, 1.3, 1.3]}>
+        <sphereGeometry args={[1, 32, 32]} />
+        <meshBasicMaterial color="#6366f1" transparent opacity={hovered ? 0.15 : 0.08} side={THREE.BackSide} />
+      </mesh>
+    </group>
+  )
+}
+
+function FloatingUICards() {
+  const groupRef = useRef<Group>(null)
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.1
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.2
+    }
+  })
+
+  return (
+    <group ref={groupRef}>
+      {/* Floating card 1 */}
+      <Html position={[3, 1, 0]} transform occlude>
+        <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-3 w-32 hover-lift">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-6 h-6 bg-primary rounded-full"></div>
+            <span className="text-xs font-medium">NFT #1234</span>
+          </div>
+          <div className="text-xs text-muted-foreground">0.5 ETH</div>
+        </div>
+      </Html>
+
+      {/* Floating card 2 */}
+      <Html position={[-3, -1, 0]} transform occlude>
+        <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-3 w-32 hover-lift">
+          <div className="flex items-center gap-2 mb-2">
+            <Users className="w-4 h-4 text-primary" />
+            <span className="text-xs font-medium">7k+ Users</span>
+          </div>
+          <div className="text-xs text-muted-foreground">Active Community</div>
+        </div>
+      </Html>
+
+      {/* Floating card 3 */}
+      <Html position={[2, -2, -1]} transform occlude>
+        <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-3 w-32 hover-lift">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="w-4 h-4 text-primary" />
+            <span className="text-xs font-medium">42k+ Sales</span>
+          </div>
+          <div className="text-xs text-muted-foreground">Volume</div>
         </div>
       </Html>
     </group>
@@ -328,174 +200,106 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
   const handleGlobeInteraction = () => {
     setTimeout(() => {
       handleGlobeNavigation()
-    }, 1800) // Reduced delay to match new animation duration
+    }, 2000)
   }
 
   return (
-    <section id="beranda" className="pt-16 pb-20 relative overflow-hidden parallax-container" role="banner">
-      <ParallaxBackground speed={0.3} className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-20 left-10 w-32 h-32 opacity-[0.025] rotate-12">
-          <div className="w-full h-full text-amber-700 animate-float">
-            <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
-              <path d="M50 10 C60 15 65 25 60 35 L65 50 C70 60 65 70 55 75 L50 90 L45 75 C35 70 30 60 35 50 L40 35 C35 25 40 15 50 10 Z" />
-              <circle cx="45" cy="30" r="3" fill="white" />
-              <circle cx="55" cy="30" r="3" fill="white" />
-            </svg>
-          </div>
-        </div>
-      </ParallaxBackground>
+    <section id="beranda" className="pt-16 pb-20 relative overflow-hidden min-h-screen" role="banner">
+      <div className="absolute inset-0 gradient-dark"></div>
+      <div className="absolute inset-0 gradient-mesh"></div>
 
-      <ParallaxBackground speed={0.5} className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-40 right-20 w-24 h-24 opacity-[0.03] -rotate-45">
-          <div className="w-full h-full text-emerald-700 animate-float" style={{ animationDelay: "1s" }}>
-            <svg viewBox="0 0 100 100" className="w-full h-full" fill="currentColor">
-              <path d="M50 20 Q60 30 50 40 Q40 30 50 20 Z" />
-              <path d="M50 60 Q60 70 50 80 Q40 70 50 60 Z" />
-              <path d="M20 50 Q30 40 40 50 Q30 60 20 50 Z" />
-              <path d="M80 50 Q70 40 60 50 Q70 60 80 50 Z" />
-              <circle cx="50" cy="50" r="8" />
-            </svg>
-          </div>
-        </div>
-      </ParallaxBackground>
+      <div className="absolute inset-0 pointer-events-none">
+        {Array.from({ length: 20 }, (_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-primary/30 rounded-full animate-particle-float"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 4}s`,
+              animationDuration: `${4 + Math.random() * 2}s`,
+            }}
+          />
+        ))}
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[600px]">
+        <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
           <AnimatedReveal animation="fade-up" delay={200}>
             <div className="space-y-8">
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <AnimatedReveal animation="slide-right" delay={400}>
-                  <div className="flex items-center space-x-2 mb-4">
-                    <Badge className="bg-primary/10 text-primary border-primary/20 hover-glow">
+                  <div className="flex items-center space-x-2 mb-6">
+                    <Badge className="bg-primary/20 text-primary border-primary/30 hover-glow">
                       <Sparkles className="h-3 w-3 mr-1" />
-                      Platform Digital Budaya
-                    </Badge>
-                    <Badge
-                      variant="outline"
-                      className="bg-emerald-100/50 text-emerald-700 border-emerald-200 hover-lift"
-                    >
-                      <Shield className="h-3 w-3 mr-1" />
-                      Terpercaya
+                      For Artists by Artist
                     </Badge>
                   </div>
                 </AnimatedReveal>
 
                 <AnimatedReveal animation="fade-up" delay={600}>
-                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-[family-name:var(--font-manrope)] leading-tight">
-                    Warisan Budaya
-                    <span className="text-primary block animate-shimmer bg-gradient-to-r from-primary via-amber-500 to-primary bg-clip-text">
-                      Jawa Timur
+                  <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
+                    THE FUTURE
+                    <span className="block text-primary animate-gradient-shift bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                      Warisan Budaya
                     </span>
+                    <span className="block">Jawa Timur</span>
                   </h1>
                 </AnimatedReveal>
 
                 <AnimatedReveal animation="fade-up" delay={800}>
-                  <p className="text-lg md:text-xl text-muted-foreground max-w-2xl text-pretty leading-relaxed">
-                    Jelajahi kekayaan budaya Jawa Timur melalui platform digital yang inovatif. Temukan kesenian
-                    tradisional, kuliner khas, bahasa daerah, dan warisan budaya yang telah diwariskan turun-temurun.
+                  <p className="text-xl text-muted-foreground max-w-2xl text-pretty leading-relaxed">
+                    Jelajahi kekayaan budaya Jawa Timur melalui platform digital yang inovatif. Temukan kesenian tradisional, kuliner khas, bahasa daerah, dan warisan budaya yang telah diwariskan turun-temurun.
                   </p>
                 </AnimatedReveal>
               </div>
 
-              <AnimatedReveal animation="scale-up" delay={1000}>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center space-x-2 group">
-                    <div className="w-2 h-2 bg-primary rounded-full group-hover:animate-pulse-glow"></div>
-                    <span>Eksplorasi Interaktif</span>
-                  </div>
-                  <div className="flex items-center space-x-2 group">
-                    <div className="w-2 h-2 bg-primary rounded-full group-hover:animate-pulse-glow"></div>
-                    <span>Konten Edukatif</span>
-                  </div>
-                  <div className="flex items-center space-x-2 group">
-                    <div className="w-2 h-2 bg-primary rounded-full group-hover:animate-pulse-glow"></div>
-                    <span>Mudah Diakses</span>
-                  </div>
-                  <div className="flex items-center space-x-2 group">
-                    <div className="w-2 h-2 bg-primary rounded-full group-hover:animate-pulse-glow"></div>
-                    <span>Responsif</span>
-                  </div>
-                </div>
-              </AnimatedReveal>
-
-              <AnimatedReveal animation="bounce-in" delay={1200}>
+              <AnimatedReveal animation="bounce-in" delay={1000}>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <EnhancedButton
                     size="lg"
                     effect="glow"
-                    className="text-lg px-8"
+                    className="text-lg px-8 py-4 gradient-purple"
                     onClick={() => onNavClick("eksplorasi")}
-                    aria-label="Mulai menjelajahi budaya Jawa Timur"
+                    aria-label="Start exploring NFT collections"
                   >
-                    <Compass className="h-5 w-5 mr-2" />
-                    Mulai Eksplorasi Budaya
+                    <Play className="h-5 w-5 mr-2" />
+                    Explore Collections
                   </EnhancedButton>
                   <EnhancedButton
                     variant="outline"
                     size="lg"
                     effect="lift"
-                    className="text-lg px-8 bg-transparent"
+                    className="text-lg px-8 py-4 border-primary/30 hover:bg-primary/10"
                     onClick={() => onNavClick("tentang")}
-                    aria-label="Pelajari lebih lanjut tentang platform"
+                    aria-label="Learn more about the platform"
                   >
                     <BookOpen className="h-5 w-5 mr-2" />
-                    Pelajari Lebih Lanjut
+                    Learn More
                   </EnhancedButton>
                 </div>
               </AnimatedReveal>
 
-              <AnimatedReveal animation="fade-up" delay={1400}>
-                <div className="grid grid-cols-3 gap-6 pt-8">
+              <AnimatedReveal animation="fade-up" delay={1200}>
+                <div className="grid grid-cols-3 gap-8 pt-8">
                   <div className="text-center group hover-lift">
-                    <div className="text-2xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
-                      {stats.totalRegions}
+                    <div className="text-3xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
+                      7k+
                     </div>
-                    <div className="text-sm text-muted-foreground">Kabupaten Kota</div>
+                    <div className="text-sm text-muted-foreground">Creators</div>
                   </div>
                   <div className="text-center group hover-lift">
-                    <div className="text-2xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
-                      {stats.totalItems}+
+                    <div className="text-3xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
+                      42k+
                     </div>
-                    <div className="text-sm text-muted-foreground">Kesenian Tradisional</div>
+                    <div className="text-sm text-muted-foreground">Artworks</div>
                   </div>
                   <div className="text-center group hover-lift">
-                    <div className="text-2xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
-                      {stats.categoryStats.find((cat) => cat.category === "Kuliner")?.count || 0}+
+                    <div className="text-3xl font-bold text-primary group-hover:animate-pulse-glow transition-all duration-300">
+                      84k+
                     </div>
-                    <div className="text-sm text-muted-foreground">Kuliner Khas</div>
+                    <div className="text-sm text-muted-foreground">Collections</div>
                   </div>
-                </div>
-              </AnimatedReveal>
-
-              <AnimatedReveal animation="slide-left" delay={1600}>
-                <div className="flex flex-wrap gap-2 pt-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs hover-glow"
-                    onClick={() => handleCategoryNavigation("Tari Tradisional")}
-                  >
-                    <Music className="h-3 w-3 mr-1" />
-                    Tari Tradisional
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs hover-glow"
-                    onClick={() => handleCategoryNavigation("Kuliner")}
-                  >
-                    <Utensils className="h-3 w-3 mr-1" />
-                    Kuliner Khas
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs hover-glow"
-                    onClick={() => handleCategoryNavigation("Kerajinan")}
-                  >
-                    <Palette className="h-3 w-3 mr-1" />
-                    Kerajinan
-                  </Button>
                 </div>
               </AnimatedReveal>
             </div>
@@ -503,17 +307,10 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
 
           <AnimatedReveal animation="scale-up" delay={800}>
             <div className="h-96 lg:h-[600px] w-full relative">
-              <div className="absolute top-4 right-4 z-10">
-                <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm hover-lift">
-                  <Globe className="h-3 w-3 mr-1" />
-                  Interactive 3D Earth
-                </Badge>
-              </div>
-
               <SafeCanvas
                 camera={{
-                  position: [0, 0, 8],
-                  fov: 45,
+                  position: [0, 0, 6],
+                  fov: 50,
                   near: 0.1,
                   far: 1000,
                 }}
@@ -524,57 +321,53 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
                   powerPreference: "high-performance",
                 }}
               >
-                <ambientLight intensity={0.4} />
-                <pointLight position={[10, 10, 10]} intensity={1.5} color="#ffffff" />
-                <pointLight position={[-10, -10, -10]} intensity={0.8} color="#4a90e2" />
-                <spotLight position={[0, 20, 10]} intensity={1.2} angle={0.3} penumbra={1} color="#fbbf24" />
-                <directionalLight position={[5, 5, 5]} intensity={0.6} color="#ffffff" />
+                <ambientLight intensity={0.3} />
+                <pointLight position={[10, 10, 10]} intensity={1.2} color="#6366f1" />
+                <pointLight position={[-10, -10, -10]} intensity={0.8} color="#8b5cf6" />
+                <spotLight position={[0, 20, 10]} intensity={1} angle={0.3} penumbra={1} color="#a855f7" />
 
                 <Suspense fallback={<LoadingSpinner />}>
-                  {showCities ? (
-                    <EastJavaCitiesView onBack={onBackToGlobe} />
-                  ) : (
-                    <EarthGlobeWithFallback onGlobeClick={handleGlobeInteraction} />
-                  )}
+                  <ModernSphere onGlobeClick={handleGlobeInteraction} />
+                  <FloatingUICards />
                 </Suspense>
 
-                <Environment preset="sunset" />
+                <Environment preset="night" />
 
                 <OrbitControls
                   enableZoom={true}
-                  minDistance={5}
-                  maxDistance={15}
-                  autoRotate={!showCities}
-                  autoRotateSpeed={0.2} // Reduced auto-rotate speed
+                  minDistance={4}
+                  maxDistance={12}
+                  autoRotate={true}
+                  autoRotateSpeed={0.5}
                   enablePan={false}
                   enableDamping={true}
-                  dampingFactor={0.08} // Increased damping for smoother controls
-                  rotateSpeed={0.4} // Reduced rotate speed
-                  zoomSpeed={0.6} // Reduced zoom speed
+                  dampingFactor={0.05}
+                  rotateSpeed={0.5}
+                  zoomSpeed={0.8}
                   minPolarAngle={Math.PI * 0.2}
                   maxPolarAngle={Math.PI * 0.8}
                 />
               </SafeCanvas>
 
+              <div className="absolute top-4 right-4 z-10">
+                <Badge variant="secondary" className="bg-card/80 backdrop-blur-sm border-border hover-lift">
+                  <Globe className="h-3 w-3 mr-1" />
+                  Interactive 3D
+                </Badge>
+              </div>
+
               <div className="absolute bottom-4 left-4 z-10">
-                <div className="bg-background/80 backdrop-blur-sm px-3 py-2 rounded-lg text-xs text-muted-foreground space-y-1">
+                <div className="bg-card/80 backdrop-blur-sm border border-border px-4 py-3 rounded-lg text-sm space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                    <span>Drag to rotate</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-2 h-2 bg-secondary rounded-full animate-pulse"
-                      style={{ animationDelay: "0.5s" }}
-                    ></div>
-                    <span>Scroll to zoom</span>
+                    <span className="text-muted-foreground">Drag to rotate</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div
                       className="w-2 h-2 bg-accent rounded-full animate-pulse"
-                      style={{ animationDelay: "1s" }}
+                      style={{ animationDelay: "0.5s" }}
                     ></div>
-                    <span>Click for smooth zoom</span>
+                    <span className="text-muted-foreground">Click to explore</span>
                   </div>
                 </div>
               </div>
