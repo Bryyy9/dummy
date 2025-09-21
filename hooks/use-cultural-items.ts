@@ -10,7 +10,7 @@ import {
 
 export function useCulturalItems() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("tari")
+  const [selectedCategory, setSelectedCategory] = useState("semua")
   const [filteredItems, setFilteredItems] = useState<CulturalItem[]>([])
 
   // Compute filtered items based on search and category

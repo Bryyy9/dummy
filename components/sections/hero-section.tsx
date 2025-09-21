@@ -39,6 +39,7 @@ function RealisticEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
   const cloudsRef = useRef<THREE.Mesh>(null)
   const [hovered, setHovered] = useState(false)
   const [isZooming, setIsZooming] = useState(false)
+  const [zoomStartTime, setZoomStartTime] = useState(0)
   const { camera } = useThree()
 
   const earthTexture = useTexture("/textures/TERRE_baseColor.jpeg")
@@ -48,30 +49,49 @@ function RealisticEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
 
   useFrame((state, delta) => {
     if (groupRef.current && !isZooming) {
-      groupRef.current.rotation.y += delta * (hovered ? 0.1 : 0.15)
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1
-      const targetScale = hovered ? 1.05 : 1
-      groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale }, 0.1)
+      // Normal rotation and floating
+      groupRef.current.rotation.y += delta * (hovered ? 0.08 : 0.12)
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.08
+      
+      // Smooth scale transition on hover
+      const targetScale = hovered ? 1.03 : 1
+      groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale }, 0.08)
     }
 
     if (isZooming && groupRef.current) {
-      const zoomProgress = Math.min((state.clock.elapsedTime - (groupRef.current as any).zoomStartTime) / 2, 1)
-      const easeOut = 1 - Math.pow(1 - zoomProgress, 3)
+      const elapsed = state.clock.elapsedTime - zoomStartTime
+      const duration = 1.8 // Reduced from 2 seconds
+      const progress = Math.min(elapsed / duration, 1)
+      
+      // Smooth easing function (ease-out cubic)
+      const easeOut = 1 - Math.pow(1 - progress, 2.5)
 
-      const targetScale = 2 + easeOut * 8
-      groupRef.current.scale.setScalar(targetScale)
-      groupRef.current.rotation.y += delta * (2 + easeOut * 3)
+      // Smooth scale transition
+      const startScale = 2
+      const endScale = 4.5 // Reduced from 10
+      const currentScale = startScale + (endScale - startScale) * easeOut
+      groupRef.current.scale.setScalar(currentScale)
 
-      const targetZ = 8 - easeOut * 6
-      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.1)
+      // Gentle rotation acceleration
+      groupRef.current.rotation.y += delta * (0.5 + easeOut * 1.2)
 
-      if (zoomProgress >= 1) {
+      // Smooth camera movement
+      const startZ = 8
+      const endZ = 5.5 // Less dramatic zoom
+      const targetZ = startZ - (startZ - endZ) * easeOut
+      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.06)
+
+      // Add subtle floating during zoom
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * (0.15 * easeOut)
+
+      if (progress >= 1) {
         onGlobeClick()
       }
     }
 
+    // Clouds rotation
     if (cloudsRef.current) {
-      cloudsRef.current.rotation.y += delta * 0.05
+      cloudsRef.current.rotation.y += delta * 0.03
     }
   })
 
@@ -79,9 +99,7 @@ function RealisticEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
     e.stopPropagation()
     if (!isZooming) {
       setIsZooming(true)
-      if (groupRef.current) {
-        ;(groupRef.current as any).zoomStartTime = performance.now() / 1000
-      }
+      setZoomStartTime(performance.now() / 1000)
     }
   }
 
@@ -126,17 +144,35 @@ function RealisticEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
         />
       </mesh>
 
+      {/* Subtle atmosphere glow */}
       <mesh scale={[1.02, 1.02, 1.02]}>
         <sphereGeometry args={[1, 32, 32]} />
-        <meshBasicMaterial color="#4a90e2" transparent opacity={hovered ? 0.15 : 0.08} side={THREE.BackSide} />
+        <meshBasicMaterial 
+          color="#4a90e2" 
+          transparent 
+          opacity={hovered ? 0.12 : 0.06} 
+          side={THREE.BackSide} 
+        />
       </mesh>
 
+      {/* Subtle particle effect during zoom */}
       {isZooming && (
         <group>
-          {Array.from({ length: 20 }, (_, i) => (
-            <mesh key={i} position={[(Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4]}>
-              <sphereGeometry args={[0.02, 8, 8]} />
-              <meshBasicMaterial color="#4a90e2" transparent opacity={0.6} />
+          {Array.from({ length: 12 }, (_, i) => (
+            <mesh 
+              key={i} 
+              position={[
+                (Math.random() - 0.5) * 3, 
+                (Math.random() - 0.5) * 3, 
+                (Math.random() - 0.5) * 3
+              ]}
+            >
+              <sphereGeometry args={[0.015, 8, 8]} />
+              <meshBasicMaterial 
+                color="#4a90e2" 
+                transparent 
+                opacity={0.4} 
+              />
             </mesh>
           ))}
         </group>
@@ -149,28 +185,37 @@ function FallbackEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
   const groupRef = useRef<Group>(null)
   const [hovered, setHovered] = useState(false)
   const [isZooming, setIsZooming] = useState(false)
+  const [zoomStartTime, setZoomStartTime] = useState(0)
   const { camera } = useThree()
 
   useFrame((state, delta) => {
     if (groupRef.current && !isZooming) {
-      groupRef.current.rotation.y += delta * (hovered ? 0.1 : 0.15)
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1
-      const targetScale = hovered ? 1.05 : 1
-      groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale }, 0.1)
+      groupRef.current.rotation.y += delta * (hovered ? 0.08 : 0.12)
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.08
+      const targetScale = hovered ? 1.03 : 1
+      groupRef.current.scale.lerp({ x: targetScale, y: targetScale, z: targetScale }, 0.08)
     }
 
     if (isZooming && groupRef.current) {
-      const zoomProgress = Math.min((state.clock.elapsedTime - (groupRef.current as any).zoomStartTime) / 2, 1)
-      const easeOut = 1 - Math.pow(1 - zoomProgress, 3)
+      const elapsed = state.clock.elapsedTime - zoomStartTime
+      const duration = 1.8
+      const progress = Math.min(elapsed / duration, 1)
+      const easeOut = 1 - Math.pow(1 - progress, 2.5)
 
-      const targetScale = 2 + easeOut * 8
-      groupRef.current.scale.setScalar(targetScale)
-      groupRef.current.rotation.y += delta * (2 + easeOut * 3)
+      const startScale = 2
+      const endScale = 4.5
+      const currentScale = startScale + (endScale - startScale) * easeOut
+      groupRef.current.scale.setScalar(currentScale)
+      groupRef.current.rotation.y += delta * (0.5 + easeOut * 1.2)
 
-      const targetZ = 8 - easeOut * 6
-      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.1)
+      const startZ = 8
+      const endZ = 5.5
+      const targetZ = startZ - (startZ - endZ) * easeOut
+      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.06)
 
-      if (zoomProgress >= 1) {
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * (0.15 * easeOut)
+
+      if (progress >= 1) {
         onGlobeClick()
       }
     }
@@ -180,9 +225,7 @@ function FallbackEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
     e.stopPropagation()
     if (!isZooming) {
       setIsZooming(true)
-      if (groupRef.current) {
-        ;(groupRef.current as any).zoomStartTime = performance.now() / 1000
-      }
+      setZoomStartTime(performance.now() / 1000)
     }
   }
 
@@ -216,7 +259,12 @@ function FallbackEarthGlobe({ onGlobeClick }: { onGlobeClick: () => void }) {
 
       <mesh scale={[1.02, 1.02, 1.02]}>
         <sphereGeometry args={[1, 32, 32]} />
-        <meshBasicMaterial color="#4a90e2" transparent opacity={hovered ? 0.15 : 0.08} side={THREE.BackSide} />
+        <meshBasicMaterial 
+          color="#4a90e2" 
+          transparent 
+          opacity={hovered ? 0.12 : 0.06} 
+          side={THREE.BackSide} 
+        />
       </mesh>
     </group>
   )
@@ -235,8 +283,8 @@ function EastJavaCitiesView({ onBack }: { onBack: () => void }) {
 
   useFrame((state, delta) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.3
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.8) * 0.2
+      groupRef.current.rotation.y += delta * 0.2 // Reduced rotation speed
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1 // Reduced floating
     }
   })
 
@@ -280,7 +328,7 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
   const handleGlobeInteraction = () => {
     setTimeout(() => {
       handleGlobeNavigation()
-    }, 2000)
+    }, 1800) // Reduced delay to match new animation duration
   }
 
   return (
@@ -497,12 +545,12 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
                   minDistance={5}
                   maxDistance={15}
                   autoRotate={!showCities}
-                  autoRotateSpeed={0.3}
+                  autoRotateSpeed={0.2} // Reduced auto-rotate speed
                   enablePan={false}
                   enableDamping={true}
-                  dampingFactor={0.05}
-                  rotateSpeed={0.5}
-                  zoomSpeed={0.8}
+                  dampingFactor={0.08} // Increased damping for smoother controls
+                  rotateSpeed={0.4} // Reduced rotate speed
+                  zoomSpeed={0.6} // Reduced zoom speed
                   minPolarAngle={Math.PI * 0.2}
                   maxPolarAngle={Math.PI * 0.8}
                 />
@@ -526,7 +574,7 @@ export function HeroSection({ onNavClick, showCities, onGlobeClick, onBackToGlob
                       className="w-2 h-2 bg-accent rounded-full animate-pulse"
                       style={{ animationDelay: "1s" }}
                     ></div>
-                    <span>Click for dramatic zoom</span>
+                    <span>Click for smooth zoom</span>
                   </div>
                 </div>
               </div>
