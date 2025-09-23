@@ -35,7 +35,16 @@ export function useNavigation() {
   )
 
   const handleGlobeNavigation = useCallback(() => {
-    router.push("/peta-budaya")
+    // Add loading state and faster navigation
+    document.body.style.cursor = "wait"
+
+    // Use replace for faster navigation without adding to history stack
+    router.replace("/peta-budaya")
+
+    // Reset cursor after navigation
+    setTimeout(() => {
+      document.body.style.cursor = "auto"
+    }, 100)
   }, [router])
 
   const handleCategoryNavigation = useCallback(

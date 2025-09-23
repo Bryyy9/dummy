@@ -2,8 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Globe, Home, Compass, Info, Mail, Menu, X, Search } from "lucide-react"
+import { Globe, Home, Camera, Mail, Menu, X, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
@@ -27,9 +26,9 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
   }
 
   const navItems = [
-    { id: "beranda", label: "Beranda", icon: Home },
-    { id: "eksplorasi", label: "Eksplorasi", icon: Compass },
-    { id: "tentang", label: "Tentang", icon: Info },
+    { id: "beranda", label: "StartTour", icon: Home },
+    { id: "eksplorasi", label: "Galeri", icon: Camera },
+    { id: "tentang", label: "Budaya", icon: Globe },
     { id: "kontak", label: "Kontak", icon: Mail },
   ]
 

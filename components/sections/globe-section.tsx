@@ -1,7 +1,6 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-import { EnhancedButton } from "@/components/interactive/enhanced-button"
 import { SafeCanvas } from "@/components/three/safe-canvas"
 import { Environment, OrbitControls, Html } from "@react-three/drei"
 import { useRef, useState, Suspense } from "react"
@@ -41,18 +40,33 @@ function ModernSphere({ onDone }: { onDone: () => void }) {
 
     if (isZooming && groupRef.current) {
       const elapsed = state.clock.elapsedTime - zoomStart
-      const duration = 2
+      const duration = 0.8 // Reduced from 2 seconds to 0.8 seconds
       const progress = Math.min(elapsed / duration, 1)
-      const easeOut = 1 - Math.pow(1 - progress, 3)
+
+      // Enhanced easing function for smoother animation
+      const easeInOutCubic =
+        progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2
+
       const startScale = 1.5
-      const endScale = 5
-      const currentScale = startScale + (endScale - startScale) * easeOut
+      const endScale = 8 // Increased for more dramatic effect
+      const currentScale = startScale + (endScale - startScale) * easeInOutCubic
+
       groupRef.current.scale.setScalar(currentScale)
-      groupRef.current.rotation.y += delta * (0.8 + easeOut * 1.5)
-      if (progress >= 1) onDone()
+      groupRef.current.rotation.y += delta * (1.2 + easeInOutCubic * 2.5)
+
+      // Add pulsing effect during zoom
+      if (sphereRef.current) {
+        const material = sphereRef.current.material as THREE.MeshStandardMaterial
+        material.emissiveIntensity = 0.2 + Math.sin(elapsed * 8) * 0.1
+      }
+
+      if (progress >= 1) {
+        // Add slight delay before navigation for visual effect
+        setTimeout(() => onDone(), 100)
+      }
     }
 
-    if (sphereRef.current) {
+    if (sphereRef.current && !isZooming) {
       const material = sphereRef.current.material as THREE.MeshStandardMaterial
       const time = state.clock.elapsedTime
       const r = Math.sin(time * 0.5) * 0.3 + 0.4
@@ -89,7 +103,13 @@ function ModernSphere({ onDone }: { onDone: () => void }) {
     >
       <mesh ref={sphereRef}>
         <sphereGeometry args={[1, 64, 64]} />
-        <meshStandardMaterial color="#6366f1" roughness={0.2} metalness={0.8} emissive="#6366f1" emissiveIntensity={0.1} />
+        <meshStandardMaterial
+          color="#6366f1"
+          roughness={0.2}
+          metalness={0.8}
+          emissive="#6366f1"
+          emissiveIntensity={0.1}
+        />
       </mesh>
 
       <mesh scale={[1.2, 1.2, 1.2]}>
@@ -97,13 +117,19 @@ function ModernSphere({ onDone }: { onDone: () => void }) {
         <meshBasicMaterial color="#8b5cf6" transparent opacity={hovered ? 0.8 : 0.4} />
       </mesh>
 
-      {Array.from({ length: 8 }, (_, i) => {
-        const angle = (i / 8) * Math.PI * 2
-        const radius = 2
+      <mesh scale={[1.4, 1.4, 1.4]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[1, 0.015, 16, 100]} />
+        <meshBasicMaterial color="#a855f7" transparent opacity={hovered ? 0.6 : 0.3} />
+      </mesh>
+
+      {Array.from({ length: 12 }, (_, i) => {
+        const angle = (i / 12) * Math.PI * 2
+        const radius = 2 + Math.sin(i * 0.8) * 0.5
+        const height = Math.sin(i * 0.7) * 0.6
         return (
-          <mesh key={i} position={[Math.cos(angle) * radius, Math.sin(i * 0.5) * 0.3, Math.sin(angle) * radius]}>
+          <mesh key={i} position={[Math.cos(angle) * radius, height, Math.sin(angle) * radius]}>
             <sphereGeometry args={[0.03, 8, 8]} />
-            <meshBasicMaterial color="#a855f7" transparent opacity={0.6} />
+            <meshBasicMaterial color="#a855f7" transparent opacity={hovered ? 0.8 : 0.6} />
           </mesh>
         )
       })}
@@ -151,7 +177,6 @@ function FloatingUICards() {
 export function GlobeSection() {
   const { handleGlobeNavigation } = useNavigation()
   const goToMap = () => {
-    // dipanggil setelah animasi zoom selesai
     handleGlobeNavigation()
   }
 
