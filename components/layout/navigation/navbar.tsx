@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 interface NavbarProps {
   className?: string
@@ -52,13 +53,20 @@ export function Navbar({ className }: NavbarProps) {
       )}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-24">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">W</span>
+          <div className="flex items-center">
+            <div className="relative w-40 h-20 flex items-center justify-center hover:scale-105 transition-transform duration-200 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30 shadow-lg hover:shadow-xl hover:bg-white/30">
+              <Image
+                src="/Logo.png"
+                alt="UB Corpora Logo"
+                width={150}
+                height={75}
+                className="object-contain cursor-pointer rounded-xl"
+                priority
+                onClick={() => smoothScrollTo("beranda")}
+              />
             </div>
-            <span className="font-bold text-xl text-gray-800">Warisan Budaya</span>
           </div>
 
           {/* Desktop Navigation */}

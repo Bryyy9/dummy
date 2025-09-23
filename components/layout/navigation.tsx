@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Globe, Home, Compass, Info, Mail, Menu, X, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 interface NavigationProps {
   onNavClick: (section: string) => void
@@ -40,18 +41,20 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center shadow-md">
-              <Globe className="h-5 w-5 text-primary-foreground" />
+          <div className="flex items-center">
+            <div className="relative w-32 h-16 flex items-center justify-center hover:scale-105 transition-transform duration-200 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg hover:shadow-xl hover:bg-white/20">
+              <Image
+                src="/Logo.png"
+                alt="UB Corpora Logo"
+                width={120}
+                height={60}
+                className="object-contain cursor-pointer rounded-lg"
+                priority
+                onClick={() => handleNavClick("beranda")}
+              />
             </div>
-            <h1 className="text-xl font-bold text-primary font-[family-name:var(--font-manrope)] tracking-tight">
-              UB Corpora
-            </h1>
-            <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
-              Budaya Jawa Timur
-            </Badge>
           </div>
 
           {/* Desktop Navigation */}

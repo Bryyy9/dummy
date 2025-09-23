@@ -1,25 +1,15 @@
 "use client"
 
-import { useState } from "react"
 import { Navigation } from "@/components/layout/navigation"
 import { HeroSection } from "@/components/sections/hero-section"
-import { ExplorationSection } from "@/components/sections/exploration-section"
+import { GlobeSection } from "@/components/sections/globe-section"
 import { AboutSection } from "@/components/sections/about-section"
 import { ContactSection } from "@/components/sections/contact-section"
 import { Footer } from "@/components/layout/footer"
 import { useNavigation } from "@/hooks/use-navigation"
 
 export default function CulturalHeritagePage() {
-  const [showCities, setShowCities] = useState(false)
   const { handleNavClick, handleCategoryNavigation } = useNavigation()
-
-  const handleGlobeClick = () => {
-    setShowCities(true)
-  }
-
-  const handleBackToGlobe = () => {
-    setShowCities(false)
-  }
 
   const handleCategoryClick = (category: string) => {
     handleCategoryNavigation(category)
@@ -120,14 +110,10 @@ export default function CulturalHeritagePage() {
       <div className="relative z-10">
         <Navigation onNavClick={handleNavClick} />
 
-        <HeroSection
-          onNavClick={handleNavClick}
-          showCities={showCities}
-          onGlobeClick={handleGlobeClick}
-          onBackToGlobe={handleBackToGlobe}
-        />
+        <HeroSection onNavClick={handleNavClick} />
 
-        <ExplorationSection />
+        {/* Section pengganti eksplorasi: Globe 3D */}
+        <GlobeSection />
 
         <AboutSection onNavClick={handleNavClick} />
 
