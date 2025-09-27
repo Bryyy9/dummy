@@ -18,114 +18,114 @@ const eastJavaRegions = [
     name: "Surabaya",
     coordinates: { x: 65, y: 45 },
     color: "#6366f1",
-    culturalElements: ["Tari Remo", "Rujak Cingur", "Batik Surabaya", "Lagu Dolanan"],
-    description: "Kota metropolitan dengan budaya urban yang khas dan warisan sejarah yang kaya",
-    population: "2.9 juta",
+    culturalElements: ["Remo Dance", "Rujak Cingur", "Surabaya Batik", "Children’s Folk Songs"],
+    description: "A metropolitan city with unique urban culture and rich historical heritage",
+    population: "2.9 million",
     established: "1293",
-    highlights: ["Kota Pahlawan", "Pusat Ekonomi", "Heritage Buildings"],
+    highlights: ["City of Heroes", "Economic Hub", "Heritage Buildings"],
     rating: 4.8,
-    visitors: "1.2M/tahun",
+    visitors: "1.2M/year",
   },
   {
     id: "malang",
     name: "Malang",
     coordinates: { x: 55, y: 55 },
     color: "#8b5cf6",
-    culturalElements: ["Batik Malangan", "Topeng Malangan", "Rawon Malang", "Kerajinan Gerabah"],
-    description: "Kota pendidikan dengan warisan budaya yang kaya dan iklim sejuk pegunungan",
-    population: "895 ribu",
+    culturalElements: ["Malangan Batik", "Malangan Mask Dance", "Rawon Malang", "Pottery Crafts"],
+    description: "An education city with rich cultural heritage and cool mountain climate",
+    population: "895 thousand",
     established: "760",
-    highlights: ["Kota Pendidikan", "Wisata Budaya", "Kuliner Khas"],
+    highlights: ["Education City", "Cultural Tourism", "Signature Cuisine"],
     rating: 4.7,
-    visitors: "800K/tahun",
+    visitors: "800K/year",
   },
   {
     id: "kediri",
     name: "Kediri",
     coordinates: { x: 45, y: 50 },
     color: "#a855f7",
-    culturalElements: ["Tari Jaranan", "Gethuk Pisang", "Batik Kediri", "Wayang Thengul"],
-    description: "Pusat kebudayaan dengan tradisi wayang yang kuat dan industri rokok tembakau",
-    population: "268 ribu",
+    culturalElements: ["Jaranan Dance", "Gethuk Pisang", "Kediri Batik", "Thengul Puppets"],
+    description: "A cultural center with strong puppet traditions and tobacco industry",
+    population: "268 thousand",
     established: "1042",
-    highlights: ["Pusat Wayang", "Industri Tembakau", "Situs Bersejarah"],
+    highlights: ["Puppet Center", "Tobacco Industry", "Historic Sites"],
     rating: 4.5,
-    visitors: "450K/tahun",
+    visitors: "450K/year",
   },
   {
     id: "jember",
     name: "Jember",
     coordinates: { x: 75, y: 65 },
     color: "#c084fc",
-    culturalElements: ["Tari Gandrung", "Suwar-Suwir", "Batik Jember", "Festival Budaya"],
-    description: "Kota tembakau dengan seni pertunjukan tradisional dan festival budaya yang meriah",
-    population: "332 ribu",
+    culturalElements: ["Gandrung Dance", "Suwar-Suwir", "Jember Batik", "Cultural Festivals"],
+    description: "A tobacco city with vibrant traditional performances and cultural festivals",
+    population: "332 thousand",
     established: "1929",
-    highlights: ["Tari Gandrung", "Festival JFC", "Perkebunan Tembakau"],
+    highlights: ["Gandrung Dance", "JFC Festival", "Tobacco Plantations"],
     rating: 4.6,
-    visitors: "600K/tahun",
+    visitors: "600K/year",
   },
   {
     id: "probolinggo",
     name: "Probolinggo",
     coordinates: { x: 70, y: 40 },
     color: "#ddd6fe",
-    culturalElements: ["Tari Glipang", "Mangga Probolinggo", "Kerajinan Anyaman", "Besanan"],
-    description: "Kota mangga dengan tradisi pertanian yang unik dan gerbang menuju Bromo",
-    population: "217 ribu",
+    culturalElements: ["Glipang Dance", "Probolinggo Mango", "Weaving Crafts", "Besanan Tradition"],
+    description: "A mango city with unique agricultural traditions and gateway to Bromo",
+    population: "217 thousand",
     established: "1918",
-    highlights: ["Kota Mangga", "Gerbang Bromo", "Tradisi Pertanian"],
+    highlights: ["Mango City", "Bromo Gateway", "Agricultural Traditions"],
     rating: 4.4,
-    visitors: "350K/tahun",
+    visitors: "350K/year",
   },
   {
     id: "banyuwangi",
     name: "Banyuwangi",
     coordinates: { x: 85, y: 70 },
     color: "#7c3aed",
-    culturalElements: ["Tari Seblang", "Rujak Soto", "Batik Using", "Gandrung Sewu"],
-    description: "Ujung timur Jawa dengan budaya yang beragam dan destinasi wisata alam yang menawan",
-    population: "1.6 juta",
+    culturalElements: ["Seblang Dance", "Rujak Soto", "Using Batik", "Gandrung Sewu"],
+    description: "The eastern tip of Java with diverse culture and stunning natural destinations",
+    population: "1.6 million",
     established: "1771",
-    highlights: ["Budaya Using", "Wisata Alam", "Festival Gandrung"],
+    highlights: ["Using Culture", "Nature Tourism", "Gandrung Festival"],
     rating: 4.9,
-    visitors: "2.1M/tahun",
+    visitors: "2.1M/year",
   },
   {
     id: "ponorogo",
     name: "Ponorogo",
     coordinates: { x: 35, y: 60 },
     color: "#5b21b6",
-    culturalElements: ["Reog Ponorogo", "Dawet Jabung", "Kerajinan Bambu", "Tari Bujangganong"],
-    description: "Kota Reog dengan seni pertunjukan yang megah dan tradisi budaya yang autentik",
-    population: "855 ribu",
+    culturalElements: ["Reog Ponorogo", "Dawet Jabung", "Bamboo Crafts", "Bujangganong Dance"],
+    description: "City of Reog with grand performances and authentic cultural traditions",
+    population: "855 thousand",
     established: "1496",
-    highlights: ["Reog Ponorogo", "Seni Tradisional", "Kerajinan Bambu"],
+    highlights: ["Reog Ponorogo", "Traditional Arts", "Bamboo Crafts"],
     rating: 4.8,
-    visitors: "700K/tahun",
+    visitors: "700K/year",
   },
   {
     id: "madiun",
     name: "Madiun",
     coordinates: { x: 30, y: 45 },
     color: "#4c1d95",
-    culturalElements: ["Tari Beskalan", "Pecel Madiun", "Batik Madiun", "Gamelan Jawa"],
-    description: "Kota pecel dengan tradisi kuliner yang khas dan pusat kereta api historis",
-    population: "170 ribu",
+    culturalElements: ["Beskalan Dance", "Madiun Pecel", "Madiun Batik", "Javanese Gamelan"],
+    description: "City of pecel with distinctive culinary traditions and historic railway hub",
+    population: "170 thousand",
     established: "1918",
-    highlights: ["Pecel Madiun", "Stasiun Bersejarah", "Gamelan Tradisional"],
+    highlights: ["Madiun Pecel", "Historic Station", "Traditional Gamelan"],
     rating: 4.3,
-    visitors: "280K/tahun",
+    visitors: "280K/year",
   },
 ]
 
 const culturalCategories = [
-  { id: "tari", name: "Tari Tradisional", icon: "💃", count: 12, description: "Seni tari khas Jawa Timur" },
-  { id: "makanan", name: "Kuliner", icon: "🍜", count: 15, description: "Makanan dan minuman tradisional" },
-  { id: "batik", name: "Batik & Tekstil", icon: "🎨", count: 8, description: "Seni batik dan kerajinan tekstil" },
-  { id: "musik", name: "Musik & Lagu", icon: "🎵", count: 6, description: "Musik tradisional dan lagu daerah" },
-  { id: "kerajinan", name: "Kerajinan", icon: "🏺", count: 10, description: "Kerajinan tangan dan seni rupa" },
-  { id: "wayang", name: "Wayang & Teater", icon: "🎭", count: 4, description: "Seni pertunjukan wayang dan teater" },
+  { id: "tari", name: "Traditional Dance", icon: "💃", count: 12, description: "Signature dances of East Java" },
+  { id: "makanan", name: "Cuisine", icon: "🍜", count: 15, description: "Traditional food and beverages" },
+  { id: "batik", name: "Batik & Textiles", icon: "🎨", count: 8, description: "Batik and textile crafts" },
+  { id: "musik", name: "Music & Songs", icon: "🎵", count: 6, description: "Traditional music and folk songs" },
+  { id: "kerajinan", name: "Handicrafts", icon: "🏺", count: 10, description: "Handmade crafts and visual arts" },
+  { id: "wayang", name: "Puppetry & Theater", icon: "🎭", count: 4, description: "Wayang and theater performances" },
 ]
 
 export default function PetaBudayaPage() {
@@ -189,12 +189,12 @@ export default function PetaBudayaPage() {
                 <Link href="/">
                   <Button variant="ghost" size="sm" className="hover:bg-accent/10">
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Kembali
+                    Back
                   </Button>
                 </Link>
                 <div>
-                  <h1 className="text-2xl font-bold text-foreground">Peta Budaya Jawa Timur</h1>
-                  <p className="text-sm text-muted-foreground">Jelajahi kekayaan budaya setiap daerah</p>
+                  <h1 className="text-2xl font-bold text-foreground">East Java Cultural Map</h1>
+                  <p className="text-sm text-muted-foreground">Explore the cultural richness of each region</p>
                 </div>
               </div>
 
@@ -202,7 +202,7 @@ export default function PetaBudayaPage() {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
-                    placeholder="Cari daerah atau budaya..."
+                    placeholder="Search regions or cultural items..."
                     value={searchQuery}
                     onChange={(e) => handleSearch(e.target.value)}
                     className="pl-10 bg-background/50 border-border focus:ring-primary/20"
@@ -229,7 +229,7 @@ export default function PetaBudayaPage() {
               <div className="bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border p-6 sticky top-24">
                 <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                   <Filter className="w-4 h-4 text-primary" />
-                  Kategori Budaya
+                  Cultural Categories
                 </h3>
                 <div className="space-y-2">
                   {culturalCategories.map((category) => (
@@ -282,15 +282,15 @@ export default function PetaBudayaPage() {
                 <div className="p-4 border-b border-border bg-gradient-to-r from-primary/10 to-accent/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-lg font-semibold text-foreground">Peta Interaktif Jawa Timur</h2>
-                      <p className="text-sm text-muted-foreground">Klik pada daerah untuk melihat detail budaya</p>
+                      <h2 className="text-lg font-semibold text-foreground">Interactive Map of East Java</h2>
+                      <p className="text-sm text-muted-foreground">Click a region to view cultural details</p>
                     </div>
                     <Tooltip>
                       <TooltipTrigger>
                         <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className="text-sm">Gunakan scroll untuk zoom, drag untuk navigasi</p>
+                        <p className="text-sm">Use scroll to zoom, drag to navigate</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -307,19 +307,19 @@ export default function PetaBudayaPage() {
                   />
 
                   <div className="absolute bottom-4 left-4 bg-card/90 backdrop-blur-sm rounded-lg p-4 shadow-lg border border-border">
-                    <h4 className="font-semibold text-sm mb-2 text-foreground">Legenda</h4>
+                    <h4 className="font-semibold text-sm mb-2 text-foreground">Legend</h4>
                     <div className="space-y-2 text-xs">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-primary"></div>
-                        <span className="text-muted-foreground">Kota Besar</span>
+                        <span className="text-muted-foreground">Major City</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-accent"></div>
-                        <span className="text-muted-foreground">Kabupaten</span>
+                        <span className="text-muted-foreground">Regency</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <MapPin className="w-3 h-3 text-destructive" />
-                        <span className="text-muted-foreground">Area Terpilih</span>
+                        <span className="text-muted-foreground">Selected Area</span>
                       </div>
                     </div>
                   </div>
@@ -365,7 +365,7 @@ export default function PetaBudayaPage() {
                               </div>
                             </div>
                             <Link href={`/budaya/daerah/${region.id}`}>
-                              <Button className="bg-primary hover:bg-primary/90">Lihat Detail Daerah</Button>
+                              <Button className="bg-primary hover:bg-primary/90">View Region Details</Button>
                             </Link>
                           </div>
 
@@ -373,7 +373,7 @@ export default function PetaBudayaPage() {
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                              <h4 className="font-semibold mb-2 text-foreground">Elemen Budaya:</h4>
+                              <h4 className="font-semibold mb-2 text-foreground">Cultural Elements:</h4>
                               <div className="flex flex-wrap gap-2">
                                 {region.culturalElements.map((element, index) => (
                                   <Badge key={index} variant="outline" className="border-primary/30 text-foreground">

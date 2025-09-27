@@ -26,10 +26,10 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
   }
 
   const navItems = [
-    { id: "beranda", label: "StartTour", icon: Home },
-    { id: "eksplorasi", label: "Galeri", icon: Camera },
-    { id: "tentang", label: "Budaya", icon: Globe },
-    { id: "kontak", label: "Kontak", icon: Mail },
+    { id: "beranda", label: "Home", icon: Home },
+    { id: "eksplorasi", label: "Gallery", icon: Camera },
+    { id: "tentang", label: "About", icon: Globe },
+    { id: "kontak", label: "Contact", icon: Mail },
   ]
 
   return (
@@ -65,7 +65,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
                   className="flex items-center space-x-2 px-4 py-2 rounded-lg text-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300 group relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  aria-label={`Navigasi ke ${item.label.toLowerCase()}`}
+                  aria-label={`Navigate to ${item.label.toLowerCase()}`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <IconComponent className="h-4 w-4 group-hover:scale-110 transition-transform duration-200 relative z-10" />
@@ -80,7 +80,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
               size="sm"
               onClick={() => setShowNavSearch(!showNavSearch)}
               className="ml-2"
-              aria-label="Toggle pencarian"
+              aria-label="Toggle search"
             >
               <Search className="h-4 w-4" />
             </Button>
@@ -101,10 +101,11 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <input
                 type="text"
-                placeholder="Cari budaya..."
+                placeholder="Search culture..."
                 value={navSearchQuery}
                 onChange={(e) => setNavSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+                aria-label="Search culture"
               />
             </div>
           </div>
@@ -122,7 +123,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
                   className="flex items-center space-x-3 px-3 py-3 rounded-lg text-foreground hover:text-primary hover:bg-primary/5 transition-all duration-200 w-full text-left focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  aria-label={`Navigasi ke ${item.label.toLowerCase()}`}
+                  aria-label={`Navigate to ${item.label.toLowerCase()}`}
                 >
                   <IconComponent className="h-5 w-5" />
                   <span className="font-medium">{item.label}</span>

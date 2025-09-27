@@ -9,17 +9,17 @@ interface FooterProps {
 
 export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
   const navigationLinks = [
-    { id: "beranda", label: "Beranda" },
-    { id: "eksplorasi", label: "Eksplorasi" },
-    { id: "tentang", label: "Tentang" },
-    { id: "kontak", label: "Kontak" },
+    { id: "beranda", label: "Home" },
+    { id: "eksplorasi", label: "Explore" },
+    { id: "tentang", label: "About" },
+    { id: "kontak", label: "Contact" },
   ]
 
   const categoryLinks = [
-    { category: "tari", label: "Tari Tradisional" },
-    { category: "makanan", label: "Kuliner" },
+    { category: "tari", label: "Traditional Dance" },
+    { category: "makanan", label: "Cuisine" },
     { category: "batik", label: "Batik" },
-    { category: "musik", label: "Musik" },
+    { category: "musik", label: "Music" },
   ]
 
   return (
@@ -35,13 +35,13 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
               <h3 className="text-lg font-bold text-primary">UB Corpora</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              Platform digital untuk melestarikan dan memperkenalkan warisan budaya Jawa Timur kepada dunia.
+              A digital platform to preserve and introduce East Java’s cultural heritage to the world.
             </p>
           </div>
 
           {/* Navigation */}
           <div>
-            <h4 className="font-semibold mb-4">Navigasi</h4>
+            <h4 className="font-semibold mb-4">Navigation</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               {navigationLinks.map((link) => (
                 <li key={link.id}>
@@ -55,7 +55,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
 
           {/* Categories */}
           <div>
-            <h4 className="font-semibold mb-4">Kategori Budaya</h4>
+            <h4 className="font-semibold mb-4">Cultural Categories</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               {categoryLinks.map((link) => (
                 <li key={link.category}>
@@ -75,18 +75,18 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold mb-4">Kontak</h4>
+            <h4 className="font-semibold mb-4">Contact</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>info@ubcorpra.ac.id</li>
               <li>+62 341 551611</li>
               <li>Universitas Brawijaya</li>
-              <li>Malang, Jawa Timur</li>
+              <li>Malang, East Java</li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>© 2025 UB Corpora. Semua hak cipta dilindungi. Dibuat dengan ❤️ untuk budaya Jawa Timur.</p>
+          <p>© 2025 UB Corpora. All rights reserved. Built with ❤️ for East Java’s culture.</p>
         </div>
       </div>
     </footer>

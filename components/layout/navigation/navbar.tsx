@@ -37,11 +37,11 @@ export function Navbar({ className }: NavbarProps) {
   }
 
   const navItems = [
-    { id: "beranda", label: "Beranda" },
-    { id: "tentang", label: "Tentang" },
-    { id: "budaya", label: "Budaya" },
-    { id: "eksplorasi", label: "Eksplorasi" },
-    { id: "kontak", label: "Kontak" },
+    { id: "beranda", label: "Home" },
+    { id: "tentang", label: "About" },
+    { id: "budaya", label: "Culture" },
+    { id: "eksplorasi", label: "Explore" },
+    { id: "kontak", label: "Contact" },
   ]
 
   return (

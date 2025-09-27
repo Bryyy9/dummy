@@ -26,26 +26,26 @@ export function NoResultsState({
         <div className="w-24 h-24 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
           <Search className="h-12 w-12 text-muted-foreground/50" />
         </div>
-        <h3 className="text-xl font-semibold text-foreground mb-2">Tidak menemukan hasil yang sesuai</h3>
+        <h3 className="text-xl font-semibold text-foreground mb-2">No matching results found</h3>
         <p className="text-muted-foreground mb-6">
-          Coba gunakan kata kunci yang berbeda atau pilih kategori lain untuk menemukan konten budaya yang Anda cari.
+          Try a different keyword or choose another category to find the cultural content you’re looking for.
         </p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
         <Button variant="outline" onClick={onClearSearch}>
           <X className="h-4 w-4 mr-2" />
-          Hapus Pencarian
+          Clear Search
         </Button>
         <Button variant="outline" onClick={onClearCategory}>
           <Globe className="h-4 w-4 mr-2" />
-          Tampilkan Semua Kategori
+          Show All Categories
         </Button>
       </div>
 
       {/* Suggested searches */}
       <div className="text-sm text-muted-foreground">
-        <p className="mb-2">Coba cari:</p>
+        <p className="mb-2">Try searching:</p>
         <div className="flex flex-wrap gap-2 justify-center">
           {suggestions.map((suggestion) => (
             <Button

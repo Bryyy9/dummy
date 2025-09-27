@@ -55,7 +55,11 @@ const culturalItems = [
       { name: "Klono Sewandono", description: "Raja yang angkuh dan sombong" },
       { name: "Bujangganong", description: "Punakawan yang menghibur" },
     ],
-    gallery: ["/tari-reog-ponorogo-dengan-topeng-singa-barong.jpg", "/penari-jathil-reog-ponorogo.jpg", "/pertunjukan-reog-ponorogo-lengkap.jpg"],
+    gallery: [
+      "/tari-reog-ponorogo-dengan-topeng-singa-barong.jpg",
+      "/penari-jathil-reog-ponorogo.jpg",
+      "/pertunjukan-reog-ponorogo-lengkap.jpg",
+    ],
     videos: [
       { title: "Pertunjukan Reog Ponorogo Lengkap", duration: "45:30" },
       { title: "Sejarah dan Makna Reog", duration: "12:15" },
@@ -88,7 +92,11 @@ const culturalItems = [
       { name: "Motif Ijen", description: "Terinspirasi dari keindahan Gunung Ijen" },
       { name: "Motif Tugu", description: "Mengangkat landmark Tugu Malang" },
     ],
-    gallery: ["/batik-malangan-dengan-motif-apel.jpg", "/proses-pembuatan-batik-malangan.jpg", "/koleksi-batik-malangan-berbagai-motif.jpg"],
+    gallery: [
+      "/batik-malangan-dengan-motif-apel.jpg",
+      "/proses-pembuatan-batik-malangan.jpg",
+      "/koleksi-batik-malangan-berbagai-motif.jpg",
+    ],
     videos: [
       { title: "Proses Pembuatan Batik Malangan", duration: "25:45" },
       { title: "Filosofi Motif Batik Malangan", duration: "18:20" },
@@ -121,7 +129,11 @@ const culturalItems = [
       { name: "Sayuran Segar", description: "Timun, tauge, tahu, tempe" },
       { name: "Kerupuk", description: "Pelengkap yang menambah tekstur" },
     ],
-    gallery: ["/rujak-cingur-surabaya-lengkap.jpg", "/bahan-bahan-rujak-cingur.jpg", "/penjual-rujak-cingur-tradisional.jpg"],
+    gallery: [
+      "/rujak-cingur-surabaya-lengkap.jpg",
+      "/bahan-bahan-rujak-cingur.jpg",
+      "/penjual-rujak-cingur-tradisional.jpg",
+    ],
     videos: [
       { title: "Cara Membuat Rujak Cingur Asli", duration: "15:30" },
       { title: "Sejarah Rujak Cingur Surabaya", duration: "8:45" },
@@ -154,7 +166,11 @@ const culturalItems = [
       { name: "Gamelan", description: "Musik pengiring yang menciptakan suasana" },
       { name: "Kelir", description: "Layar putih tempat bayangan wayang" },
     ],
-    gallery: ["/pertunjukan-wayang-kulit-dengan-dalang.jpg", "/koleksi-wayang-kulit-berbagai-karakter.jpg", "/gamelan-pengiring-wayang-kulit.jpg"],
+    gallery: [
+      "/pertunjukan-wayang-kulit-dengan-dalang.jpg",
+      "/koleksi-wayang-kulit-berbagai-karakter.jpg",
+      "/gamelan-pengiring-wayang-kulit.jpg",
+    ],
     videos: [
       { title: "Pertunjukan Wayang Kulit Lengkap", duration: "120:00" },
       { title: "Filosofi dan Makna Wayang Kulit", duration: "25:15" },
@@ -187,7 +203,11 @@ const culturalItems = [
       { name: "Tingkat Tutur", description: "Sistem kesopanan dalam berbahasa" },
       { name: "Ungkapan Tradisional", description: "Peribahasa dan ungkapan khas" },
     ],
-    gallery: ["/peta-sebaran-bahasa-jawa-timuran.jpg", "/buku-kamus-bahasa-jawa-timuran.jpg", "/masyarakat-berbicara-bahasa-jawa-timuran.jpg"],
+    gallery: [
+      "/peta-sebaran-bahasa-jawa-timuran.jpg",
+      "/buku-kamus-bahasa-jawa-timuran.jpg",
+      "/masyarakat-berbicara-bahasa-jawa-timuran.jpg",
+    ],
     videos: [
       { title: "Pembelajaran Bahasa Jawa Timuran", duration: "30:00" },
       { title: "Keunikan Dialek Jawa Timur", duration: "15:45" },
@@ -372,10 +392,10 @@ export default function CulturalDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Budaya tidak ditemukan</h2>
+          <h2 className="text-2xl font-bold mb-4">Culture not found</h2>
           <Button onClick={() => router.push("/")} variant="outline">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Kembali ke Beranda
+            Back to Home
           </Button>
         </div>
       </div>
@@ -397,7 +417,7 @@ export default function CulturalDetailPage() {
               className="flex items-center gap-2 hover:bg-primary/10"
             >
               <ArrowLeft className="w-4 h-4" />
-              Kembali
+              Back
             </Button>
 
             <div className="flex items-center gap-2">
@@ -446,7 +466,7 @@ export default function CulturalDetailPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  {item.popularity}% Popularitas
+                  {item.popularity}% Popularity
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="w-4 h-4" />
@@ -501,11 +521,11 @@ export default function CulturalDetailPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-wrap gap-2 mb-8 border-b border-border">
           {[
-            { id: "overview", label: "Ringkasan", icon: BookOpen },
-            { id: "history", label: "Sejarah", icon: Clock },
-            { id: "elements", label: "Elemen", icon: Users },
-            { id: "gallery", label: "Galeri", icon: Camera },
-            { id: "videos", label: "Video", icon: Play },
+            { id: "overview", label: "Overview", icon: BookOpen },
+            { id: "history", label: "History", icon: Clock },
+            { id: "elements", label: "Elements", icon: Users },
+            { id: "gallery", label: "Gallery", icon: Camera },
+            { id: "videos", label: "Videos", icon: Play },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -534,7 +554,7 @@ export default function CulturalDetailPage() {
               <div className="lg:col-span-2 space-y-6">
                 <Card>
                   <CardContent className="p-6">
-                    <h3 className="text-xl font-semibold mb-4">Deskripsi</h3>
+                    <h3 className="text-xl font-semibold mb-4">Description</h3>
                     <p className="text-muted-foreground leading-relaxed mb-4">{item.description}</p>
                     <p className="text-muted-foreground leading-relaxed">{item.detailedDescription}</p>
                   </CardContent>
@@ -542,7 +562,7 @@ export default function CulturalDetailPage() {
 
                 <Card>
                   <CardContent className="p-6">
-                    <h3 className="text-xl font-semibold mb-4">Makna dan Signifikansi</h3>
+                    <h3 className="text-xl font-semibold mb-4">Meaning and Significance</h3>
                     <p className="text-muted-foreground leading-relaxed">{item.significance}</p>
                   </CardContent>
                 </Card>
@@ -551,26 +571,26 @@ export default function CulturalDetailPage() {
               <div className="space-y-6">
                 <Card>
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">Informasi Detail</h3>
+                    <h3 className="text-lg font-semibold mb-4">Detailed Information</h3>
                     <div className="space-y-3">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Kategori</span>
+                        <span className="text-muted-foreground">Category</span>
                         <Badge variant="secondary">{item.badge}</Badge>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Daerah</span>
+                        <span className="text-muted-foreground">Region</span>
                         <span className="font-medium">{item.region}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Tingkat Kesulitan</span>
+                        <span className="text-muted-foreground">Difficulty</span>
                         <span className="font-medium">{item.difficulty}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Durasi</span>
+                        <span className="text-muted-foreground">Duration</span>
                         <span className="font-medium">{item.duration}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Popularitas</span>
+                        <span className="text-muted-foreground">Popularity</span>
                         <div className="flex items-center gap-1">
                           <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                           <span className="font-medium">{item.popularity}%</span>
@@ -582,15 +602,15 @@ export default function CulturalDetailPage() {
 
                 <Card>
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">Aksi Cepat</h3>
+                    <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
                     <div className="space-y-3">
                       <Button className="w-full bg-transparent" variant="outline">
                         <Download className="w-4 h-4 mr-2" />
-                        Unduh Panduan
+                        Download Guide
                       </Button>
                       <Button className="w-full bg-transparent" variant="outline">
                         <ExternalLink className="w-4 h-4 mr-2" />
-                        Pelajari Lebih Lanjut
+                        Learn More
                       </Button>
                     </div>
                   </CardContent>
@@ -602,7 +622,7 @@ export default function CulturalDetailPage() {
           {activeTab === "history" && (
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-4">Sejarah dan Asal Usul</h3>
+                <h3 className="text-xl font-semibold mb-4">History and Origin</h3>
                 <p className="text-muted-foreground leading-relaxed">{item.history}</p>
               </CardContent>
             </Card>
@@ -627,7 +647,7 @@ export default function CulturalDetailPage() {
                 <div key={index} className="aspect-[4/3] rounded-lg overflow-hidden shadow-lg">
                   <img
                     src={image || "/placeholder.svg"}
-                    alt={`${item.title} - Gambar ${index + 1}`}
+                    alt={`${item.title} - Image ${index + 1}`}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </div>

@@ -23,7 +23,7 @@ export function CategoryFilter({ categories, selectedCategory, onCategoryChange,
             size="sm"
             onClick={() => onCategoryChange(category.value)}
             className="rounded-full group relative overflow-hidden"
-            aria-label={`Filter kategori ${category.label}`}
+            aria-label={`Filter category ${category.label}`}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <IconComponent className="h-4 w-4 mr-2 relative z-10" />

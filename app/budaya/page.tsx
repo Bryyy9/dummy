@@ -38,19 +38,19 @@ export default function BudayaPage() {
             {/* Section Header */}
             <SectionHeader
               badge={{
-                text: "Eksplorasi Budaya",
+                text: "Cultural Exploration",
                 icon: Compass,
                 variant: "outline",
               }}
               secondaryBadge={{
-                text: "Mudah Ditemukan",
+                text: "Easy to Discover",
                 icon: Target,
                 variant: "outline",
                 className: "bg-emerald-100/50 text-emerald-700 border-emerald-200 hover-lift",
               }}
-              title="Jelajahi Budaya"
-              subtitle="Jawa Timur"
-              description="Temukan dan pelajari berbagai aspek budaya Jawa Timur melalui koleksi lengkap kesenian, kuliner, bahasa, dan tradisi yang telah diwariskan turun-temurun."
+              title="Explore Culture"
+              subtitle="East Java"
+              description="Discover and learn about East Java’s culture through a complete collection of arts, cuisine, language, and traditions passed down across generations."
             />
 
             {/* Search and Filter Interface */}
@@ -58,7 +58,7 @@ export default function BudayaPage() {
               <SearchBar
                 value={searchQuery}
                 onChange={handleSearch}
-                placeholder="Cari kesenian, makanan, bahasa, musik, dan aspek budaya lainnya..."
+                placeholder="Search arts, food, language, music, and more..."
               />
 
               <CategoryFilter
@@ -73,14 +73,16 @@ export default function BudayaPage() {
                 {hasFilters && (
                   <div className="text-sm text-muted-foreground">
                     {itemCount > 0
-                      ? `Ditemukan ${itemCount} hasil${searchQuery ? ` untuk "${searchQuery}"` : ""}${
+                      ? `Found ${itemCount} result${itemCount === 1 ? "" : "s"}${
+                          searchQuery ? ` for "${searchQuery}"` : ""
+                        }${
                           selectedCategory !== "semua"
-                            ? ` dalam kategori ${categories.find((c) => c.value === selectedCategory)?.label}`
+                            ? ` in category ${categories.find((c) => c.value === selectedCategory)?.label}`
                             : ""
                         }`
-                      : `Tidak ada hasil${searchQuery ? ` untuk "${searchQuery}"` : ""}${
+                      : `No results${searchQuery ? ` for "${searchQuery}"` : ""}${
                           selectedCategory !== "semua"
-                            ? ` dalam kategori ${categories.find((c) => c.value === selectedCategory)?.label}`
+                            ? ` in category ${categories.find((c) => c.value === selectedCategory)?.label}`
                             : ""
                         }`}
                   </div>

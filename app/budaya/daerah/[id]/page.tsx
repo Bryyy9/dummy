@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, Search, MapPin, Star, Clock, Bookmark, Share2 } from "lucide-react"
+import { ArrowLeft, Search, MapPin, Star, Clock, Bookmark } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -102,9 +102,9 @@ export default function RegionDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-[#003b5c] mb-4">Daerah Tidak Ditemukan</h1>
+          <h1 className="text-2xl font-bold text-[#003b5c] mb-4">Region Not Found</h1>
           <Link href="/peta-budaya">
-            <Button>Kembali ke Peta</Button>
+            <Button>Back to Map</Button>
           </Link>
         </div>
       </div>
@@ -123,26 +123,35 @@ export default function RegionDetailPage() {
               <Link href="/peta-budaya">
                 <Button variant="ghost" size="sm">
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Kembali ke Peta
+                  Back to Map
                 </Button>
               </Link>
               <div>
                 <h1 className="text-2xl font-bold" style={{ color: regionData.color }}>
-                  Budaya {regionData.name}
+                  Culture of {regionData.name}
                 </h1>
                 <p className="text-sm text-muted-foreground">{regionData.description}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Bookmark className="w-4 h-4 mr-2" />
-                Simpan Daerah
+              <Button
+                variant={selectedCategory === null ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedCategory(null)}
+              >
+                Semua
               </Button>
-              <Button variant="outline" size="sm">
-                <Share2 className="w-4 h-4 mr-2" />
-                Bagikan
-              </Button>
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category}
+                </Button>
+              ))}
             </div>
           </div>
         </div>
@@ -156,7 +165,7 @@ export default function RegionDetailPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
-                  placeholder="Cari elemen budaya di daerah ini..."
+                  placeholder="Search cultural elements in this region..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -187,7 +196,7 @@ export default function RegionDetailPage() {
 
           {searchQuery && (
             <div className="mt-4 text-sm text-muted-foreground">
-              Ditemukan {filteredItems.length} hasil untuk "{searchQuery}"
+              Found {filteredItems.length} result{filteredItems.length === 1 ? "" : "s"} for "{searchQuery}"
             </div>
           )}
         </div>
@@ -245,7 +254,7 @@ export default function RegionDetailPage() {
 
                   <Link href={`/budaya/${item.id}`}>
                     <Button className="w-full" style={{ backgroundColor: regionData.color }}>
-                      Pelajari Lebih Lanjut
+                      Learn More
                     </Button>
                   </Link>
                 </div>
@@ -257,8 +266,8 @@ export default function RegionDetailPage() {
         {filteredItems.length === 0 && (
           <div className="text-center py-12">
             <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-lg font-semibold text-[#003b5c] mb-2">Tidak Ada Hasil Ditemukan</h3>
-            <p className="text-muted-foreground mb-4">Coba ubah kata kunci pencarian atau filter kategori</p>
+            <h3 className="text-lg font-semibold text-[#003b5c] mb-2">No Results Found</h3>
+            <p className="text-muted-foreground mb-4">Try changing the search keyword or category filter</p>
             <Button
               variant="outline"
               onClick={() => {
@@ -266,7 +275,7 @@ export default function RegionDetailPage() {
                 setSelectedCategory(null)
               }}
             >
-              Reset Pencarian
+              Reset Search
             </Button>
           </div>
         )}

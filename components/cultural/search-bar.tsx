@@ -11,7 +11,7 @@ interface SearchBarProps {
   className?: string
 }
 
-export function SearchBar({ value, onChange, placeholder = "Cari...", className }: SearchBarProps) {
+export function SearchBar({ value, onChange, placeholder = "Search...", className }: SearchBarProps) {
   const handleClear = () => {
     onChange("")
   }
@@ -24,7 +24,7 @@ export function SearchBar({ value, onChange, placeholder = "Cari...", className 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="pl-12 h-14 text-base rounded-xl border-2 focus:border-primary transition-all duration-300"
-        aria-label="Pencarian konten budaya"
+        aria-label="Cultural content search"
       />
       {value && (
         <Button
@@ -32,7 +32,7 @@ export function SearchBar({ value, onChange, placeholder = "Cari...", className 
           size="sm"
           onClick={handleClear}
           className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
-          aria-label="Hapus pencarian"
+          aria-label="Clear search"
         >
           <X className="h-4 w-4" />
         </Button>

@@ -41,17 +41,16 @@ export function HeroSection({ onNavClick }: HeroSectionProps) {
                   <div className="flex items-center space-x-2 mb-6">
                     <Badge className="bg-primary/20 text-primary border-primary/30 hover-glow">
                       <Sparkles className="h-3 w-3 mr-1" />
-                      Warisan Budaya Nusantara
+                      Nusantara Cultural Heritage
                     </Badge>
                   </div>
                 </AnimatedReveal>
 
                 <AnimatedReveal animation="fade-up" delay={600}>
-                  <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white">Jawa Timur</h1>
+                  <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white">East Java</h1>
                   <p className="text-xl text-gray-200 max-w-2xl text-pretty leading-relaxed mt-6">
-                    Jawa Timur adalah provinsi di Indonesia yang kaya akan warisan budaya, dari kesenian tradisional
-                    hingga kuliner khas. Jelajahi keberagaman budaya yang telah diwariskan turun-temurun melalui
-                    platform digital yang inovatif.
+                    East Java is an Indonesian province rich in cultural heritage, from traditional arts to distinctive
+                    cuisine. Explore the diversity passed down through generations via this innovative digital platform.
                   </p>
                 </AnimatedReveal>
               </div>
@@ -63,10 +62,10 @@ export function HeroSection({ onNavClick }: HeroSectionProps) {
                     effect="glow"
                     className="text-lg px-8 py-4 bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 transition-all duration-300"
                     onClick={() => onNavClick("eksplorasi")}
-                    aria-label="Lihat galeri"
+                    aria-label="View gallery"
                   >
                     <Play className="h-5 w-5 mr-2" />
-                    Galeri
+                    Gallery
                   </EnhancedButton>
                 </div>
               </AnimatedReveal>
@@ -107,7 +106,7 @@ export function HeroSection({ onNavClick }: HeroSectionProps) {
                     className="bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30"
                     onClick={() => onNavClick("eksplorasi")}
                   >
-                    Jelajahi
+                    Explore
                   </EnhancedButton>
                 </div>
               </div>
@@ -129,7 +128,7 @@ export function HeroSection({ onNavClick }: HeroSectionProps) {
                       className="bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 text-xs px-3 py-1"
                       onClick={() => onNavClick("eksplorasi")}
                     >
-                      Jelajahi
+                      Explore
                     </EnhancedButton>
                   </div>
                 </div>
@@ -149,7 +148,7 @@ export function HeroSection({ onNavClick }: HeroSectionProps) {
                       className="bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 text-xs px-3 py-1"
                       onClick={() => onNavClick("eksplorasi")}
                     >
-                      Jelajahi
+                      Explore
                     </EnhancedButton>
                   </div>
                 </div>

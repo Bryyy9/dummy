@@ -27,7 +27,7 @@ export function MapControls({ zoom, onZoomIn, onZoomOut, onReset }: MapControlsP
 
       <div className="w-px h-4 bg-border mx-1" />
 
-      <Button variant="ghost" size="sm" onClick={onReset} className="h-8 w-8 p-0" title="Reset tampilan">
+      <Button variant="ghost" size="sm" onClick={onReset} className="h-8 w-8 p-0" title="Reset view">
         <RotateCcw className="w-4 h-4" />
       </Button>
     </div>
