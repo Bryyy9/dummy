@@ -166,7 +166,7 @@ function FloatingUICards() {
         <div className="bg-card/80 backdrop-blur-sm border border-border rounded-lg p-3 w-32 hover-lift">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="w-4 h-4 text-primary" />
-            <span className="text-xs font-medium">42k+ Sales</span>
+            <span className="text-xs font-medium">42k+ Cultural Words</span>
           </div>
           <div className="text-xs text-muted-foreground">Volume</div>
         </div>
@@ -194,14 +194,13 @@ export function GlobeSection() {
               className="bg-card/80 backdrop-blur-sm border-border"
             >
               <Globe className="h-3 w-3 mr-1" />
-              Peta Budaya Interaktif
+              Interactive Cultural Map
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold mt-4">
-              Jelajahi Lewat Globe 3D
+              Explore Through the 3D Globe
             </h2>
             <p className="text-lg text-muted-foreground mt-2">
-              Klik globe untuk masuk ke halaman peta budaya dan mulai eksplorasi
-              daerah.
+              Click the globe to enter the cultural map page and start exploring the area.
             </p>
           </div>
         </AnimatedReveal>

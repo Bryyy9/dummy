@@ -43,21 +43,21 @@ export function ContactSection() {
           <AnimatedReveal animation="fade-up" delay={200}>
             <Badge className="bg-primary/10 text-primary border-primary/20 mb-4">
               <MessageCircle className="h-3 w-3 mr-1" />
-              Hubungi Kami
+              Contact Us
             </Badge>
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={400}>
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">
-              Mari Berkolaborasi
-              <span className="text-primary block">Melestarikan Budaya</span>
+              Let's Collaborate
+
+              <span className="text-primary block">Preserving Culture</span>
             </h2>
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={600}>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto text-pretty leading-relaxed">
-              Kami terbuka untuk kolaborasi, saran, dan kontribusi dari semua pihak yang peduli dengan pelestarian
-              budaya Jawa Timur.
+              We welcome collaboration, suggestions, and contributions from all parties who care about the preservation of East Java's culture.
             </p>
           </AnimatedReveal>
         </div>
@@ -86,7 +86,7 @@ export function ContactSection() {
                       <Phone className="h-6 w-6 text-emerald-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">Telepon</h4>
+                      <h4 className="font-semibold mb-1">Phone</h4>
                       <p className="text-muted-foreground">+62 31 1234 5678</p>
                       <p className="text-muted-foreground">+62 812 3456 7890</p>
                     </div>
@@ -97,7 +97,7 @@ export function ContactSection() {
                       <MapPin className="h-6 w-6 text-amber-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">Alamat</h4>
+                      <h4 className="font-semibold mb-1">Address</h4>
                       <p className="text-muted-foreground">
                         Jl. Budaya Nusantara No. 123
                         <br />
@@ -114,11 +114,10 @@ export function ContactSection() {
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-3 mb-4">
                     <Users className="h-6 w-6 text-primary" />
-                    <h4 className="font-semibold">Bergabung dengan Komunitas</h4>
+                    <h4 className="font-semibold">Join the Community</h4>
                   </div>
                   <p className="text-muted-foreground mb-4 text-pretty">
-                    Ikuti media sosial kami untuk mendapatkan update terbaru tentang budaya Jawa Timur dan kegiatan
-                    komunitas.
+                    Follow us on social media for the latest updates on East Java's culture and community activities.
                   </p>
                   <div className="flex space-x-3">
                     <Button variant="outline" size="sm">
@@ -140,41 +139,41 @@ export function ContactSection() {
           <AnimatedReveal animation="slide-left" delay={1000}>
             <Card className="border-0 shadow-lg">
               <CardContent className="p-8">
-                <h3 className="text-2xl font-bold mb-6">Kirim Pesan</h3>
+                <h3 className="text-2xl font-bold mb-6">Send Message</h3>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium mb-2">
-                        Nama Lengkap
+                        Full Name
                       </label>
-                      <Input id="name" placeholder="Masukkan nama lengkap" required />
+                      <Input id="name" placeholder="Enter full name" required />
                     </div>
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium mb-2">
                         Email
                       </label>
-                      <Input id="email" type="email" placeholder="nama@email.com" required />
+                      <Input id="email" type="email" placeholder="name@email.com" required />
                     </div>
                   </div>
 
                   <div>
                     <label htmlFor="subject" className="block text-sm font-medium mb-2">
-                      Subjek
+                      Subject
                     </label>
-                    <Input id="subject" placeholder="Subjek pesan" required />
+                    <Input id="subject" placeholder="Message subject" required />
                   </div>
 
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium mb-2">
-                      Pesan
+                      Message
                     </label>
-                    <Textarea id="message" placeholder="Tulis pesan Anda di sini..." rows={6} required />
+                    <Textarea id="message" placeholder="Write your message here..." rows={6} required />
                   </div>
 
                   <EnhancedButton type="submit" size="lg" effect="glow" className="w-full">
                     <Send className="h-5 w-5 mr-2" />
-                    Kirim Pesan
+                    Send Message
                   </EnhancedButton>
                 </form>
               </CardContent>

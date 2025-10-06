@@ -34,21 +34,20 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
           <AnimatedReveal animation="fade-up" delay={200}>
             <Badge className="bg-primary/10 text-primary border-primary/20 mb-4">
               <Heart className="h-3 w-3 mr-1" />
-              Tentang Platform
+              About the Platform
             </Badge>
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={400}>
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">
-              Melestarikan Warisan Budaya
-              <span className="text-primary block">Jawa Timur</span>
+             Preserving Cultural Heritage
+              <span className="text-primary block">East Java</span>
             </h2>
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={600}>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto text-pretty leading-relaxed">
-              Platform digital yang didedikasikan untuk melestarikan, mendokumentasikan, dan memperkenalkan kekayaan
-              budaya Jawa Timur kepada generasi masa kini dan masa depan.
+             A digital platform dedicated to preserving, documenting, and introducing the cultural wealth of East Java to present and future generations.
             </p>
           </AnimatedReveal>
         </div>
@@ -60,10 +59,9 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <BookOpen className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Dokumentasi Lengkap</h3>
+                <h3 className="text-xl font-semibold mb-3">Complete Documentation</h3>
                 <p className="text-muted-foreground text-pretty">
-                  Mengumpulkan dan mendokumentasikan berbagai aspek budaya Jawa Timur dari kesenian, kuliner, hingga
-                  tradisi lokal.
+                  Collecting and documenting various aspects of East Java's culture, from art and cuisine to local traditions.
                 </p>
               </CardContent>
             </Card>
@@ -75,9 +73,9 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
                 <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="h-8 w-8 text-emerald-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Kolaborasi Komunitas</h3>
+                <h3 className="text-xl font-semibold mb-3">Community Collaboration</h3>
                 <p className="text-muted-foreground text-pretty">
-                  Melibatkan masyarakat, budayawan, dan akademisi dalam upaya pelestarian budaya secara berkelanjutan.
+                  Involving the community, cultural practitioners, and academics in sustainable cultural preservation efforts
                 </p>
               </CardContent>
             </Card>
@@ -89,9 +87,9 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Globe className="h-8 w-8 text-amber-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Akses Global</h3>
+                <h3 className="text-xl font-semibold mb-3">Global Access</h3>
                 <p className="text-muted-foreground text-pretty">
-                  Memperkenalkan budaya Jawa Timur ke seluruh dunia melalui platform digital yang mudah diakses.
+                 Introducing East Java's culture to the world through an easily accessible digital platform.
                 </p>
               </CardContent>
             </Card>
@@ -101,30 +99,27 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <AnimatedReveal animation="slide-right" delay={1400}>
             <div className="space-y-6">
-              <h3 className="text-2xl font-bold">Visi & Misi Kami</h3>
+              <h3 className="text-2xl font-bold">Our Vision & Mission</h3>
 
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <p className="text-muted-foreground">
-                    <strong className="text-foreground">Visi:</strong> Menjadi platform digital terdepan dalam
-                    pelestarian dan promosi budaya Jawa Timur.
+                    <strong className="text-foreground">Vision:</strong>  To be the leading digital platform for the preservation and promotion of East Java's culture.
                   </p>
                 </div>
 
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <p className="text-muted-foreground">
-                    <strong className="text-foreground">Misi:</strong> Mendokumentasikan, melestarikan, dan
-                    memperkenalkan kekayaan budaya Jawa Timur kepada dunia.
+                    <strong className="text-foreground">Mission:</strong>To document, conserve, and showcase the rich cultural heritage of East Java to the world.
                   </p>
                 </div>
 
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <p className="text-muted-foreground">
-                    <strong className="text-foreground">Tujuan:</strong> Meningkatkan apresiasi dan pemahaman masyarakat
-                    terhadap warisan budaya lokal.
+                    <strong className="text-foreground">Objective:</strong>To enhance public appreciation and understanding of local cultural heritage.
                   </p>
                 </div>
               </div>
@@ -136,25 +131,25 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
               <div className="text-center p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg">
                 <Award className="h-8 w-8 text-primary mx-auto mb-2" />
                 <div className="text-2xl font-bold text-primary">500+</div>
-                <div className="text-sm text-muted-foreground">Budaya Terdokumentasi</div>
+                <div className="text-sm text-muted-foreground">Documented Cultures</div>
               </div>
 
               <div className="text-center p-6 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg">
                 <Users className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-emerald-600">38</div>
-                <div className="text-sm text-muted-foreground">Kabupaten/Kota</div>
+                <div className="text-sm text-muted-foreground">Regions/Cities</div>
               </div>
 
               <div className="text-center p-6 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg">
                 <BookOpen className="h-8 w-8 text-amber-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-amber-600">12</div>
-                <div className="text-sm text-muted-foreground">Kategori Budaya</div>
+                <div className="text-sm text-muted-foreground">Cultural Categories</div>
               </div>
 
               <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
                 <Sparkles className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-blue-600">100+</div>
-                <div className="text-sm text-muted-foreground">Kontributor</div>
+                <div className="text-sm text-muted-foreground">Contributors</div>
               </div>
             </div>
           </AnimatedReveal>
