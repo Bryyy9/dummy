@@ -40,14 +40,15 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
 
           <AnimatedReveal animation="fade-up" delay={400}>
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-balance">
-             Preserving Cultural Heritage
+              Preserving Cultural Heritage
               <span className="text-primary block">East Java</span>
             </h2>
           </AnimatedReveal>
 
           <AnimatedReveal animation="fade-up" delay={600}>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto text-pretty leading-relaxed">
-             A digital platform dedicated to preserving, documenting, and introducing the cultural wealth of East Java to present and future generations.
+              A digital platform dedicated to preserving, documenting, and introducing the cultural wealth of East Java
+              to present and future generations.
             </p>
           </AnimatedReveal>
         </div>
@@ -61,7 +62,8 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Complete Documentation</h3>
                 <p className="text-muted-foreground text-pretty">
-                  Collecting and documenting various aspects of East Java's culture, from art and cuisine to local traditions.
+                  Collecting and documenting various aspects of East Java's culture, from art and cuisine to local
+                  traditions.
                 </p>
               </CardContent>
             </Card>
@@ -75,7 +77,8 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Community Collaboration</h3>
                 <p className="text-muted-foreground text-pretty">
-                  Involving the community, cultural practitioners, and academics in sustainable cultural preservation efforts
+                  Involving the community, cultural practitioners, and academics in sustainable cultural preservation
+                  efforts
                 </p>
               </CardContent>
             </Card>
@@ -89,7 +92,7 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Global Access</h3>
                 <p className="text-muted-foreground text-pretty">
-                 Introducing East Java's culture to the world through an easily accessible digital platform.
+                  Introducing East Java's culture to the world through an easily accessible digital platform.
                 </p>
               </CardContent>
             </Card>
@@ -105,21 +108,24 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <p className="text-muted-foreground">
-                    <strong className="text-foreground">Vision:</strong>  To be the leading digital platform for the preservation and promotion of East Java's culture.
+                    <strong className="text-foreground">Vision:</strong> To be the leading digital platform for the
+                    preservation and promotion of East Java's culture.
                   </p>
                 </div>
 
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <p className="text-muted-foreground">
-                    <strong className="text-foreground">Mission:</strong>To document, conserve, and showcase the rich cultural heritage of East Java to the world.
+                    <strong className="text-foreground">Mission:</strong>To document, conserve, and showcase the rich
+                    cultural heritage of East Java to the world.
                   </p>
                 </div>
 
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <p className="text-muted-foreground">
-                    <strong className="text-foreground">Objective:</strong>To enhance public appreciation and understanding of local cultural heritage.
+                    <strong className="text-foreground">Objective:</strong>To enhance public appreciation and
+                    understanding of local cultural heritage.
                   </p>
                 </div>
               </div>
@@ -159,7 +165,7 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
           <div className="text-center mt-16">
             <EnhancedButton size="lg" effect="glow" className="text-lg px-8" onClick={() => onNavClick("eksplorasi")}>
               <Globe className="h-5 w-5 mr-2" />
-              Mulai Eksplorasi Budaya
+              Start Cultural Exploration
             </EnhancedButton>
           </div>
         </AnimatedReveal>

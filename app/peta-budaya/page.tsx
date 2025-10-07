@@ -11,6 +11,17 @@ import Link from "next/link"
 import { InteractiveEastJavaMap } from "@/components/cultural/interactive-east-java-map"
 import { SearchResults } from "@/components/cultural/search-results"
 import { MapControls } from "@/components/cultural/map-controls"
+import { useRouter } from "next/navigation" // import useRouter for redirect on region click
+import Image from "next/image"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { ParallaxBackground } from "@/components/common/parallax-background"
 
 const eastJavaRegions = [
   {
@@ -136,6 +147,7 @@ export default function PetaBudayaPage() {
   const [mapCenter, setMapCenter] = useState({ x: 50, y: 50 })
   const [showSearchResults, setShowSearchResults] = useState(false)
   const [searchResults, setSearchResults] = useState<any[]>([])
+  const router = useRouter() // add router instance
 
   // Handle search functionality
   const handleSearch = (query: string) => {
@@ -168,9 +180,9 @@ export default function PetaBudayaPage() {
   const handleRegionClick = (regionId: string) => {
     const region = eastJavaRegions.find((r) => r.id === regionId)
     if (region) {
-      setSelectedRegion(regionId)
-      setMapCenter(region.coordinates)
-      setMapZoom(2.5)
+      // Keep UI feedback if needed, but redirect immediately for seamless flow
+      router.push(`/budaya/daerah/${region.id}`)
+      return
     }
   }
 
@@ -223,8 +235,100 @@ export default function PetaBudayaPage() {
           </div>
         </header>
 
-        <div className="container mx-auto px-4 py-6">
+        <section aria-labelledby="hero-title" className="relative">
+          <ParallaxBackground className="relative h-[320px] md:h-[420px] overflow-hidden">
+            <Image
+              src="/images/peta-hero.jpg"
+              alt="Collage of cultural landscapes, textiles, and performers"
+              fill
+              priority
+              className="object-cover"
+            />
+            {/* Overlay for contrast and mood */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-background/20 to-background/90" />
+            <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-end pb-8 md:pb-10">
+              <Breadcrumb className="mb-3 md:mb-4">
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>Culture Map</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+              <motion.h1
+                id="hero-title"
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="text-balance text-3xl md:text-5xl font-bold tracking-tight text-foreground"
+              >
+                Discover the Living Tapestry of East Java
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.05, ease: "easeOut" }}
+                className="mt-2 md:mt-3 text-pretty text-sm md:text-base text-muted-foreground max-w-2xl"
+              >
+                Navigate an elegant cultural map to explore regions, traditions, artifacts, and events—curated to reveal
+                identity, history, and significance with clarity and beauty.
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+                className="mt-4 flex items-center gap-3"
+              >
+                <Link href="#map">
+                  <Button className="bg-primary hover:bg-primary/90">Start Exploring</Button>
+                </Link>
+                <Button variant="ghost" asChild>
+                  <a href="#how-to" className="hover:underline">
+                    How it works
+                  </a>
+                </Button>
+              </motion.div>
+            </div>
+          </ParallaxBackground>
+        </section>
+
+        <section id="how-to" aria-label="How it works" className="container mx-auto px-4 py-6">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="rounded-xl border border-border bg-card/60 backdrop-blur-sm p-4 md:p-5"
+          >
+            <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 text-sm text-muted-foreground">
+              <li className="flex items-start gap-3">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
+                  1
+                </span>
+                Hover and click any region on the map to highlight cultural highlights instantly.
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
+                  2
+                </span>
+                Use categories and search to find traditions, artifacts, or events relevant to your interests.
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
+                  3
+                </span>
+                Open a region to view a full profile with identity, history, and significance.
+              </li>
+            </ul>
+          </motion.div>
+        </section>
+
+        <div id="map" className="container mx-auto px-4 py-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* left filters column */}
             <div className="lg:col-span-1">
               <div className="bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border p-6 sticky top-24">
                 <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -277,8 +381,9 @@ export default function PetaBudayaPage() {
               </div>
             </div>
 
+            {/* right map column with visual framing */}
             <div className="lg:col-span-3">
-              <div className="bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border overflow-hidden">
+              <div className="bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border overflow-hidden ring-1 ring-primary/5">
                 <div className="p-4 border-b border-border bg-gradient-to-r from-primary/10 to-accent/10">
                   <div className="flex items-center justify-between">
                     <div>
@@ -326,6 +431,7 @@ export default function PetaBudayaPage() {
                 </div>
               </div>
 
+              {/* region preview panel animations remain below */}
               <AnimatePresence>
                 {selectedRegion && (
                   <motion.div
@@ -402,6 +508,10 @@ export default function PetaBudayaPage() {
             </div>
           </div>
         </div>
+
+        <section aria-hidden="true" className="container mx-auto px-4 pb-10">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
+        </section>
       </div>
     </TooltipProvider>
   )
