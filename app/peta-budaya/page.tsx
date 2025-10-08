@@ -2,10 +2,9 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, MapPin, ArrowLeft, Filter, Info, Star, Users, Calendar } from "lucide-react"
+import { Search, MapPin, ArrowLeft, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import Link from "next/link"
 import { InteractiveEastJavaMap } from "@/components/cultural/interactive-east-java-map"
@@ -22,111 +21,151 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { ParallaxBackground } from "@/components/common/parallax-background"
+import { LEXICON } from "@/data/lexicon"
 
 const eastJavaRegions = [
   {
-    id: "surabaya",
-    name: "Surabaya",
-    coordinates: { x: 65, y: 45 },
-    color: "#6366f1",
-    culturalElements: ["Remo Dance", "Rujak Cingur", "Surabaya Batik", "Children’s Folk Songs"],
-    description: "A metropolitan city with unique urban culture and rich historical heritage",
-    population: "2.9 million",
-    established: "1293",
-    highlights: ["City of Heroes", "Economic Hub", "Heritage Buildings"],
-    rating: 4.8,
-    visitors: "1.2M/year",
-  },
-  {
-    id: "malang",
-    name: "Malang",
-    coordinates: { x: 55, y: 55 },
-    color: "#8b5cf6",
-    culturalElements: ["Malangan Batik", "Malangan Mask Dance", "Rawon Malang", "Pottery Crafts"],
-    description: "An education city with rich cultural heritage and cool mountain climate",
-    population: "895 thousand",
-    established: "760",
-    highlights: ["Education City", "Cultural Tourism", "Signature Cuisine"],
+    id: "arekan",
+    name: "Arekan",
+    coordinates: { x: 65, y: 45 }, // Surabaya/Gresik/Sidoarjo vicinity
+    color: "#2563eb",
+    culturalElements: ["Dialek Arek", "Remo", "Ludruk", "Rujak Cingur"],
+    description: "Sub-kultur perkotaan pesisir dengan tradisi Arek yang egaliter dan ekspresif.",
+    population: "—",
+    established: "—",
+    highlights: ["Ludruk", "Ekspresi Urban", "Kuliner Pesisir"],
     rating: 4.7,
-    visitors: "800K/year",
+    visitors: "—",
   },
   {
-    id: "kediri",
-    name: "Kediri",
-    coordinates: { x: 45, y: 50 },
-    color: "#a855f7",
-    culturalElements: ["Jaranan Dance", "Gethuk Pisang", "Kediri Batik", "Thengul Puppets"],
-    description: "A cultural center with strong puppet traditions and tobacco industry",
-    population: "268 thousand",
-    established: "1042",
-    highlights: ["Puppet Center", "Tobacco Industry", "Historic Sites"],
-    rating: 4.5,
-    visitors: "450K/year",
-  },
-  {
-    id: "jember",
-    name: "Jember",
-    coordinates: { x: 75, y: 65 },
-    color: "#c084fc",
-    culturalElements: ["Gandrung Dance", "Suwar-Suwir", "Jember Batik", "Cultural Festivals"],
-    description: "A tobacco city with vibrant traditional performances and cultural festivals",
-    population: "332 thousand",
-    established: "1929",
-    highlights: ["Gandrung Dance", "JFC Festival", "Tobacco Plantations"],
-    rating: 4.6,
-    visitors: "600K/year",
-  },
-  {
-    id: "probolinggo",
-    name: "Probolinggo",
-    coordinates: { x: 70, y: 40 },
-    color: "#ddd6fe",
-    culturalElements: ["Glipang Dance", "Probolinggo Mango", "Weaving Crafts", "Besanan Tradition"],
-    description: "A mango city with unique agricultural traditions and gateway to Bromo",
-    population: "217 thousand",
-    established: "1918",
-    highlights: ["Mango City", "Bromo Gateway", "Agricultural Traditions"],
-    rating: 4.4,
-    visitors: "350K/year",
-  },
-  {
-    id: "banyuwangi",
-    name: "Banyuwangi",
-    coordinates: { x: 85, y: 70 },
-    color: "#7c3aed",
-    culturalElements: ["Seblang Dance", "Rujak Soto", "Using Batik", "Gandrung Sewu"],
-    description: "The eastern tip of Java with diverse culture and stunning natural destinations",
-    population: "1.6 million",
-    established: "1771",
-    highlights: ["Using Culture", "Nature Tourism", "Gandrung Festival"],
-    rating: 4.9,
-    visitors: "2.1M/year",
-  },
-  {
-    id: "ponorogo",
-    name: "Ponorogo",
-    coordinates: { x: 35, y: 60 },
-    color: "#5b21b6",
-    culturalElements: ["Reog Ponorogo", "Dawet Jabung", "Bamboo Crafts", "Bujangganong Dance"],
-    description: "City of Reog with grand performances and authentic cultural traditions",
-    population: "855 thousand",
-    established: "1496",
-    highlights: ["Reog Ponorogo", "Traditional Arts", "Bamboo Crafts"],
+    id: "madura",
+    name: "Madura",
+    coordinates: { x: 70, y: 25 }, // Pulau Madura (umum)
+    color: "#dc2626",
+    culturalElements: ["Keris", "Sape Sono", "Karapan Sapi", "Tradisi Pesantren"],
+    description: "Identitas kepulauan dengan tradisi kuat, solidaritas komunal, dan Islam pesantren.",
+    population: "—",
+    established: "—",
+    highlights: ["Karapan Sapi", "Tradisi Pesantren", "Keris"],
     rating: 4.8,
-    visitors: "700K/year",
+    visitors: "—",
   },
   {
-    id: "madiun",
-    name: "Madiun",
-    coordinates: { x: 30, y: 45 },
-    color: "#4c1d95",
-    culturalElements: ["Beskalan Dance", "Madiun Pecel", "Madiun Batik", "Javanese Gamelan"],
-    description: "City of pecel with distinctive culinary traditions and historic railway hub",
-    population: "170 thousand",
-    established: "1918",
-    highlights: ["Madiun Pecel", "Historic Station", "Traditional Gamelan"],
+    id: "madura-base",
+    name: "Madura-Base",
+    coordinates: { x: 65, y: 20 }, // wilayah barat/selatan Madura (perkiraan)
+    color: "#ef4444",
+    culturalElements: ["Anyaman", "Kuliner Khas", "Ritual Lokal"],
+    description: "Basis sub-kultur Madura dengan penekanan pada tradisi sehari-hari dan anyaman.",
+    population: "—",
+    established: "—",
+    highlights: ["Anyaman", "Kuliner Khas", "Ritual Kampung"],
+    rating: 4.5,
+    visitors: "—",
+  },
+  {
+    id: "madura-bawean",
+    name: "Madura-Bawean",
+    coordinates: { x: 60, y: 10 }, // Pulau Bawean (utara)
+    color: "#f97316",
+    culturalElements: ["Kesenian Pulau", "Bahasa Lokal", "Laut & Perikanan"],
+    description: "Sub-kultur kepulauan Bawean dengan tradisi maritim dan bahasa lokal.",
+    population: "—",
+    established: "—",
+    highlights: ["Tradisi Maritim", "Bahasa Lokal", "Kesenian Pulau"],
+    rating: 4.6,
+    visitors: "—",
+  },
+  {
+    id: "madura-kangean",
+    name: "Madura-Kangean",
+    coordinates: { x: 95, y: 30 }, // Kepulauan Kangean (timur laut)
+    color: "#ea580c",
+    culturalElements: ["Ritus Pesisir", "Perikanan", "Kriya"],
+    description: "Kangean dengan identitas pesisir dan jaringan budaya kepulauan timur.",
+    population: "—",
+    established: "—",
+    highlights: ["Ritus Pesisir", "Perikanan", "Kriya"],
+    rating: 4.5,
+    visitors: "—",
+  },
+  {
+    id: "mataraman",
+    name: "Mataraman",
+    coordinates: { x: 30, y: 50 }, // barat/selatan Jatim
+    color: "#16a34a",
+    culturalElements: ["Gamelan", "Wayang", "Tata Krama Jawa"],
+    description: "Sub-kultur bercorak Jawa Mataraman: tata krama halus, gamelan, dan wayang.",
+    population: "—",
+    established: "—",
+    highlights: ["Wayang", "Gamelan", "Adab Mataraman"],
+    rating: 4.7,
+    visitors: "—",
+  },
+  {
+    id: "osing",
+    name: "Osing",
+    coordinates: { x: 90, y: 70 }, // Banyuwangi (ujung timur)
+    color: "#059669",
+    culturalElements: ["Gandrung", "Barong", "Lare Using", "Batik Using"],
+    description: "Osing/Using dengan bahasa dan kesenian khas Banyuwangi yang kuat.",
+    population: "—",
+    established: "—",
+    highlights: ["Gandrung", "Barong", "Batik Using"],
+    rating: 4.9,
+    visitors: "—",
+  },
+  {
+    id: "panaragan",
+    name: "Panaragan",
+    coordinates: { x: 40, y: 60 }, // wilayah selatan-barat (perkiraan)
+    color: "#0ea5e9",
+    culturalElements: ["Kerajinan Kayu", "Seni Rakyat", "Upacara Lokal"],
+    description: "Identitas lokal Panaragan yang lekat dengan seni rakyat dan kerajinan.",
+    population: "—",
+    established: "—",
+    highlights: ["Seni Rakyat", "Kerajinan Kayu", "Upacara Lokal"],
+    rating: 4.4,
+    visitors: "—",
+  },
+  {
+    id: "pandalungan",
+    name: "Pandalungan",
+    coordinates: { x: 80, y: 45 }, // tapal kuda / pantura timur
+    color: "#7c3aed",
+    culturalElements: ["Dialek Pandalungan", "Perpaduan Jawa-Madura", "Tradisi Pesisir"],
+    description: "Perpaduan Jawa-Madura di tapal kuda: dialek khas dan tradisi pesisir.",
+    population: "—",
+    established: "—",
+    highlights: ["Dialek Pandalungan", "Kuliner Pesisir", "Tradisi Campuran"],
+    rating: 4.6,
+    visitors: "—",
+  },
+  {
+    id: "samin",
+    name: "Samin",
+    coordinates: { x: 25, y: 40 }, // barat laut (perbatasan Jateng-Jatim)
+    color: "#10b981",
+    culturalElements: ["Samin Surosentiko", "Etika Kejujuran", "Pertanian"],
+    description: "Komunitas Samin yang dikenal pada etika kejujuran dan kesederhanaan.",
+    population: "—",
+    established: "—",
+    highlights: ["Etika Samin", "Komunitas Agraris", "Sejarah Lokal"],
     rating: 4.3,
-    visitors: "280K/year",
+    visitors: "—",
+  },
+  {
+    id: "tengger",
+    name: "Tengger",
+    coordinates: { x: 75, y: 55 }, // sekitar Bromo
+    color: "#f59e0b",
+    culturalElements: ["Yadnya Kasada", "Upacara Adat", "Gunung Bromo"],
+    description: "Masyarakat Tengger pegunungan dengan ritus Kasada dan lanskap Bromo.",
+    population: "—",
+    established: "—",
+    highlights: ["Kasada", "Pegunungan", "Identitas Tengger"],
+    rating: 4.8,
+    visitors: "—",
   },
 ]
 
@@ -142,7 +181,6 @@ const culturalCategories = [
 export default function PetaBudayaPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [mapZoom, setMapZoom] = useState(1)
   const [mapCenter, setMapCenter] = useState({ x: 50, y: 50 })
   const [showSearchResults, setShowSearchResults] = useState(false)
@@ -184,11 +222,6 @@ export default function PetaBudayaPage() {
       setMapCenter(region.coordinates)
       setMapZoom(2)
     }
-  }
-
-  // Handle category filter
-  const handleCategoryFilter = (categoryId: string) => {
-    setSelectedCategory(categoryId === selectedCategory ? null : categoryId)
   }
 
   return (
@@ -314,7 +347,7 @@ export default function PetaBudayaPage() {
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
                   2
                 </span>
-                Use categories and search to find traditions, artifacts, or events relevant to your interests.
+                Gunakan kolom pencarian untuk menemukan istilah-istilah regional dan definisinya.
               </li>
               <li className="flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
@@ -331,48 +364,19 @@ export default function PetaBudayaPage() {
             {/* left filters column */}
             <div className="lg:col-span-1">
               <div className="bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border p-6 sticky top-24">
-                <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-primary" />
-                  Cultural Categories
-                </h3>
-                <div className="space-y-2">
-                  {culturalCategories.map((category) => (
-                    <Tooltip key={category.id}>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={() => handleCategoryFilter(category.id)}
-                          className={`w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200 hover:scale-[1.02] ${
-                            selectedCategory === category.id
-                              ? "bg-primary text-primary-foreground shadow-lg"
-                              : "hover:bg-accent/10 text-foreground"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg">{category.icon}</span>
-                            <span className="font-medium text-sm">{category.name}</span>
-                          </div>
-                          <Badge
-                            variant={selectedCategory === category.id ? "secondary" : "outline"}
-                            className="text-xs"
-                          >
-                            {category.count}
-                          </Badge>
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <p className="text-sm">{category.description}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ))}
-                </div>
+                <h3 className="font-semibold text-foreground mb-2">Pencarian</h3>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Cari istilah regional dan klik hasil untuk menyorot pada peta.
+                </p>
 
+                {/* Search Results (unchanged behavior) */}
                 <AnimatePresence>
                   {showSearchResults && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mt-6 pt-6 border-t border-border"
+                      className="mt-2"
                     >
                       <SearchResults results={searchResults} onResultClick={handleRegionClick} />
                     </motion.div>
@@ -417,15 +421,11 @@ export default function PetaBudayaPage() {
                     <div className="space-y-2 text-xs">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-primary"></div>
-                        <span className="text-muted-foreground">Major City</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-accent"></div>
-                        <span className="text-muted-foreground">Regency</span>
+                        <span className="text-muted-foreground">Sub-culture region</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <MapPin className="w-3 h-3 text-destructive" />
-                        <span className="text-muted-foreground">Selected Area</span>
+                        <span className="text-muted-foreground">Selected region</span>
                       </div>
                     </div>
                   </div>
@@ -445,84 +445,30 @@ export default function PetaBudayaPage() {
                       const region = eastJavaRegions.find((r) => r.id === selectedRegion)
                       if (!region) return null
 
+                      const terms = LEXICON[selectedRegion] || []
+
                       return (
                         <div>
                           <div className="flex items-center justify-between mb-4">
-                            <div>
-                              <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
-                                {region.name}
-                                <div className="flex items-center gap-1">
-                                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                                  <span className="text-sm text-muted-foreground">{region.rating}</span>
-                                </div>
-                              </h3>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                                <div className="flex items-center gap-1">
-                                  <Users className="w-4 h-4" />
-                                  <span>{region.population}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Calendar className="w-4 h-4" />
-                                  <span>Est. {region.established}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="w-4 h-4" />
-                                  <span>{region.visitors}</span>
-                                </div>
-                              </div>
-                            </div>
+                            <h3 className="text-xl font-bold text-foreground">{region.name} — Glosarium Lokal</h3>
                             <Link href={`/budaya/daerah/${region.id}`}>
-                              <Button className="bg-primary hover:bg-primary/90">View Region Details</Button>
+                              <Button className="bg-primary hover:bg-primary/90">Buka Halaman Subkultur</Button>
                             </Link>
                           </div>
 
-                          <p className="text-muted-foreground mb-4">{region.description}</p>
-
-                          <div className="grid grid-cols-3 gap-3 mb-4">
-                            <Image
-                              src="/cultural-dance-performance-photo.jpg"
-                              width={220}
-                              height={140}
-                              alt={`${region.name} cultural dance`}
-                              className="rounded-md border"
-                            />
-                            <Image
-                              src="/traditional-food-close-up.jpg"
-                              width={220}
-                              height={140}
-                              alt={`${region.name} traditional cuisine`}
-                              className="rounded-md border"
-                            />
-                            <Image
-                              src="/batik-or-craft-patterns.jpg"
-                              width={220}
-                              height={140}
-                              alt={`${region.name} crafts and batik`}
-                              className="rounded-md border"
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                              <h4 className="font-semibold mb-2 text-foreground">Cultural Elements:</h4>
-                              <div className="flex flex-wrap gap-2">
-                                {region.culturalElements.map((element, index) => (
-                                  <Badge key={index} variant="outline" className="border-primary/30 text-foreground">
-                                    {element}
-                                  </Badge>
-                                ))}
+                          {/* Terms and definitions only */}
+                          <div className="space-y-3">
+                            {terms.slice(0, 6).map((entry, idx) => (
+                              <div key={idx} className="rounded-lg border border-border bg-card/60 p-3">
+                                <div className="font-semibold text-foreground">{entry.term}</div>
+                                <div className="text-sm text-muted-foreground">{entry.definition}</div>
                               </div>
-                            </div>
-                            <div>
-                              <h4 className="font-semibold mb-2 text-foreground">Highlights:</h4>
-                              <div className="flex flex-wrap gap-2">
-                                {region.highlights.map((highlight, index) => (
-                                  <Badge key={index} variant="secondary" className="bg-accent/20 text-foreground">
-                                    {highlight}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
+                            ))}
+                            {terms.length === 0 && (
+                              <p className="text-sm text-muted-foreground">
+                                Belum ada entri glosarium untuk subkultur ini.
+                              </p>
+                            )}
                           </div>
                         </div>
                       )

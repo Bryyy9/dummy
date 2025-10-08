@@ -1,15 +1,16 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, Search, MapPin, Star, Clock, Bookmark, Newspaper } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { motion } from "framer-motion"
+import { ArrowLeft, Search, MapPin, ChevronLeft, ChevronRight, Play, Pause, RotateCcw, RotateCw } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { RegionProfile } from "@/components/cultural/region-profile"
-import { FeaturedCarousel } from "@/components/cultural/featured-carousel"
+import { LEXICON, type LexiconEntry } from "@/data/lexicon"
+import { SafeCanvas } from "@/components/three/safe-canvas"
+import { GLTFGlobe } from "@/components/three/gltf-globe"
+import { Environment, OrbitControls } from "@react-three/drei"
 
 // Data budaya per daerah
 type CulturalItem = {
@@ -311,6 +312,159 @@ const regionImages: Record<string, { src: string; alt: string; caption?: string 
   ],
 }
 
+const SUBCULTURE_PROFILES: Record<
+  string,
+  {
+    displayName: string
+    demographics: { population: string; area: string; density: string; languages: string[] }
+    history: string
+    highlights: string[]
+    modelPath?: string
+    videoSrc?: string
+  }
+> = {
+  arekan: {
+    displayName: "Arekan",
+    demographics: {
+      population: "± 5.1M (fiksi)",
+      area: "6.200 km²",
+      density: "825/km²",
+      languages: ["Jawa Arek", "Madura", "Indonesia"],
+    },
+    history:
+      "Berakar dari budaya pesisir perkotaan, Arekan tumbuh dalam kosmopolitanisme pelabuhan dengan seni tutur dan teater rakyat yang kuat.",
+    highlights: ["Ludruk dan Remo", "Kuliner pesisir (rujak cingur)", "Ekspresi urban egaliter"],
+    modelPath: "/assets/3d/duck.glb",
+    videoSrc: "/videos/subculture-sample.mp4",
+  },
+  madura: {
+    displayName: "Madura",
+    demographics: {
+      population: "± 4.2M (fiksi)",
+      area: "5.200 km²",
+      density: "808/km²",
+      languages: ["Madura", "Indonesia"],
+    },
+    history: "Tradisi pesantren, maritim, dan jejaring dagang membentuk identitas Madura lintas kepulauan.",
+    highlights: ["Karapan Sapi", "Keris dan kriya logam", "Tradisi pesantren"],
+    modelPath: "/assets/3d/duck.glb",
+    videoSrc: "/videos/subculture-sample.mp4",
+  },
+  "madura-base": {
+    displayName: "Madura-Base",
+    demographics: {
+      population: "± 1.1M (fiksi)",
+      area: "1.900 km²",
+      density: "579/km²",
+      languages: ["Madura", "Indonesia"],
+    },
+    history:
+      "Wilayah basis subkultur Madura dengan penguatan praktik keseharian—anyaman, ritual kampung, dan solidaritas komunal.",
+    highlights: ["Anyaman & kriya serat", "Kuliner harian", "Ritual kampung"],
+    modelPath: "/assets/3d/duck.glb",
+    videoSrc: "/videos/subculture-sample.mp4",
+  },
+  "madura-bawean": {
+    displayName: "Madura-Bawean",
+    demographics: {
+      population: "± 70K (fiksi)",
+      area: "196 km²",
+      density: "357/km²",
+      languages: ["Bawean", "Madura", "Indonesia"],
+    },
+    history: "Subkultur kepulauan dengan tradisi maritim, bahasa lokal, dan musik rakyat yang hidup.",
+    highlights: ["Tradisi maritim", "Bahasa lokal", "Kesenian pulau"],
+    modelPath: "/assets/3d/duck.glb",
+    videoSrc: "/videos/subculture-sample.mp4",
+  },
+  "madura-kangean": {
+    displayName: "Madura-Kangean",
+    demographics: {
+      population: "± 85K (fiksi)",
+      area: "488 km²",
+      density: "174/km²",
+      languages: ["Madura", "Indonesia"],
+    },
+    history: "Jejaring pulau-pulau timur dengan identitas pesisir, perikanan, dan perdagangan.",
+    highlights: ["Ritus pesisir", "Perikanan", "Kriya lokal"],
+    modelPath: "/assets/3d/duck.glb",
+    videoSrc: "/videos/subculture-sample.mp4",
+  },
+  mataraman: {
+    displayName: "Mataraman",
+    demographics: {
+      population: "± 3.6M (fiksi)",
+      area: "7.300 km²",
+      density: "493/km²",
+      languages: ["Jawa Mataraman", "Indonesia"],
+    },
+    history: "Warna kebudayaan Jawa Mataraman—tata krama, gamelan, dan wayang—membentuk lanskap kebudayaan setempat.",
+    highlights: ["Gamelan & wayang", "Adab Mataraman", "Seni tutur"],
+    modelPath: "/assets/3d/duck.glb",
+    videoSrc: "/videos/subculture-sample.mp4",
+  },
+  osing: {
+    displayName: "Osing (Using)",
+    demographics: {
+      population: "± 1.1M (fiksi)",
+      area: "5.800 km²",
+      density: "190/km²",
+      languages: ["Osing/Using", "Jawa", "Indonesia"],
+    },
+    history: "Subkultur Osing mempunyai bahasa, musik, dan tarian khas; identitas kultural kuat di Banyuwangi.",
+    highlights: ["Gandrung", "Barong & musik tradisional", "Batik Using"],
+    modelPath: "/assets/3d/duck.glb",
+    videoSrc: "/videos/subculture-sample.mp4",
+  },
+  panaragan: {
+    displayName: "Panaragan",
+    demographics: {
+      population: "± 0.9M (fiksi)",
+      area: "4.400 km²",
+      density: "205/km²",
+      languages: ["Jawa", "Indonesia"],
+    },
+    history: "Kekuatan seni rakyat dan kerajinan kayu menjadi aksen keseharian Panaragan.",
+    highlights: ["Kerajinan kayu", "Seni rakyat", "Upacara lokal"],
+    modelPath: "/assets/3d/duck.glb",
+    videoSrc: "/videos/subculture-sample.mp4",
+  },
+  pandalungan: {
+    displayName: "Pandalungan",
+    demographics: {
+      population: "± 2.2M (fiksi)",
+      area: "6.000 km²",
+      density: "367/km²",
+      languages: ["Jawa", "Madura", "Indonesia"],
+    },
+    history: "Perpaduan Jawa–Madura melahirkan dialek, kuliner, dan ritus yang khas tapal kuda.",
+    highlights: ["Dialek Pandalungan", "Kuliner pesisir", "Tradisi campuran"],
+    modelPath: "/assets/3d/duck.glb",
+    videoSrc: "/videos/subculture-sample.mp4",
+  },
+  samin: {
+    displayName: "Samin",
+    demographics: { population: "± 35K (fiksi)", area: "380 km²", density: "92/km²", languages: ["Jawa", "Indonesia"] },
+    history: "Komunitas Samin dikenal lewat etika kejujuran, laku sederhana, dan sejarah gerakan sosial.",
+    highlights: ["Etika Samin", "Pertanian", "Komunitas mandiri"],
+    modelPath: "/assets/3d/duck.glb",
+    videoSrc: "/videos/subculture-sample.mp4",
+  },
+  tengger: {
+    displayName: "Tengger",
+    demographics: {
+      population: "± 110K (fiksi)",
+      area: "1.200 km²",
+      density: "92/km²",
+      languages: ["Jawa Tenggeran", "Indonesia"],
+    },
+    history: "Komunitas pegunungan dengan ritus Yadnya Kasada dan lanskap Bromo yang sakral.",
+    highlights: ["Yadnya Kasada", "Pegunungan Bromo", "Pertanian dataran tinggi"],
+    modelPath: "/assets/3d/duck.glb",
+    videoSrc: "/videos/subculture-sample.mp4",
+  },
+}
+
 export default function RegionDetailPage() {
   const params = useParams()
   const regionId = params.id as string
@@ -319,39 +473,41 @@ export default function RegionDetailPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [filteredItems, setFilteredItems] = useState<CulturalItem[]>([])
 
-  const regionData = regionCulturalData[regionId as keyof typeof regionCulturalData]
+  const [videoIndex, setVideoIndex] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
 
-  // Compute categories and recent items
-  const categories = useMemo(
-    () => (regionData ? [...new Set(regionData.culturalItems.map((i) => i.category))] : []),
-    [regionData],
-  )
-  const recentItems = useMemo(() => (regionData ? regionData.culturalItems.slice(0, 5) : []), [regionData])
+  const [autoRotate, setAutoRotate] = useState(true)
+  const [viewerKey, setViewerKey] = useState(0) // remount to reset camera/controls
 
-  useEffect(() => {
-    if (!regionData) return
-    let items = regionData.culturalItems
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
 
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase()
-      items = items.filter(
-        (item) =>
-          item.title.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q) ||
-          item.tags.some((t) => t.toLowerCase().includes(q)),
-      )
-    }
-    if (selectedCategory) {
-      items = items.filter((item) => item.category === selectedCategory)
-    }
-    setFilteredItems(items)
-  }, [searchQuery, selectedCategory, regionData])
+  const lexicon: LexiconEntry[] = LEXICON[regionId] || []
 
   const heroImage =
     (regionImages[regionId]?.[0]?.src as string) ||
-    `/placeholder.svg?height=640&width=1280&query=${encodeURIComponent(`${regionData?.name || "Region"} cultural landscape`)}`
+    `/placeholder.svg?height=640&width=1280&query=${encodeURIComponent(`${regionId} cultural landscape`)}`
 
-  if (!regionData) {
+  const thumbs = (regionImages[regionId] || []).slice(0, 6)
+  const profile = SUBCULTURE_PROFILES[regionId]
+  const baseVideoSrc = profile?.videoSrc || "/videos/subculture-sample.mp4"
+  const videos = thumbs.length > 1 ? thumbs.map(() => baseVideoSrc) : [baseVideoSrc]
+  const posters = thumbs.length > 0 ? thumbs.map((t) => t.src) : [heroImage]
+
+  const goPrev = () => setVideoIndex((i) => (i - 1 + videos.length) % videos.length)
+  const goNext = () => setVideoIndex((i) => (i + 1) % videos.length)
+
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v) return
+    v.load()
+    if (isPlaying) {
+      const playPromise = v.play()
+      playPromise?.catch(() => setIsPlaying(false))
+    }
+  }, [videoIndex, isPlaying])
+
+  if (!lexicon.length) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -377,7 +533,7 @@ export default function RegionDetailPage() {
                 </Link>
               </li>
               <li aria-hidden="true">/</li>
-              <li className="text-foreground font-medium">{regionData?.name}</li>
+              <li className="text-foreground font-medium">{regionId}</li>
             </ol>
           </nav>
           <div className="flex items-center justify-between">
@@ -389,41 +545,51 @@ export default function RegionDetailPage() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">{regionData.name} Cultural Profile</h1>
-                <p className="text-sm text-muted-foreground">{regionData.description}</p>
+                <h1 className="text-2xl font-bold text-foreground">{regionId} Glosarium Lokal</h1>
+                <p className="text-sm text-muted-foreground">Istilah dan definisi untuk subkultur ini.</p>
               </div>
-            </div>
-            <div className="hidden md:flex items-center gap-2 overflow-x-auto">
-              <Button
-                variant={selectedCategory === null ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(null)}
-                className="whitespace-nowrap"
-              >
-                All
-              </Button>
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                  className="whitespace-nowrap"
-                >
-                  {category}
-                </Button>
-              ))}
             </div>
           </div>
         </div>
       </header>
+
+      {/* In-page subnav */}
+      <nav
+        aria-label="Halaman sub-bab"
+        className="bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-[64px] z-40 border-b border-border"
+      >
+        <div className="container mx-auto px-4">
+          <ul className="flex gap-2 overflow-x-auto py-2 no-scrollbar">
+            <li>
+              <a href="#region-profile" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
+                Latar Belakang
+              </a>
+            </li>
+            <li>
+              <a href="#video-profile" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
+                Video Profil
+              </a>
+            </li>
+            <li>
+              <a href="#viewer-3d" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
+                Objek 3D
+              </a>
+            </li>
+            <li>
+              <a href="#search-and-explore" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
+                Cari Istilah
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
 
       {/* Hero / CTA section with immersive image */}
       <section aria-label="Hero" className="relative overflow-hidden border-b border-border">
         <div className="relative">
           <img
             src={heroImage || "/placeholder.svg"}
-            alt={`${regionData.name} cultural landscape`}
+            alt={`${regionId} cultural landscape`}
             className="h-[42vh] md:h-[52vh] w-full object-cover"
             crossOrigin="anonymous"
           />
@@ -436,7 +602,7 @@ export default function RegionDetailPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                Start your adventure in {regionData.name}
+                Start your adventure in {regionId}
               </motion.h2>
               <motion.p
                 className="mt-4 text-pretty text-sm md:text-base text-muted-foreground max-w-2xl mx-auto"
@@ -466,210 +632,385 @@ export default function RegionDetailPage() {
       </section>
 
       <main className="container mx-auto px-4 py-6 space-y-8">
-        {/* Category pills (mobile) */}
-        <div className="md:hidden -mx-4 px-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
-            <Button
-              variant={selectedCategory === null ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(null)}
-              className="whitespace-nowrap"
-            >
-              All
-            </Button>
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-                className="whitespace-nowrap"
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Featured carousel + recent items */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <FeaturedCarousel
-              title="Featured Highlights"
-              images={(regionImages[regionId] || []).map((img, i) => ({
-                ...img,
-                src:
-                  img?.src && img.src.startsWith("/")
-                    ? img.src
-                    : `/placeholder.svg?height=600&width=1067&query=${encodeURIComponent(
-                        `${regionData.name} cultural highlight ${i + 1}`,
-                      )}`,
-              }))}
-            />
-          </div>
-          <aside className="lg:col-span-1">
-            <div className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
-              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                <Newspaper className="w-4 h-4 text-primary" />
-                Recent Highlights
-              </h3>
-              <ul className="space-y-3">
-                {recentItems.map((it) => (
-                  <li key={it.id} className="border-b border-border pb-3 last:border-0 last:pb-0">
-                    <Link href={`/budaya/${it.id}`} className="hover:underline">
-                      <p className="text-sm font-medium text-foreground">{it.title}</p>
-                    </Link>
-                    <p className="text-xs text-muted-foreground">{it.description}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </aside>
+        {/* Profile overview cards */}
+        <section id="region-profile" className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
+          {(() => {
+            const profile = SUBCULTURE_PROFILES[regionId]
+            if (!profile)
+              return (
+                <p className="text-sm text-muted-foreground">
+                  Profil rinci untuk subkultur ini belum tersedia. Gunakan glosarium di bawah.
+                </p>
+              )
+            const { displayName, demographics } = profile
+            return (
+              <div>
+                <h2 className="text-xl font-bold text-foreground mb-4">{displayName} — Profil Singkat</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="rounded-lg border border-border bg-card/60 p-4">
+                    <div className="text-xs text-muted-foreground">Populasi (fiksi)</div>
+                    <div className="font-semibold text-foreground">{demographics.population}</div>
+                  </div>
+                  <div className="rounded-lg border border-border bg-card/60 p-4">
+                    <div className="text-xs text-muted-foreground">Luas Wilayah</div>
+                    <div className="font-semibold text-foreground">{demographics.area}</div>
+                  </div>
+                  <div className="rounded-lg border border-border bg-card/60 p-4">
+                    <div className="text-xs text-muted-foreground">Kepadatan</div>
+                    <div className="font-semibold text-foreground">{demographics.density}</div>
+                  </div>
+                  <div className="rounded-lg border border-border bg-card/60 p-4">
+                    <div className="text-xs text-muted-foreground">Bahasa</div>
+                    <div className="font-semibold text-foreground">{demographics.languages.join(", ")}</div>
+                  </div>
+                </div>
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <article className="rounded-lg border border-border bg-card/60 p-4">
+                    <h3 className="font-semibold text-foreground mb-1">Sejarah Singkat</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {SUBCULTURE_PROFILES[regionId]?.history || "Ringkasan sejarah belum tersedia."}
+                    </p>
+                  </article>
+                  <article className="rounded-lg border border-border bg-card/60 p-4">
+                    <h3 className="font-semibold text-foreground mb-1">Geografi & Demografi</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {SUBCULTURE_PROFILES[regionId]
+                        ? `Luas ${SUBCULTURE_PROFILES[regionId]!.demographics.area}, kepadatan ${SUBCULTURE_PROFILES[regionId]!.demographics.density}, bahasa: ${SUBCULTURE_PROFILES[regionId]!.demographics.languages.join(", ")}.`
+                        : "Data geografis & demografis belum tersedia."}
+                    </p>
+                  </article>
+                  <article className="rounded-lg border border-border bg-card/60 p-4 md:col-span-2">
+                    <h3 className="font-semibold text-foreground mb-1">Ikhtisar Budaya</h3>
+                    <ul className="list-disc pl-5 text-sm text-muted-foreground grid md:grid-cols-3 gap-x-4">
+                      {(SUBCULTURE_PROFILES[regionId]?.highlights || []).map((h, i) => (
+                        <li key={i}>{h}</li>
+                      ))}
+                    </ul>
+                  </article>
+                  <aside className="rounded-lg border border-border bg-card/60 p-4 md:col-span-2 flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-foreground">Teman Baca Lebih Lanjut</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Sumber fiksi untuk eksplorasi mendalam mengenai subkultur.
+                      </p>
+                    </div>
+                    <a
+                      href="#video-profile"
+                      className="px-3 py-2 rounded-md border border-border hover:bg-accent/10 text-sm"
+                    >
+                      Jelajahi
+                    </a>
+                  </aside>
+                </div>
+              </div>
+            )
+          })()}
         </section>
 
-        {/* Comprehensive profile section */}
-        <section id="region-profile">
-          <RegionProfile
-            name={regionData.name}
-            color={regionData.color}
-            identity={regionData.identity}
-            history={regionData.historyText}
-            significance={regionData.significance}
-            facts={[
-              ...(regionData.population ? [{ label: "Population", value: regionData.population }] : []),
-              ...(regionData.established ? [{ label: "Established", value: regionData.established }] : []),
-              ...(regionData.highlights && regionData.highlights.length
-                ? [{ label: "Highlights", value: regionData.highlights.slice(0, 3).join(", ") }]
-                : []),
-            ]}
-          />
+        <section
+          id="video-profile"
+          aria-label="Video subkultur"
+          className="rounded-xl shadow-sm border border-border bg-card/60 p-6"
+        >
+          <div className="flex items-center gap-3">
+            <button
+              aria-label="Video sebelumnya"
+              onClick={goPrev}
+              className="p-2 rounded-md border border-border hover:bg-accent/10 disabled:opacity-50"
+              disabled={videos.length <= 1}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border bg-background/50">
+              <video
+                key={videoIndex}
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                src={videos[videoIndex]}
+                poster={posters[videoIndex]}
+                controls={false}
+                playsInline
+                crossOrigin="anonymous"
+              />
+              {/* overlay gradient */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent" />
+
+              {/* overlay controls */}
+              <div className="absolute inset-x-0 bottom-0 p-3 flex items-center justify-between bg-gradient-to-t from-background/60 via-background/20 to-transparent">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const v = videoRef.current
+                      if (!v) return
+                      if (v.paused) {
+                        v.play()
+                          .then(() => setIsPlaying(true))
+                          .catch(() => setIsPlaying(false))
+                      } else {
+                        v.pause()
+                        setIsPlaying(false)
+                      }
+                    }}
+                    aria-label={isPlaying ? "Jeda" : "Putar"}
+                    className="px-3 py-1 rounded-md bg-background/70 border border-border hover:bg-accent/10"
+                  >
+                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  </button>
+                  <span className="text-xs text-muted-foreground">
+                    {profile?.displayName || regionId} — Video {videoIndex + 1}/{videos.length}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={goPrev}
+                    disabled={videos.length <= 1}
+                    className="px-2 py-1 rounded-md bg-background/70 border border-border hover:bg-accent/10 disabled:opacity-50"
+                    aria-label="Sebelumnya"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={goNext}
+                    disabled={videos.length <= 1}
+                    className="px-2 py-1 rounded-md bg-background/70 border border-border hover:bg-accent/10 disabled:opacity-50"
+                    aria-label="Berikutnya"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              aria-label="Video berikutnya"
+              onClick={goNext}
+              className="p-2 rounded-md border border-border hover:bg-accent/10 disabled:opacity-50"
+              disabled={videos.length <= 1}
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* thumbnails */}
+          <div className="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
+            {posters.map((src, idx) => (
+              <button
+                key={idx}
+                onClick={() => setVideoIndex(idx)}
+                aria-label={`Pilih video ${idx + 1}`}
+                className={`min-w-[100px] h-16 rounded-md overflow-hidden border ${idx === videoIndex ? "border-primary" : "border-border"} hover:border-foreground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50`}
+              >
+                <img
+                  src={src || "/placeholder.svg"}
+                  alt={`Video ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                  crossOrigin="anonymous"
+                />
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section
+          id="viewer-3d"
+          aria-label="Penampil 3D"
+          className="rounded-xl shadow-sm border border-border bg-card/60 p-6"
+        >
+          {(() => {
+            const p = SUBCULTURE_PROFILES[regionId]
+            if (!p?.modelPath) return null
+            return (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground">Objek 3D Representasi Daerah</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Eksplorasi model 3D yang mewakili artefak atau lanskap subkultur secara interaktif.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setAutoRotate((v) => !v)}
+                      className="px-3 py-2 rounded-md border border-border hover:bg-accent/10 text-xs"
+                      aria-pressed={autoRotate}
+                      aria-label="Toggle auto-rotate"
+                    >
+                      {autoRotate ? (
+                        <RotateCw className="w-4 h-4 inline-block mr-1" />
+                      ) : (
+                        <RotateCcw className="w-4 h-4 inline-block mr-1" />
+                      )}
+                      {autoRotate ? "Auto Rotate" : "Rotate Off"}
+                    </button>
+                    <button
+                      onClick={() => setViewerKey((k) => k + 1)}
+                      className="px-3 py-2 rounded-md border border-border hover:bg-accent/10 text-xs"
+                      aria-label="Reset tampilan 3D"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+
+                <div className="w-full h-[420px] rounded-lg overflow-hidden border border-border bg-muted/20">
+                  <SafeCanvas key={viewerKey} className="w-full h-full" camera={{ position: [0, 0, 3], fov: 50 }}>
+                    <ambientLight intensity={0.65} />
+                    <directionalLight position={[4, 6, 8]} intensity={0.7} />
+                    <GLTFGlobe onGlobeClick={() => {}} gltfPath={p.modelPath} scale={1} autoRotate={autoRotate} />
+                    <OrbitControls enablePan enableZoom enableRotate makeDefault />
+                    <Environment preset="studio" />
+                  </SafeCanvas>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60">
+                    Istilah Populer 1
+                  </span>
+                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60">
+                    Istilah Populer 2
+                  </span>
+                  <button className="px-3 py-1 rounded-md text-xs border border-border hover:bg-accent/10">
+                    Tombol Pilihan Objek
+                  </button>
+                </div>
+              </div>
+            )
+          })()}
         </section>
 
         {/* Search and Filter */}
         <section id="search-and-explore" className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
-          <div className="flex flex-col md:flex-row gap-4" role="search">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  aria-label={`Search in ${regionData.name}`}
-                  placeholder={`Search traditions, artifacts, or events in ${regionData.name}...`}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-background/50 border-border focus:ring-primary/20"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2 md:hidden" aria-label="Category filters">
-              <Button
-                variant={selectedCategory === null ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(null)}
-              >
-                All
-              </Button>
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </Button>
-              ))}
+          <div className="flex flex-col gap-4" role="search">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                aria-label={`Cari istilah di ${regionId}`}
+                placeholder={`Cari istilah atau kata kunci di ${regionId}...`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-background/50 border-border focus:ring-primary/20"
+              />
             </div>
           </div>
           {searchQuery && (
-            <div className="mt-4 text-sm text-muted-foreground">
-              Found {filteredItems.length} result{filteredItems.length === 1 ? "" : "s"} for "{searchQuery}"
-            </div>
+            <div className="mt-4 text-sm text-muted-foreground">Menampilkan hasil untuk "{searchQuery}"</div>
           )}
         </section>
 
-        {/* Cultural Items Grid */}
-        <section aria-label="Search results">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence>
-              {filteredItems.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition-shadow bg-card/60 border-border"
-                >
-                  <div className="aspect-video bg-gradient-to-br from-muted/40 to-muted relative">
-                    <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                      <MapPin className="w-8 h-8" />
-                    </div>
-                    <div className="absolute top-3 left-3">
-                      <Badge style={{ backgroundColor: regionData.color }} className="text-white">
-                        {item.category}
-                      </Badge>
-                    </div>
-                    <div className="absolute top-3 right-3">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 bg-background/70">
-                        <Bookmark className="w-4 h-4" />
-                        <span className="sr-only">Bookmark</span>
-                      </Button>
-                    </div>
-                  </div>
+        {/* Lexicon list */}
+        <section aria-label="Daftar istilah">
+          {(() => {
+            const filtered = lexicon.filter(
+              (e) =>
+                !searchQuery ||
+                e.term.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                e.definition.toLowerCase().includes(searchQuery.toLowerCase()),
+            )
 
-                  <div className="p-4">
-                    <h3 className="font-semibold mb-2 text-foreground">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{item.description}</p>
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filtered.map((entry, i) => {
+                  const isOpen = expandedIdx === i
+                  const contentId = `lexicon-details-${i}`
 
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-                      {item.duration && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {item.duration}
+                  return (
+                    <article
+                      key={`${entry.term}-${i}`}
+                      className="rounded-xl shadow-sm border bg-card/60 border-border overflow-hidden"
+                    >
+                      <button
+                        type="button"
+                        className="w-full text-left px-4 py-3 flex items-start justify-between gap-3 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        aria-expanded={isOpen}
+                        aria-controls={contentId}
+                        onClick={() => setExpandedIdx((prev) => (prev === i ? null : i))}
+                      >
+                        <div>
+                          <h3 className="font-semibold text-foreground">{entry.term}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{entry.definition}</p>
                         </div>
-                      )}
-                      {typeof item.popularity === "number" && (
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                          {item.popularity}
+                        <svg
+                          className={`w-4 h-4 mt-1 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.127l3.71-3.896a.75.75 0 111.08 1.04l-4.24 4.46a.75.75 0 01-1.08 0l-4.24-4.46a.75.75 0 01.02-1.06z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+
+                      {/* Smooth expandable content */}
+                      <motion.div
+                        id={contentId}
+                        initial={false}
+                        animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
+                        transition={{ duration: 0.24, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-4 pb-4 pt-1">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="rounded-lg border border-border bg-background/50 p-3">
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Makna Etimologi</h4>
+                              <p className="text-sm text-foreground/90">{entry.etimologi || "—"}</p>
+                            </div>
+                            <div className="rounded-lg border border-border bg-background/50 p-3">
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Makna Cultural</h4>
+                              <p className="text-sm text-foreground/90">{entry.culturalMeaning || "—"}</p>
+                            </div>
+                            <div className="rounded-lg border border-border bg-background/50 p-3">
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Varian Makna</h4>
+                              {entry.variants && entry.variants.length > 0 ? (
+                                <div className="flex flex-wrap gap-2">
+                                  {entry.variants.map((v, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="px-2 py-0.5 rounded-full border border-border bg-card/60 text-xs"
+                                    >
+                                      {v}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-sm text-foreground/90">—</p>
+                              )}
+                            </div>
+                            <div className="rounded-lg border border-border bg-background/50 p-3">
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Common Meaning</h4>
+                              <p className="text-sm text-foreground/90">{entry.commonMeaning || "—"}</p>
+                            </div>
+                            <div className="rounded-lg border border-border bg-background/50 p-3">
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Keterangan</h4>
+                              <p className="text-sm text-foreground/90">{entry.note || "—"}</p>
+                            </div>
+                            <div className="rounded-lg border border-border bg-background/50 p-3">
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">
+                                Ketersediaan Informasi lain
+                              </h4>
+                              <p className="text-sm text-foreground/90">{entry.availability || "—"}</p>
+                            </div>
+                          </div>
                         </div>
-                      )}
-                    </div>
+                      </motion.div>
+                    </article>
+                  )
+                })}
 
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {item.tags.slice(0, 3).map((tag, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <Link href={`/budaya/${item.id}`}>
-                      <Button className="w-full">Learn More</Button>
-                    </Link>
+                {filtered.length === 0 && (
+                  <div className="text-center py-12 col-span-full">
+                    <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Belum ada entri</h3>
+                    <p className="text-muted-foreground">Glosarium untuk subkultur ini belum tersedia.</p>
                   </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-
-          {/* Empty state */}
-          {filteredItems.length === 0 && (
-            <div className="text-center py-12">
-              <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No Results</h3>
-              <p className="text-muted-foreground mb-4">Try adjusting your search or category filters.</p>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSearchQuery("")
-                  setSelectedCategory(null)
-                }}
-              >
-                Reset Search
-              </Button>
-            </div>
-          )}
+                )}
+              </div>
+            )
+          })()}
         </section>
       </main>
     </div>

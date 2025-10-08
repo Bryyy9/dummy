@@ -12,7 +12,7 @@ interface MapControlsProps {
 
 export function MapControls({ zoom, onZoomIn, onZoomOut, onReset }: MapControlsProps) {
   return (
-    <div className="flex items-center gap-1 rounded-lg border shadow-sm p-1 bg-slate-800">
+    <div className="flex items-center gap-1 rounded-lg border shadow-sm p-1 bg-background">
       <Button variant="ghost" size="sm" onClick={onZoomIn} disabled={zoom >= 3} className="h-8 w-8 p-0">
         <ZoomIn className="w-4 h-4" />
       </Button>
