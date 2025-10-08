@@ -180,9 +180,9 @@ export default function PetaBudayaPage() {
   const handleRegionClick = (regionId: string) => {
     const region = eastJavaRegions.find((r) => r.id === regionId)
     if (region) {
-      // Keep UI feedback if needed, but redirect immediately for seamless flow
-      router.push(`/budaya/daerah/${region.id}`)
-      return
+      setSelectedRegion(region.id)
+      setMapCenter(region.coordinates)
+      setMapZoom(2)
     }
   }
 
@@ -409,6 +409,7 @@ export default function PetaBudayaPage() {
                     zoom={mapZoom}
                     center={mapCenter}
                     searchQuery={searchQuery}
+                    backgroundSrc="/maps/jawa-perprovinsi-subculture.svg"
                   />
 
                   <div className="absolute bottom-4 left-4 bg-card/90 backdrop-blur-sm rounded-lg p-4 shadow-lg border border-border">
@@ -476,6 +477,30 @@ export default function PetaBudayaPage() {
                           </div>
 
                           <p className="text-muted-foreground mb-4">{region.description}</p>
+
+                          <div className="grid grid-cols-3 gap-3 mb-4">
+                            <Image
+                              src="/cultural-dance-performance-photo.jpg"
+                              width={220}
+                              height={140}
+                              alt={`${region.name} cultural dance`}
+                              className="rounded-md border"
+                            />
+                            <Image
+                              src="/traditional-food-close-up.jpg"
+                              width={220}
+                              height={140}
+                              alt={`${region.name} traditional cuisine`}
+                              className="rounded-md border"
+                            />
+                            <Image
+                              src="/batik-or-craft-patterns.jpg"
+                              width={220}
+                              height={140}
+                              alt={`${region.name} crafts and batik`}
+                              className="rounded-md border"
+                            />
+                          </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>

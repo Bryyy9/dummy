@@ -20,6 +20,7 @@ interface InteractiveEastJavaMapProps {
   zoom: number
   center: { x: number; y: number }
   searchQuery: string
+  backgroundSrc?: string
 }
 
 export function InteractiveEastJavaMap({
@@ -29,12 +30,12 @@ export function InteractiveEastJavaMap({
   zoom,
   center,
   searchQuery,
+  backgroundSrc = "/maps/jawa-perprovinsi-subculture.svg",
 }: InteractiveEastJavaMapProps) {
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null)
   const [mapTransform, setMapTransform] = useState({ scale: 1, translateX: 0, translateY: 0 })
   const [animationPhase, setAnimationPhase] = useState(0)
 
-  // Update map transform based on zoom and center
   useEffect(() => {
     const scale = zoom
     const translateX = (50 - center.x) * scale * 4
@@ -55,7 +56,6 @@ export function InteractiveEastJavaMap({
     }
   }, [])
 
-  // Filter regions based on search
   const filteredRegions = regions.filter(
     (region) =>
       !searchQuery ||
@@ -76,51 +76,15 @@ export function InteractiveEastJavaMap({
         transition={{ type: "spring", stiffness: 200, damping: 25 }}
       >
         <svg viewBox="0 0 100 100" className="w-full h-full" style={{ minWidth: "100%", minHeight: "100%" }}>
-          {/* East Java Outline */}
-          <motion.path
-            d="M15,35 Q25,30 35,32 Q45,28 55,30 Q65,25 75,28 Q85,30 90,35 L88,45 Q85,50 82,55 L85,65 Q88,70 85,75 Q80,80 75,78 Q70,82 65,80 Q60,85 55,82 Q50,88 45,85 Q40,82 35,85 Q30,80 25,78 Q20,75 18,70 Q15,65 18,60 Q15,55 18,50 Q15,45 18,40 Q15,38 15,35 Z"
-            fill="rgba(0, 59, 92, 0.1)"
-            stroke="#003b5c"
-            strokeWidth="0.8"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{
-              pathLength: animationPhase >= 1 ? 1 : 0,
-              opacity: animationPhase >= 1 ? 1 : 0,
-            }}
-            transition={{ duration: 2, ease: "easeInOut" }}
+          <image
+            href={backgroundSrc}
+            x="0"
+            y="0"
+            width="100"
+            height="100"
+            preserveAspectRatio="xMidYMid meet"
+            opacity="1"
           />
-
-          {/* Coastal Lines */}
-          <motion.g
-            initial={{ opacity: 0 }}
-            animate={{ opacity: animationPhase >= 2 ? 0.6 : 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-          >
-            <path
-              d="M15,35 Q30,30 45,32 Q60,28 75,30 Q85,32 90,35"
-              fill="none"
-              stroke="#00a3e0"
-              strokeWidth="0.4"
-              strokeDasharray="2,1"
-            />
-            <path
-              d="M18,70 Q35,75 50,72 Q65,78 82,75"
-              fill="none"
-              stroke="#00a3e0"
-              strokeWidth="0.4"
-              strokeDasharray="2,1"
-            />
-
-            {/* Mountain ranges */}
-            <path
-              d="M25,45 L30,40 L35,45 L40,38 L45,45 L50,35 L55,45 L60,40 L65,45"
-              fill="none"
-              stroke="#8b5cf6"
-              strokeWidth="0.3"
-              opacity="0.4"
-            />
-          </motion.g>
-
           {/* Region Markers */}
           {filteredRegions.map((region, index) => {
             const isSelected = selectedRegion === region.id
