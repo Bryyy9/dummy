@@ -54,7 +54,7 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          <AnimatedReveal animation="slide-up" delay={800}>
+          <AnimatedReveal animation="fade-up" delay={800}>
             <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50">
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -69,7 +69,7 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
             </Card>
           </AnimatedReveal>
 
-          <AnimatedReveal animation="slide-up" delay={1000}>
+          <AnimatedReveal animation="fade-up" delay={1000}>
             <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50">
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -84,7 +84,7 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
             </Card>
           </AnimatedReveal>
 
-          <AnimatedReveal animation="slide-up" delay={1200}>
+          <AnimatedReveal animation="fade-up" delay={1200}>
             <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50">
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
