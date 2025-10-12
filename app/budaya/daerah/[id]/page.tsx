@@ -126,7 +126,7 @@ const regionCulturalData: Record<string, RegionProfileData> = {
     established: "1042",
     highlights: ["Puppet Heritage", "Tobacco", "Historical Sites"],
     identity:
-      "Kediri’s identity is rooted in traditional performing arts such as wayang and jaranan, upheld by communities that honor history.",
+      "Kediri's identity is rooted in traditional performing arts such as wayang and jaranan, upheld by communities that honor history.",
     historyText:
       "Since the Kadiri Kingdom era, Kediri has preserved longstanding traditions in performance arts and commerce.",
     significance:
@@ -204,7 +204,7 @@ const regionCulturalData: Record<string, RegionProfileData> = {
     population: "1.6 million",
     established: "1771",
     highlights: ["Using Culture", "Nature", "Gandrung"],
-    identity: "Using traditions shape Banyuwangi’s identity—language, music, and the Gandrung performing arts.",
+    identity: "Using traditions shape Banyuwangi's identity—language, music, and the Gandrung performing arts.",
     historyText: "Migration and maritime trade expanded local cultural repertoires.",
     significance: "A living laboratory of culture that celebrates diversity through annual festivals.",
     culturalItems: [
@@ -251,8 +251,8 @@ const regionCulturalData: Record<string, RegionProfileData> = {
     population: "170 thousand",
     established: "1918",
     highlights: ["Pecel", "Historic Station", "Gamelan"],
-    identity: "Madiun’s identity lives in its pecel cuisine and gamelan music, within a friendly urban community.",
-    historyText: "Rail networks shaped the city’s growth and popular culture.",
+    identity: "Madiun's identity lives in its pecel cuisine and gamelan music, within a friendly urban community.",
+    historyText: "Rail networks shaped the city's growth and popular culture.",
     significance: "A culinary and music node enriching cultural tourism in western East Java.",
     culturalItems: [
       {
@@ -288,7 +288,7 @@ const regionImages: Record<string, { src: string; alt: string; caption?: string 
   jember: [
     { src: "/traditional-east-java-dance-performance-with-color.jpg", alt: "Traditional dance performance" },
     { src: "/traditional-east-java-handicrafts-and-batik-art.jpg", alt: "Batik and handicrafts" },
-    { src: "/east-java-temple-sunset-landscape-with-traditional.jpg", alt: "East Java landscape at sunset" },
+    { src: "/east-java-temple-sunset-landscape-with-traditional.jpg", alt: "Eastern Java coastline and temples" },
   ],
   probolinggo: [
     { src: "/mount-bromo-sunrise-volcanic-landscape-east-java.jpg", alt: "Mount Bromo sunrise" },
@@ -565,6 +565,7 @@ export default function RegionDetailPage() {
                 Latar Belakang
               </a>
             </li>
+            <li aria-hidden="true">/</li>
             <li>
               <a href="#video-profile" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
                 Video Profil
@@ -854,14 +855,17 @@ export default function RegionDetailPage() {
                   </div>
                 </div>
 
-                <div className="w-full h-[420px] rounded-lg overflow-hidden border border-border bg-muted/20">
-                  <SafeCanvas key={viewerKey} className="w-full h-full" camera={{ position: [0, 0, 3], fov: 50 }}>
-                    <ambientLight intensity={0.65} />
-                    <directionalLight position={[4, 6, 8]} intensity={0.7} />
-                    <GLTFGlobe onGlobeClick={() => {}} gltfPath={p.modelPath} scale={1} autoRotate={autoRotate} />
-                    <OrbitControls enablePan enableZoom enableRotate makeDefault />
-                    <Environment preset="studio" />
-                  </SafeCanvas>
+                {/* Simplified 3D placeholder */}
+                <div className="w-full h-[420px] rounded-lg overflow-hidden border border-border bg-muted/20 flex items-center justify-center">
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
+                      <div className="w-8 h-8 text-primary">🏛️</div>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground">3D Model Preview</h3>
+                      <p className="text-sm text-muted-foreground">Interactive 3D model will be available soon</p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -914,6 +918,13 @@ export default function RegionDetailPage() {
                 {filtered.map((entry, i) => {
                   const isOpen = expandedIdx === i
                   const contentId = `lexicon-details-${i}`
+
+                  const termSlug = entry.term
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/(^-|-$)/g, "")
 
                   return (
                     <article
@@ -997,6 +1008,18 @@ export default function RegionDetailPage() {
                           </div>
                         </div>
                       </motion.div>
+
+                      {/* Clearly visible detail navigation button inside the card */}
+                      <div className="px-4 pb-3">
+                        <Link
+                          href={`/budaya/daerah/-/${termSlug}`}
+                          aria-label={`Lihat rincian untuk istilah ${entry.term}`}
+                        >
+                          <Button size="sm" className="w-full md:w-auto">
+                            Rincian
+                          </Button>
+                        </Link>
+                      </div>
                     </article>
                   )
                 })}

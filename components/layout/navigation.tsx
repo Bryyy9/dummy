@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Globe, Home, Camera, Mail, Menu, X, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 interface NavigationProps {
   onNavClick: (section: string) => void
@@ -15,19 +16,25 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showNavSearch, setShowNavSearch] = useState(false)
   const [navSearchQuery, setNavSearchQuery] = useState("")
+  const router = useRouter()
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
   }
 
   const handleNavClick = (section: string) => {
-    onNavClick(section)
+    if (section === "peta-budaya") {
+      router.push("/peta-budaya")
+    } else {
+      onNavClick(section)
+    }
     setIsMenuOpen(false)
   }
 
   const navItems = [
     { id: "beranda", label: "Home", icon: Home },
     { id: "eksplorasi", label: "Gallery", icon: Camera },
+    { id: "peta-budaya", label: "Cultural Map", icon: Globe },
     { id: "tentang", label: "About", icon: Globe },
     { id: "kontak", label: "Contact", icon: Mail },
   ]

@@ -9,9 +9,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  transpilePackages: ['globe.gl', 'three'],
   webpack: (config, { isServer }) => {
-    // Handle globe.gl dependencies
+    // Handle three.js and related dependencies
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,

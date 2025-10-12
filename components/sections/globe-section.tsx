@@ -53,9 +53,9 @@ export function GlobeSection() {
               <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Globe className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-semibold mb-2">5 Major Cities</h3>
+              <h3 className="font-semibold mb-2">11 Sub-Cultures</h3>
               <p className="text-sm text-muted-foreground">
-                Explore cultural heritage from Surabaya, Malang, Banyuwangi, Ponorogo, and Lamongan
+                Explore cultural heritage from various sub-cultures across East Java
               </p>
             </div>
             

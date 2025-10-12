@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, MapPin, ArrowLeft, Info } from "lucide-react"
+import { Search, MapPin, ArrowLeft, Info, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -10,7 +10,7 @@ import Link from "next/link"
 import { InteractiveEastJavaMap } from "@/components/cultural/interactive-east-java-map"
 import { SearchResults } from "@/components/cultural/search-results"
 import { MapControls } from "@/components/cultural/map-controls"
-import { useRouter } from "next/navigation" // import useRouter for redirect on region click
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import {
   Breadcrumb,
@@ -27,7 +27,7 @@ const eastJavaRegions = [
   {
     id: "arekan",
     name: "Arekan",
-    coordinates: { x: 65, y: 45 }, // Surabaya/Gresik/Sidoarjo vicinity
+    coordinates: { x: 65, y: 45 },
     color: "#2563eb",
     culturalElements: ["Dialek Arek", "Remo", "Ludruk", "Rujak Cingur"],
     description: "Sub-kultur perkotaan pesisir dengan tradisi Arek yang egaliter dan ekspresif.",
@@ -40,7 +40,7 @@ const eastJavaRegions = [
   {
     id: "madura",
     name: "Madura",
-    coordinates: { x: 70, y: 25 }, // Pulau Madura (umum)
+    coordinates: { x: 70, y: 25 },
     color: "#dc2626",
     culturalElements: ["Keris", "Sape Sono", "Karapan Sapi", "Tradisi Pesantren"],
     description: "Identitas kepulauan dengan tradisi kuat, solidaritas komunal, dan Islam pesantren.",
@@ -53,7 +53,7 @@ const eastJavaRegions = [
   {
     id: "madura-base",
     name: "Madura-Base",
-    coordinates: { x: 65, y: 20 }, // wilayah barat/selatan Madura (perkiraan)
+    coordinates: { x: 65, y: 20 },
     color: "#ef4444",
     culturalElements: ["Anyaman", "Kuliner Khas", "Ritual Lokal"],
     description: "Basis sub-kultur Madura dengan penekanan pada tradisi sehari-hari dan anyaman.",
@@ -66,7 +66,7 @@ const eastJavaRegions = [
   {
     id: "madura-bawean",
     name: "Madura-Bawean",
-    coordinates: { x: 60, y: 10 }, // Pulau Bawean (utara)
+    coordinates: { x: 60, y: 10 },
     color: "#f97316",
     culturalElements: ["Kesenian Pulau", "Bahasa Lokal", "Laut & Perikanan"],
     description: "Sub-kultur kepulauan Bawean dengan tradisi maritim dan bahasa lokal.",
@@ -79,7 +79,7 @@ const eastJavaRegions = [
   {
     id: "madura-kangean",
     name: "Madura-Kangean",
-    coordinates: { x: 95, y: 30 }, // Kepulauan Kangean (timur laut)
+    coordinates: { x: 95, y: 30 },
     color: "#ea580c",
     culturalElements: ["Ritus Pesisir", "Perikanan", "Kriya"],
     description: "Kangean dengan identitas pesisir dan jaringan budaya kepulauan timur.",
@@ -92,7 +92,7 @@ const eastJavaRegions = [
   {
     id: "mataraman",
     name: "Mataraman",
-    coordinates: { x: 30, y: 50 }, // barat/selatan Jatim
+    coordinates: { x: 30, y: 50 },
     color: "#16a34a",
     culturalElements: ["Gamelan", "Wayang", "Tata Krama Jawa"],
     description: "Sub-kultur bercorak Jawa Mataraman: tata krama halus, gamelan, dan wayang.",
@@ -105,7 +105,7 @@ const eastJavaRegions = [
   {
     id: "osing",
     name: "Osing",
-    coordinates: { x: 90, y: 70 }, // Banyuwangi (ujung timur)
+    coordinates: { x: 90, y: 70 },
     color: "#059669",
     culturalElements: ["Gandrung", "Barong", "Lare Using", "Batik Using"],
     description: "Osing/Using dengan bahasa dan kesenian khas Banyuwangi yang kuat.",
@@ -118,7 +118,7 @@ const eastJavaRegions = [
   {
     id: "panaragan",
     name: "Panaragan",
-    coordinates: { x: 40, y: 60 }, // wilayah selatan-barat (perkiraan)
+    coordinates: { x: 40, y: 60 },
     color: "#0ea5e9",
     culturalElements: ["Kerajinan Kayu", "Seni Rakyat", "Upacara Lokal"],
     description: "Identitas lokal Panaragan yang lekat dengan seni rakyat dan kerajinan.",
@@ -131,7 +131,7 @@ const eastJavaRegions = [
   {
     id: "pandalungan",
     name: "Pandalungan",
-    coordinates: { x: 80, y: 45 }, // tapal kuda / pantura timur
+    coordinates: { x: 80, y: 45 },
     color: "#7c3aed",
     culturalElements: ["Dialek Pandalungan", "Perpaduan Jawa-Madura", "Tradisi Pesisir"],
     description: "Perpaduan Jawa-Madura di tapal kuda: dialek khas dan tradisi pesisir.",
@@ -144,7 +144,7 @@ const eastJavaRegions = [
   {
     id: "samin",
     name: "Samin",
-    coordinates: { x: 25, y: 40 }, // barat laut (perbatasan Jateng-Jatim)
+    coordinates: { x: 25, y: 40 },
     color: "#10b981",
     culturalElements: ["Samin Surosentiko", "Etika Kejujuran", "Pertanian"],
     description: "Komunitas Samin yang dikenal pada etika kejujuran dan kesederhanaan.",
@@ -157,7 +157,7 @@ const eastJavaRegions = [
   {
     id: "tengger",
     name: "Tengger",
-    coordinates: { x: 75, y: 55 }, // sekitar Bromo
+    coordinates: { x: 75, y: 55 },
     color: "#f59e0b",
     culturalElements: ["Yadnya Kasada", "Upacara Adat", "Gunung Bromo"],
     description: "Masyarakat Tengger pegunungan dengan ritus Kasada dan lanskap Bromo.",
@@ -169,15 +169,6 @@ const eastJavaRegions = [
   },
 ]
 
-const culturalCategories = [
-  { id: "tari", name: "Traditional Dance", icon: "💃", count: 12, description: "Signature dances of East Java" },
-  { id: "makanan", name: "Cuisine", icon: "🍜", count: 15, description: "Traditional food and beverages" },
-  { id: "batik", name: "Batik & Textiles", icon: "🎨", count: 8, description: "Batik and textile crafts" },
-  { id: "musik", name: "Music & Songs", icon: "🎵", count: 6, description: "Traditional music and folk songs" },
-  { id: "kerajinan", name: "Handicrafts", icon: "🏺", count: 10, description: "Handmade crafts and visual arts" },
-  { id: "wayang", name: "Puppetry & Theater", icon: "🎭", count: 4, description: "Wayang and theater performances" },
-]
-
 export default function PetaBudayaPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
@@ -185,7 +176,7 @@ export default function PetaBudayaPage() {
   const [mapCenter, setMapCenter] = useState({ x: 50, y: 50 })
   const [showSearchResults, setShowSearchResults] = useState(false)
   const [searchResults, setSearchResults] = useState<any[]>([])
-  const router = useRouter() // add router instance
+  const router = useRouter()
 
   // Handle search functionality
   const handleSearch = (query: string) => {
@@ -267,17 +258,16 @@ export default function PetaBudayaPage() {
             </div>
           </div>
         </header>
-
+        {/* Hero Section - UPDATED */}
         <section aria-labelledby="hero-title" className="relative">
           <ParallaxBackground className="relative h-[320px] md:h-[420px] overflow-hidden">
             <Image
-              src="/images/peta-hero.jpg"
+              src="/east-java-temple-sunset-landscape-with-traditional.jpg"
               alt="Collage of cultural landscapes, textiles, and performers"
               fill
               priority
               className="object-cover"
             />
-            {/* Overlay for contrast and mood */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-background/20 to-background/90" />
             <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-end pb-8 md:pb-10">
               <Breadcrumb className="mb-3 md:mb-4">
@@ -309,17 +299,25 @@ export default function PetaBudayaPage() {
                 Navigate an elegant cultural map to explore regions, traditions, artifacts, and events—curated to reveal
                 identity, history, and significance with clarity and beauty.
               </motion.p>
+              
+              {/* UPDATED: Added Glosarium button */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-                className="mt-4 flex items-center gap-3"
+                className="mt-4 flex flex-col sm:flex-row items-start gap-3"
               >
                 <Link href="#map">
                   <Button className="bg-primary hover:bg-primary/90">Start Exploring</Button>
                 </Link>
+                <Link href="/budaya/daerah/-">
+                  <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-white/30 text-foreground hover:bg-white/20">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Glosarium Budaya
+                  </Button>
+                </Link>
                 <Button variant="ghost" asChild>
-                  <a href="#how-to" className="hover:underline">
+                  <a href="#how-to" className="hover:underline text-muted-foreground">
                     How it works
                   </a>
                 </Button>
@@ -327,6 +325,7 @@ export default function PetaBudayaPage() {
             </div>
           </ParallaxBackground>
         </section>
+
 
         <section id="how-to" aria-label="How it works" className="container mx-auto px-4 py-6">
           <motion.div
@@ -369,7 +368,7 @@ export default function PetaBudayaPage() {
                   Cari istilah regional dan klik hasil untuk menyorot pada peta.
                 </p>
 
-                {/* Search Results (unchanged behavior) */}
+                {/* Search Results */}
                 <AnimatePresence>
                   {showSearchResults && (
                     <motion.div
@@ -432,7 +431,7 @@ export default function PetaBudayaPage() {
                 </div>
               </div>
 
-              {/* region preview panel animations remain below */}
+              {/* region preview panel with glossary */}
               <AnimatePresence>
                 {selectedRegion && (
                   <motion.div
@@ -456,7 +455,7 @@ export default function PetaBudayaPage() {
                             </Link>
                           </div>
 
-                          {/* Terms and definitions only */}
+                          {/* Terms and definitions */}
                           <div className="space-y-3">
                             {terms.slice(0, 6).map((entry, idx) => (
                               <div key={idx} className="rounded-lg border border-border bg-card/60 p-3">
@@ -468,6 +467,15 @@ export default function PetaBudayaPage() {
                               <p className="text-sm text-muted-foreground">
                                 Belum ada entri glosarium untuk subkultur ini.
                               </p>
+                            )}
+                            {terms.length > 6 && (
+                              <div className="text-center pt-2">
+                                <Link href={`/budaya/daerah/${region.id}`}>
+                                  <Button variant="outline" size="sm">
+                                    Lihat Semua ({terms.length} istilah)
+                                  </Button>
+                                </Link>
+                              </div>
                             )}
                           </div>
                         </div>

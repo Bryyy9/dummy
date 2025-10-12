@@ -1,6 +1,7 @@
 "use client"
 
 import { Globe } from "lucide-react"
+import Link from "next/link"
 
 interface FooterProps {
   onNavClick: (section: string) => void
@@ -35,7 +36,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
               <h3 className="text-lg font-bold text-primary">UB Corpora</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              A digital platform to preserve and introduce East Java’s cultural heritage to the world.
+              A digital platform to preserve and introduce East Java's cultural heritage to the world.
             </p>
           </div>
 
@@ -73,20 +74,36 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Contact & Glosarium */}
           <div>
             <h4 className="font-semibold mb-4">Contact</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <ul className="space-y-2 text-sm text-muted-foreground mb-6">
               <li>info@ubcorpra.ac.id</li>
               <li>+62 341 551611</li>
               <li>Universitas Brawijaya</li>
               <li>Malang, East Java</li>
             </ul>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Glosarium</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link href="/budaya/daerah/-" className="hover:text-primary transition-colors">
+                    Semua Istilah Budaya
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/peta-budaya" className="hover:text-primary transition-colors">
+                    Peta Budaya
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-
+        
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>© 2025 UB Corpora. All rights reserved. Built with ❤️ for East Java’s culture.</p>
+          <p>© 2025 UB Corpora. All rights reserved. Built with ❤️ for East Java's culture.</p>
         </div>
       </div>
     </footer>

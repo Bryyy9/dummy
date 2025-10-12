@@ -14,8 +14,8 @@ export const LEXICON: Record<string, LexiconEntry[]> = {
     {
       term: "Arek",
       definition: "Sebutan untuk gaya tutur dan identitas urban pesisir Surabaya dan sekitarnya.",
-      etimologi: "Berakar dari ‘arek’ (anak/arekan) dalam ragam Jawa Arek.",
-      culturalMeaning: "Merepresentasikan egalitarianisme urban pesisir dan solidaritas ‘arek Suroboyo’.",
+      etimologi: "Berakar dari 'arek' (anak/arekan) dalam ragam Jawa Arek.",
+      culturalMeaning: "Merepresentasikan egalitarianisme urban pesisir dan solidaritas 'arek Suroboyo'.",
       variants: ["arek", "arek-an"],
       commonMeaning: "Orang muda/anak dengan gaya tutur Arek.",
       note: "Sering muncul dalam ungkapan sehari-hari dan lagu daerah.",
@@ -33,7 +33,7 @@ export const LEXICON: Record<string, LexiconEntry[]> = {
     {
       term: "Karapan Sapi",
       definition: "Lomba pacu sapi tradisional yang menjadi simbol budaya Madura.",
-      etimologi: "Kemungkinan dari ‘kerapan’ (kejar/pacu) + sapi.",
+      etimologi: "Kemungkinan dari 'kerapan' (kejar/pacu) + sapi.",
       culturalMeaning: "Simbol prestise sosial, ekonomi, dan komunal.",
       variants: ["kerapan sapi"],
       commonMeaning: "Perlombaan sapi tradisional.",

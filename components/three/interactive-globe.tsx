@@ -62,17 +62,18 @@ export function InteractiveGlobe({ onGlobeClick }: InteractiveGlobeProps) {
       try {
         // Dynamic import globe.gl
         const GlobeGL = await import('globe.gl')
-        const Globe = GlobeGL.default
+        const GlobeConstructor = GlobeGL.default
 
         if (!mounted) return
 
         // Clear previous content
         globeRef.current.innerHTML = ''
 
-        // Create globe instance
-        const globe = Globe()
+        // Create globe instance with 'new' keyword
+        const globe = new GlobeConstructor()
         globeInstanceRef.current = globe
 
+        // Mount and configure globe
         globe(globeRef.current)
           .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
           .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
@@ -107,10 +108,12 @@ export function InteractiveGlobe({ onGlobeClick }: InteractiveGlobeProps) {
 
         // Set controls
         const controls = globe.controls()
-        controls.autoRotate = true
-        controls.autoRotateSpeed = 0.5
-        controls.enableZoom = true
-        controls.enablePan = false
+        if (controls) {
+          controls.autoRotate = true
+          controls.autoRotateSpeed = 0.5
+          controls.enableZoom = true
+          controls.enablePan = false
+        }
 
         if (mounted) {
           setIsLoaded(true)
@@ -119,7 +122,7 @@ export function InteractiveGlobe({ onGlobeClick }: InteractiveGlobeProps) {
 
         // Focus on Indonesia after mount
         setTimeout(() => {
-          if (mounted) {
+          if (mounted && globe.pointOfView) {
             globe.pointOfView({ lat: -2, lng: 118, altitude: 2.5 }, 2000)
           }
         }, 1000)
@@ -142,7 +145,7 @@ export function InteractiveGlobe({ onGlobeClick }: InteractiveGlobeProps) {
         try {
           // Clean up Three.js resources
           const globe = globeInstanceRef.current
-          if (globe._destructor) {
+          if (typeof globe._destructor === 'function') {
             globe._destructor()
           }
         } catch (e) {

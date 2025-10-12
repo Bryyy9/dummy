@@ -1,5 +1,5 @@
+/* remove all references to tw-animate-css to fix @property parse error */
 @import "tailwindcss";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
