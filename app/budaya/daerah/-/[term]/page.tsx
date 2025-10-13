@@ -29,10 +29,10 @@ function findEntryBySlug(slug: string): EntryWithRegion | null {
 
 export function generateMetadata({ params }: { params: { term: string } }): Metadata {
   const entry = findEntryBySlug(params.term)
-  const title = entry ? `${entry.term} — Rincian Istilah Budaya` : "Istilah tidak ditemukan"
+  const title = entry ? `${entry.term} — Cultural Term Details` : "Term not found"
   const description =
     entry?.definition ||
-    "Rincian istilah budaya termasuk pengertian, etimologi, makna kultural, varian, dan informasi terkait lainnya."
+    "Details of cultural terms including definition, etymology, cultural meaning, variants, and related information."
   return {
     title,
     description,
@@ -45,10 +45,10 @@ export default function CulturalWordDetailPage({ params }: { params: { term: str
     notFound()
   }
 
-  const heroAlt = `Ilustrasi untuk istilah ${entry!.term}`
+  const heroAlt = `Illustration for the term ${entry!.term}`
   // Use placeholder image per guidelines; hard-code query string
   const heroSrc = `/placeholder.svg?height=360&width=640&query=${encodeURIComponent(
-    `foto ilustrasi ${entry!.term} budaya`,
+    `illustration photo ${entry!.term} cultural term`,
   )}`
 
   return (
@@ -57,21 +57,21 @@ export default function CulturalWordDetailPage({ params }: { params: { term: str
         <div className="container mx-auto px-4 py-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground text-balance">{entry!.term}</h1>
-            <p className="text-sm text-muted-foreground">Subkultur: {entry!.regionKey}</p>
+            <p className="text-sm text-muted-foreground">Subculture: {entry!.regionKey}</p>
           </div>
           <div className="flex gap-2">
             <Link href="/budaya/daerah/-">
-              <Button variant="outline">Kembali ke daftar</Button>
+              <Button variant="outline">Back to list</Button>
             </Link>
             <Link href={`/budaya/daerah/${entry!.regionKey}`}>
-              <Button className="bg-primary hover:bg-primary/90">Lihat glosarium {entry!.regionKey}</Button>
+              <Button className="bg-primary hover:bg-primary/90">View glossary {entry!.regionKey}</Button>
             </Link>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
-        <section aria-label="Gambar ilustrasi" className="rounded-xl overflow-hidden border border-border bg-card/60">
+        <section aria-label="Illustrative image" className="rounded-xl overflow-hidden border border-border bg-card/60">
           <img
             src={heroSrc || "/placeholder.svg"}
             alt={heroAlt}
@@ -80,11 +80,11 @@ export default function CulturalWordDetailPage({ params }: { params: { term: str
           />
         </section>
 
-        {/* Profil-like layout: three key cards similar to profile breakdown */}
-        <section aria-label="Ringkasan istilah" className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Profile-like layout: three key cards similar to profile breakdown */}
+        <section aria-label="Term summary" className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Definisi</CardTitle>
+              <CardTitle className="text-foreground">Definition</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">{entry!.definition}</p>
@@ -93,7 +93,7 @@ export default function CulturalWordDetailPage({ params }: { params: { term: str
 
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Etimologi</CardTitle>
+              <CardTitle className="text-foreground">Etymology</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">{entry!.etimologi || "—"}</p>
@@ -102,7 +102,7 @@ export default function CulturalWordDetailPage({ params }: { params: { term: str
 
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Makna Kultural</CardTitle>
+              <CardTitle className="text-foreground">Cultural Meaning</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">{entry!.culturalMeaning || "—"}</p>
@@ -110,10 +110,10 @@ export default function CulturalWordDetailPage({ params }: { params: { term: str
           </Card>
         </section>
 
-        <section aria-label="Informasi tambahan" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section aria-label="Additional information" className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Varian</CardTitle>
+              <CardTitle className="text-foreground">Variants</CardTitle>
             </CardHeader>
             <CardContent>
               {entry!.variants && entry!.variants.length > 0 ? (
@@ -132,7 +132,7 @@ export default function CulturalWordDetailPage({ params }: { params: { term: str
 
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Makna Umum</CardTitle>
+              <CardTitle className="text-foreground">Common Meaning</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">{entry!.commonMeaning || "—"}</p>
@@ -141,7 +141,7 @@ export default function CulturalWordDetailPage({ params }: { params: { term: str
 
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Catatan</CardTitle>
+              <CardTitle className="text-foreground">Notes</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">{entry!.note || "—"}</p>
@@ -150,7 +150,7 @@ export default function CulturalWordDetailPage({ params }: { params: { term: str
 
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Ketersediaan Informasi</CardTitle>
+              <CardTitle className="text-foreground">Information Availability</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">{entry!.availability || "—"}</p>
@@ -158,12 +158,12 @@ export default function CulturalWordDetailPage({ params }: { params: { term: str
           </Card>
         </section>
 
-        <section aria-label="Aksi lanjutan" className="flex items-center gap-3">
+        <section aria-label="Further actions" className="flex items-center gap-3">
           <Link href="/budaya/daerah/-">
-            <Button variant="outline">Kembali ke daftar</Button>
+            <Button variant="outline">Back to list</Button>
           </Link>
           <Link href={`/budaya/daerah/${entry!.regionKey}`}>
-            <Button className="bg-primary hover:bg-primary/90">Telusuri subkultur {entry!.regionKey}</Button>
+            <Button className="bg-primary hover:bg-primary/90">Explore {entry!.regionKey} subculture</Button>
           </Link>
         </section>
       </main>

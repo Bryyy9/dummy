@@ -12,34 +12,29 @@ interface CulturalGalleriesProps {
 
 export function CulturalGalleries({ onNavClick }: CulturalGalleriesProps) {
   const subRegions = [
-    {
-      id: "arek",
-      name: "Arek",
-      description: "Subkultur perkotaan dengan karakter egaliter, lugas, dan dinamis.",
-      image: "/sub-daerah-arek.jpg",
-    },
-    {
+  
+     {
       id: "mataraman",
       name: "Mataraman",
-      description: "Berakar pada tradisi agraris Jawa dengan tata krama yang halus dan tertata.",
+      description: "Rooted in Javanese agrarian traditions with refined, orderly etiquette.",
       image: "/sub-daerah-mataraman.jpg",
     },
     {
       id: "pandalungan",
       name: "Pandalungan",
-      description: "Akulturasi budaya Madura dan Jawa di wilayah tapal kuda.",
+      description: "A cultural blend of Madurese and Javanese influences in the horseshoe region.",
       image: "/sub-daerah-pandalungan.jpg",
     },
     {
       id: "osing",
       name: "Osing",
-      description: "Kelompok etnis lokal Banyuwangi dengan tradisi dan bahasa khas.",
+      description: "A local Banyuwangi ethnic group with distinctive traditions and language.",
       image: "/sub-daerah-osing.jpg",
     },
     {
       id: "madura",
       name: "Madura",
-      description: "Identitas kuat dengan tradisi maritim, religiusitas tinggi, dan kerja keras.",
+      description: "A strong identity characterized by maritime traditions, deep religiosity, and industriousness.",
       image: "/sub-daerah-madura.jpg",
     },
   ]
@@ -47,15 +42,14 @@ export function CulturalGalleries({ onNavClick }: CulturalGalleriesProps) {
   return (
     <section className="py-20 bg-muted/30 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AnimatedReveal animation="fade-up">
+         <AnimatedReveal animation="fade-up">
           <div className="text-center mb-12">
             <Badge variant="secondary" className="bg-card/80 backdrop-blur-sm border-border">
-              Sub Daerah Budaya
+              Cultural Sub-regions
             </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mt-4 text-balance">Jelajahi Sub Daerah Budaya</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mt-4 text-balance">Explore Cultural Sub-regions</h2>
             <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto text-pretty">
-              Setiap sub daerah memiliki karakter, tradisi, dan ekspresi budaya yang unik. Telusuri kartu di bawah untuk
-              memulai.
+              Each sub-region has its own unique character, traditions, and cultural expressions. Browse the cards below to get started.
             </p>
           </div>
         </AnimatedReveal>
@@ -88,7 +82,7 @@ export function CulturalGalleries({ onNavClick }: CulturalGalleriesProps) {
                   <div className="flex items-center justify-end">
                     <Link href={`/budaya/daerah/${sr.id}`} aria-label={`Lihat rincian sub daerah ${sr.name}`}>
                       <EnhancedButton size="sm" className="min-w-[104px]">
-                        Rincian
+                        Details
                       </EnhancedButton>
                     </Link>
                   </div>
@@ -102,7 +96,7 @@ export function CulturalGalleries({ onNavClick }: CulturalGalleriesProps) {
           <div className="text-center mt-12">
             <Link href="/budaya/daerah/-" aria-label="Buka Glosarium Budaya">
               <EnhancedButton size="lg" className="gradient-purple">
-                Buka Glosarium Budaya
+                  Open Cultural Glossary
                 <ArrowRight className="h-5 w-5 ml-2" />
               </EnhancedButton>
             </Link>
