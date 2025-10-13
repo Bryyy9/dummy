@@ -33,7 +33,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
 
   const navItems = [
     { id: "beranda", label: "Home", icon: Home },
-    { id: "eksplorasi", label: "Gallery", icon: Camera },
+    { id: "eksplorasi", label: "Exploration", icon: Camera },
     { id: "peta-budaya", label: "Cultural Map", icon: Globe },
     { id: "tentang", label: "About", icon: Globe },
     { id: "kontak", label: "Contact", icon: Mail },
