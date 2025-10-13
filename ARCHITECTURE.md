@@ -39,6 +39,9 @@ warisan-budaya-jawa-timur/
 │   │   └── navigation/           # Navigation components
 │   │       └── navbar.tsx        # Main navigation
 │   ├── ui/                       # Base UI components (shadcn/ui)
+│   │   └── scroll-to.tsx         # Smooth scroll utility
+│   ├── ux/                       # UX layer components
+│   │   └── transition-provider.tsx # Route transitions
 │   ├── theme-provider.tsx        # Theme context
 │   └── index.ts                  # Barrel exports
 ├── hooks/                        # Custom React hooks
@@ -46,7 +49,17 @@ warisan-budaya-jawa-timur/
 │   ├── use-scroll-animation.ts   # Scroll utilities
 │   └── use-toast.ts              # Toast notifications
 ├── lib/                          # Utility functions
-│   └── utils.ts                  # Common utilities
+│   ├── utils.ts                  # Common utilities
+│   └── slugify.ts                # Robust slugify function
+├── modules/                      # Feature modules
+│   └── glossary/                 # Glossary module
+│       ├── components/
+│       │   └── term-card.tsx     # Glossary term card component
+│       ├── utils/
+│       │   └── map-lexicon.ts    # Glossary lexicon mapping utility
+│       └── index.ts              # Glossary module barrel export
+├── types/                        # Shared types
+│   └── lexicon.ts                # Glossary lexicon type
 └── public/                       # Static assets
     └── images/                   # Image assets
 \`\`\`
@@ -95,6 +108,10 @@ App Layout (Root)
    - Base design system components
    - shadcn/ui component library
    - Consistent styling and behavior
+
+6. **UX Components** (`components/ux/`)
+   - Route transitions and smooth scroll utilities
+   - Enhanced user experience elements
 
 ## 🔄 Data Flow Architecture
 
@@ -262,6 +279,48 @@ Source Code → TypeScript Compilation → Next.js Build → Static Generation �
 - Streaming and Suspense optimization
 - Progressive Web App features
 - Advanced animation libraries integration
+
+## ✅ Recent Architecture Updates
+
+The system has been modularized to improve clarity and scalability:
+- Feature modules introduced (e.g., `modules/glossary`) with dedicated components and utilities.
+- Shared types placed under `types/` and common helpers under `lib/` (e.g., robust `lib/slugify.ts`).
+- UX layer consolidated: route transitions via `components/ux/transition-provider.tsx` and smooth scroll utilities via `components/ui/scroll-to.tsx`.
+- Drawer refactored to use our Radix/shadcn-based Sheet components (no `vaul` peer dependency).
+
+### Feature Module Structure
+
+\`\`\`
+modules/
+└── glossary/
+    ├── components/
+    │   └── term-card.tsx
+    ├── utils/
+    │   └── map-lexicon.ts
+    └── index.ts
+types/
+└── lexicon.ts
+lib/
+└── slugify.ts
+\`\`\`
+
+### Routing Overview
+
+- Glossary list: `/budaya/daerah/-` (cards per term with clear “Rincian” button)
+- Term detail: `/budaya/daerah/-/[term]` (profile-like layout: image, description, cultural info)
+- Cultural map: `/peta-budaya` with a prominent button linking to the glossary
+
+### Animation & UX Layer
+
+- Page transitions: lightweight fade/slide on route change (RSC-friendly, reduced-motion aware)
+- Smooth scrolling: global smooth behavior + `ScrollToButton` utility for section navigation
+- Tickers: logo ticker (showcase) and team ticker (dedicated section), both with hover-to-pause and seamless looping
+
+### Design Consistency
+
+- 3–5 color tokens, two font families, flex-first responsive layout, shadcn/ui components
+- Accessibility: proper aria/roles, focus states, and prefers-reduced-motion honored
+\`\`\`
 
 ---
 

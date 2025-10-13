@@ -10,6 +10,10 @@ A modern, interactive web application showcasing the rich cultural heritage of E
 - **Modern UI Components**: Built with shadcn/ui component library
 - **Accessibility First**: WCAG compliant with proper ARIA labels and keyboard navigation
 - **Performance Optimized**: Fast loading with Next.js 14 App Router and optimized images
+- **Glossary Pages**: List at `/budaya/daerah/-` with clear per-card “Rincian” buttons, Detail at `/budaya/daerah/-/[term]` with profile-like layout (image, description, cultural info)
+- **Cultural Map**: `/peta-budaya` now includes a prominent button to the glossary
+- **Smooth UX**: Page transitions and button-triggered smooth scrolling with reduced-motion support
+- **Tickers**: Continuous logo ticker (showcase) and a dedicated team ticker section with hover-to-pause
 
 ## 🚀 Quick Start
 
@@ -75,13 +79,23 @@ A modern, interactive web application showcasing the rich cultural heritage of E
 │   │   ├── badge.tsx             # Badge component
 │   │   └── ...                   # Other UI components
 │   ├── theme-provider.tsx        # Theme context provider
+│   ├── ux/                       # UX-specific components
+│   │   └── transition-provider.tsx # Transition provider for smooth UX
 │   └── index.ts                  # Barrel exports for easy imports
 ├── hooks/                        # Custom React hooks
 │   ├── use-mobile.tsx            # Mobile device detection
 │   ├── use-scroll-animation.ts   # Scroll animation utilities
 │   └── use-toast.ts              # Toast notification hook
 ├── lib/                          # Utility functions
+│   ├── slugify.ts                # Slugify utility function
 │   └── utils.ts                  # Common utilities (cn function, etc.)
+├── modules/                      # Modular components
+│   ├── glossary/                 # Glossary module components
+│   │   ├── components/           # Glossary components
+│   │   │   └── term-card.tsx     # Term card component
+│   │   └── utils/                # Glossary module utils
+│   │       └── map-lexicon.ts    # Map lexicon utility
+│   └── ...                       # Other modules
 ├── public/                       # Static assets
 │   └── images/                   # Image assets
 └── styles/                       # Additional stylesheets

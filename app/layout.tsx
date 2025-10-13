@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Manrope } from "next/font/google"
 import { Suspense } from "react"
+import TransitionProvider from "@/components/ux/transition-provider"
 import "./globals.css"
 
 const manrope = Manrope({
@@ -27,7 +28,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${manrope.variable}`}>
-        <Suspense fallback={null}>{children}</Suspense>
+        <Suspense fallback={null}>
+          <TransitionProvider>{children}</TransitionProvider>
+        </Suspense>
       </body>
     </html>
   )

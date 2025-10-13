@@ -30,6 +30,11 @@ npm run dev
 open http://localhost:3000
 \`\`\`
 
+## 🔁 Environment & Setup Updates
+
+- React 19 compatibility: the `vaul` package has been removed; `components/ui/drawer.tsx` now leverages our Sheet primitives.
+- Prefer Node 18.17+ LTS; if you hit peer-deps conflicts locally, ensure your lockfile is fresh after pulling.
+
 ## 📋 Development Workflow
 
 ### Branch Strategy
@@ -149,6 +154,11 @@ export function AnimatedSection() {
   )
 }
 \`\`\`
+
+## 🧭 Local Navigation & Transitions
+
+- Route transitions are handled by `components/ux/transition-provider.tsx`. If you add new layouts, ensure children are keyed by pathname.
+- Smooth scrolling is globally enabled; use `components/ui/scroll-to.tsx` for button-triggered section scroll (supports optional offset and reduced-motion).
 
 ## 🎨 Styling Guidelines
 
@@ -289,6 +299,12 @@ const category = searchParams.get('category')
 - [ ] No layout shifts during loading
 - [ ] Images load progressively
 
+### Testing Procedures (Added)
+
+- Animations: verify 60fps on mid-tier hardware; test `prefers-reduced-motion`.
+- Accessibility: keyboard focus order with transitions; hover-to-pause behavior for tickers.
+- Navigation: fast route changes shouldn’t interrupt page state unexpectedly.
+
 ### Testing Tools
 
 \`\`\`bash
@@ -365,6 +381,12 @@ NEXT_PUBLIC_GA_ID=your-google-analytics-id
      min-width: 44px;
    }
    \`\`\`
+
+4. **Troubleshooting (Peer Deps)**
+   - If you encounter `ERESOLVE` with React version mismatches:
+     - Ensure `vaul` is not in your lockfile.
+     - Reinstall deps cleanly (delete lockfile and node_modules).
+     - Avoid `--force` unless absolutely necessary; prefer aligning versions.
 
 ### Debug Tools
 \`\`\`tsx
@@ -455,7 +477,12 @@ class ErrorBoundary extends React.Component {
 }
 \`\`\`
 
+## 🧩 Modular Development Tips
+
+- Create new feature code under `modules/<feature>/{components,utils}`.
+- Share types in `types/*` and cross-cutting helpers in `lib/*`.
+- For UI, favor shadcn/ui components under `components/ui/*` and keep feature-specific UI inside its module.
+
 ---
 
 This development guide provides the foundation for maintaining high code quality and consistent development practices across the project.
-\`\`\`
