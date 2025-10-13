@@ -5,12 +5,23 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Users, BookOpen, Globe, Award, Sparkles } from "lucide-react"
 import { AnimatedReveal } from "@/components/common/animated-reveal"
 import { EnhancedButton } from "@/components/interactive/enhanced-button"
+import { TeamTickerSection } from "@/components/sections/team-ticker-section"
 
 interface AboutSectionProps {
   onNavClick: (section: string) => void
 }
 
 export function AboutSection({ onNavClick }: AboutSectionProps) {
+  const members = [
+    { name: "Rizky Pratama", role: "Koordinator Riset" },
+    { name: "Sari Wulandari", role: "Kurator Konten" },
+    { name: "Bima Nugraha", role: "Pengembang Frontend" },
+    { name: "Dewi Anindya", role: "Desain UI/UX" },
+    { name: "Haryo Putra", role: "Pengembang Backend" },
+    { name: "Nadia Safitri", role: "Dokumentasi & Arsip" },
+    { name: "Galih Mahendra", role: "Analis Data" },
+    { name: "Putri Larasati", role: "Relasi Komunitas" },
+  ]
   return (
     <section
       id="tentang"
@@ -169,6 +180,12 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
             </EnhancedButton>
           </div>
         </AnimatedReveal>
+
+        <div className="mt-16 lg:mt-20">
+          <AnimatedReveal animation="fade-up" delay={2000}>
+            <TeamTickerSection members={members} />
+          </AnimatedReveal>
+        </div>
       </div>
     </section>
   )

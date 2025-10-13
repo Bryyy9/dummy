@@ -5,6 +5,15 @@ import { EnhancedButton } from "@/components/interactive/enhanced-button"
 import { AnimatedReveal } from "@/components/common/animated-reveal"
 
 export function ShowcaseSection() {
+  const logos = [
+    { src: "/partner-logo-1.png", alt: "Partner Logo 1" },
+    { src: "/partner-logo-2.png", alt: "Partner Logo 2" },
+    { src: "/partner-logo-abstract-geometric.png", alt: "Partner Logo 3" },
+    { src: "/partner-logo-abstract-geometric.png", alt: "Partner Logo 4" },
+    { src: "/partner-logo-abstract-5.png", alt: "Partner Logo 5" },
+    { src: "/partner-logo-6.png", alt: "Partner Logo 6" },
+  ]
+
   return (
     <section
       aria-labelledby="showcase-heading"
@@ -137,15 +146,65 @@ export function ShowcaseSection() {
           </AnimatedReveal>
         </div>
 
-        {/* Simple CTA */}
+        <div className="group relative mt-12">
+          {/* Edge fade for visual polish */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-background to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-background to-transparent" />
+
+          <div
+            className="marquee relative overflow-hidden rounded-xl border border-border/60 bg-muted/20"
+            aria-label="Scrolling partner logos"
+          >
+            {/* Track: duplicated content for seamless loop */}
+            <div className="marquee-track flex items-center gap-10 md:gap-14 py-6 will-change-transform">
+              {Array.from({ length: 2 }).map((_, dup) =>
+                logos.map((logo, i) => (
+                  <div
+                    key={`${dup}-${i}`}
+                    className="flex-shrink-0 opacity-80 hover:opacity-100 transition-opacity duration-200"
+                    aria-hidden={dup === 1 ? true : undefined}
+                  >
+                    <img
+                      src={logo.src || "/placeholder.svg"}
+                      alt={logo.alt}
+                      height={48}
+                      width={120}
+                      className="h-12 w-[120px] object-contain"
+                    />
+                  </div>
+                )),
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Optional CTA below ticker for continuity with page style */}
         <AnimatedReveal animation="fade-up" delay={600}>
-          <div className="text-center mt-12">
+          <div className="text-center mt-10">
             <EnhancedButton size="lg" effect="glow" className="px-8">
               Start Exploring
             </EnhancedButton>
           </div>
         </AnimatedReveal>
       </div>
+
+      <style jsx>{`
+        @keyframes marquee-left {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        .marquee-track {
+          animation: marquee-left 30s linear infinite;
+        }
+        /* Pause on hover for better interaction */
+        .group:hover .marquee-track {
+          animation-play-state: paused;
+        }
+      `}</style>
     </section>
   )
 }

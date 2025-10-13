@@ -79,7 +79,7 @@ export function InteractiveEastJavaMap({
         }}
         transition={{ type: "spring", stiffness: 200, damping: 25 }}
       >
-        <svg viewBox="0 0 100 100" className="w-full h-full" style={{ minWidth: "100%", minHeight: "100%" }}>
+        <svg viewBox="0 0 100 100" className="w-full h-full bg-card" style={{ minWidth: "100%", minHeight: "100%" }}>
           <image
             href={backgroundSrc}
             x="0"

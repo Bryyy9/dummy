@@ -387,7 +387,7 @@ export default function PetaBudayaPage() {
             {/* right map column with visual framing */}
             <div className="lg:col-span-3">
               <div className="bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border overflow-hidden ring-1 ring-primary/5">
-                <div className="p-4 border-b border-border bg-gradient-to-r from-primary/10 to-accent/10">
+                <div className="p-4 border-b border-border bg-gradient-to-r from-primary/10 to-accent/10 bg-background">
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-lg font-semibold text-foreground">Interactive Map of East Java</h2>
@@ -415,7 +415,7 @@ export default function PetaBudayaPage() {
                     backgroundSrc="/maps/jawa-perprovinsi-subculture.svg"
                   />
 
-                  <div className="absolute bottom-4 left-4 bg-card/90 backdrop-blur-sm rounded-lg p-4 shadow-lg border border-border">
+                  <div className="absolute bottom-4 left-4 backdrop-blur-sm rounded-lg p-4 shadow-lg border border-border bg-background">
                     <h4 className="font-semibold text-sm mb-2 text-foreground">Legend</h4>
                     <div className="space-y-2 text-xs">
                       <div className="flex items-center gap-2">
