@@ -1,54 +1,41 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Search,
-  MapPin,
-  ChevronLeft,
-  ChevronRight,
-  Play,
-  Pause,
-  RotateCcw,
-  RotateCw,
-} from "lucide-react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { LEXICON, type LexiconEntry } from "@/data/lexicon";
-import { SafeCanvas } from "@/components/three/safe-canvas";
-import { GLTFGlobe } from "@/components/three/gltf-globe";
-import { Environment, OrbitControls } from "@react-three/drei";
+import { useState, useEffect, useRef } from "react"
+import { motion } from "framer-motion"
+import { ArrowLeft, Search, MapPin } from "lucide-react"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { LEXICON, type LexiconEntry } from "@/data/lexicon"
 
 // Data budaya per daerah
 type CulturalItem = {
-  id: string;
-  title: string;
-  category: "Tradition" | "Artifact" | "Event";
-  description: string;
-  image?: string;
-  difficulty?: string;
-  duration?: string;
-  popularity?: number;
-  tags: string[];
-  history?: string;
-  elements?: string[];
-};
+  id: string
+  title: string
+  category: "Tradition" | "Artifact" | "Event"
+  description: string
+  image?: string
+  difficulty?: string
+  duration?: string
+  popularity?: number
+  tags: string[]
+  history?: string
+  elements?: string[]
+}
 
 type RegionProfileData = {
-  name: string;
-  description: string;
-  color: string;
-  population?: string;
-  established?: string;
-  highlights?: string[];
-  identity: string;
-  historyText: string;
-  significance: string;
-  culturalItems: CulturalItem[];
-};
+  name: string
+  description: string
+  color: string
+  population?: string
+  established?: string
+  highlights?: string[]
+  identity: string
+  historyText: string
+  significance: string
+  culturalItems: CulturalItem[]
+}
 
 const regionCulturalData: Record<string, RegionProfileData> = {
   surabaya: {
@@ -78,8 +65,7 @@ const regionCulturalData: Record<string, RegionProfileData> = {
         id: "rujak-cingur",
         title: "Rujak Cingur",
         category: "Artifact",
-        description:
-          "An iconic dish with petis sauce representing flavor acculturation.",
+        description: "An iconic dish with petis sauce representing flavor acculturation.",
         tags: ["cuisine", "artifact", "surabaya"],
         duration: "30 minutes",
         popularity: 4.9,
@@ -88,8 +74,7 @@ const regionCulturalData: Record<string, RegionProfileData> = {
         id: "festival-arek",
         title: "Arek Suroboyo Festival",
         category: "Event",
-        description:
-          "An urban cultural celebration with parades of arts and music.",
+        description: "An urban cultural celebration with parades of arts and music.",
         tags: ["event", "festival", "surabaya"],
         duration: "1 day",
         popularity: 4.6,
@@ -123,8 +108,7 @@ const regionCulturalData: Record<string, RegionProfileData> = {
         id: "topeng-malangan",
         title: "Malangan Mask Dance",
         category: "Tradition",
-        description:
-          "Mask performance with distinct characters and narrative arcs.",
+        description: "Mask performance with distinct characters and narrative arcs.",
         tags: ["dance", "tradition", "malang"],
         duration: "50 minutes",
         popularity: 4.6,
@@ -133,8 +117,7 @@ const regionCulturalData: Record<string, RegionProfileData> = {
   },
   kediri: {
     name: "Kediri",
-    description:
-      "A cultural center with puppet traditions and tobacco industry",
+    description: "A cultural center with puppet traditions and tobacco industry",
     color: "#a855f7",
     population: "268 thousand",
     established: "1042",
@@ -169,12 +152,9 @@ const regionCulturalData: Record<string, RegionProfileData> = {
     population: "332 thousand",
     established: "1929",
     highlights: ["Gandrung", "JFC Festival", "Plantations"],
-    identity:
-      "Jember is renowned for creative cultural parades and rich culinary traditions within a diverse society.",
-    historyText:
-      "The plantation economy shaped local culture and fostered nationally recognized creative events.",
-    significance:
-      "Jember is a stage for contemporary expressions that embrace local identity and global networks.",
+    identity: "Jember is renowned for creative cultural parades and rich culinary traditions within a diverse society.",
+    historyText: "The plantation economy shaped local culture and fostered nationally recognized creative events.",
+    significance: "Jember is a stage for contemporary expressions that embrace local identity and global networks.",
     culturalItems: [
       {
         id: "jfc",
@@ -201,8 +181,7 @@ const regionCulturalData: Record<string, RegionProfileData> = {
     highlights: ["Mango City", "Bromo", "Agrarian Traditions"],
     identity:
       "Agrarian identity appears in harvest traditions and produce-based cuisine, tied spiritually to Mount Bromo.",
-    historyText:
-      "Maritime trade and agriculture shaped a hybrid culture in Probolinggo.",
+    historyText: "Maritime trade and agriculture shaped a hybrid culture in Probolinggo.",
     significance:
       "A cultural and natural tourism hub that blends tradition with dramatic mountain and coastal landscapes.",
     culturalItems: [
@@ -222,19 +201,15 @@ const regionCulturalData: Record<string, RegionProfileData> = {
     population: "1.6 million",
     established: "1771",
     highlights: ["Using Culture", "Nature", "Gandrung"],
-    identity:
-      "Using traditions shape Banyuwangi's identity—language, music, and the Gandrung performing arts.",
-    historyText:
-      "Migration and maritime trade expanded local cultural repertoires.",
-    significance:
-      "A living laboratory of culture that celebrates diversity through annual festivals.",
+    identity: "Using traditions shape Banyuwangi's identity—language, music, and the Gandrung performing arts.",
+    historyText: "Migration and maritime trade expanded local cultural repertoires.",
+    significance: "A living laboratory of culture that celebrates diversity through annual festivals.",
     culturalItems: [
       {
         id: "gandrung-sewu",
         title: "Gandrung Sewu",
         category: "Event",
-        description:
-          "A massive performance with thousands of Gandrung dancers.",
+        description: "A massive performance with thousands of Gandrung dancers.",
         tags: ["event", "dance", "banyuwangi"],
       },
       {
@@ -253,12 +228,9 @@ const regionCulturalData: Record<string, RegionProfileData> = {
     population: "855 thousand",
     established: "1496",
     highlights: ["Reog", "Traditional Arts", "Bamboo Crafts"],
-    identity:
-      "Reog symbolizes courage and spirituality—supported by strong craft communities.",
-    historyText:
-      "Growing from oral narratives and rituals, Reog has been passed down across generations.",
-    significance:
-      "Reog reinforces local pride and showcases cultural excellence.",
+    identity: "Reog symbolizes courage and spirituality—supported by strong craft communities.",
+    historyText: "Growing from oral narratives and rituals, Reog has been passed down across generations.",
+    significance: "Reog reinforces local pride and showcases cultural excellence.",
     culturalItems: [
       {
         id: "reog-ponorogo",
@@ -276,11 +248,9 @@ const regionCulturalData: Record<string, RegionProfileData> = {
     population: "170 thousand",
     established: "1918",
     highlights: ["Pecel", "Historic Station", "Gamelan"],
-    identity:
-      "Madiun's identity lives in its pecel cuisine and gamelan music, within a friendly urban community.",
+    identity: "Madiun's identity lives in its pecel cuisine and gamelan music, within a friendly urban community.",
     historyText: "Rail networks shaped the city's growth and popular culture.",
-    significance:
-      "A culinary and music node enriching cultural tourism in western East Java.",
+    significance: "A culinary and music node enriching cultural tourism in western East Java.",
     culturalItems: [
       {
         id: "pecel-madiun",
@@ -291,12 +261,9 @@ const regionCulturalData: Record<string, RegionProfileData> = {
       },
     ],
   },
-};
+}
 
-const regionImages: Record<
-  string,
-  { src: string; alt: string; caption?: string }[]
-> = {
+const regionImages: Record<string, { src: string; alt: string; caption?: string }[]> = {
   surabaya: [
     {
       src: "/surabaya-modern-city-with-traditional-cultural-ele.jpg",
@@ -409,22 +376,24 @@ const regionImages: Record<
       alt: "Batik collections",
     },
   ],
-};
+}
 
 const SUBCULTURE_PROFILES: Record<
   string,
   {
-    displayName: string;
+    displayName: string
     demographics: {
-      population: string;
-      area: string;
-      density: string;
-      languages: string[];
-    };
-    history: string;
-    highlights: string[];
-    modelPath?: string;
-    videoSrc?: string;
+      population: string
+      area: string
+      density: string
+      languages: string[]
+    }
+    history: string
+    highlights: string[]
+    modelPath?: string
+    videoSrc?: string
+    youtubeId?: string
+    sketchfabId?: string
   }
 > = {
   arekan: {
@@ -437,13 +406,11 @@ const SUBCULTURE_PROFILES: Record<
     },
     history:
       "Berakar dari budaya pesisir perkotaan, Arekan tumbuh dalam kosmopolitanisme pelabuhan dengan seni tutur dan teater rakyat yang kuat.",
-    highlights: [
-      "Ludruk dan Remo",
-      "Kuliner pesisir (rujak cingur)",
-      "Ekspresi urban egaliter",
-    ],
+    highlights: ["Ludruk dan Remo", "Kuliner pesisir (rujak cingur)", "Ekspresi urban egaliter"],
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
+    youtubeId: "dQw4w9WgXcQ",
+    sketchfabId: "3c5c5c5c5c5c5c5c",
   },
   madura: {
     displayName: "Madura",
@@ -453,11 +420,12 @@ const SUBCULTURE_PROFILES: Record<
       density: "808/km²",
       languages: ["Madura", "Indonesia"],
     },
-    history:
-      "Tradisi pesantren, maritim, dan jejaring dagang membentuk identitas Madura lintas kepulauan.",
+    history: "Tradisi pesantren, maritim, dan jejaring dagang membentuk identitas Madura lintas kepulauan.",
     highlights: ["Karapan Sapi", "Keris dan kriya logam", "Tradisi pesantren"],
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
+    youtubeId: "dQw4w9WgXcQ",
+    sketchfabId: "3c5c5c5c5c5c5c5c",
   },
   "madura-base": {
     displayName: "Madura-Base",
@@ -472,6 +440,8 @@ const SUBCULTURE_PROFILES: Record<
     highlights: ["Anyaman & kriya serat", "Kuliner harian", "Ritual kampung"],
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
+    youtubeId: "dQw4w9WgXcQ",
+    sketchfabId: "3c5c5c5c5c5c5c5c",
   },
   "madura-bawean": {
     displayName: "Madura-Bawean",
@@ -481,11 +451,12 @@ const SUBCULTURE_PROFILES: Record<
       density: "357/km²",
       languages: ["Bawean", "Madura", "Indonesia"],
     },
-    history:
-      "Subkultur kepulauan dengan tradisi maritim, bahasa lokal, dan musik rakyat yang hidup.",
+    history: "Subkultur kepulauan dengan tradisi maritim, bahasa lokal, dan musik rakyat yang hidup.",
     highlights: ["Tradisi maritim", "Bahasa lokal", "Kesenian pulau"],
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
+    youtubeId: "dQw4w9WgXcQ",
+    sketchfabId: "3c5c5c5c5c5c5c5c",
   },
   "madura-kangean": {
     displayName: "Madura-Kangean",
@@ -495,11 +466,12 @@ const SUBCULTURE_PROFILES: Record<
       density: "174/km²",
       languages: ["Madura", "Indonesia"],
     },
-    history:
-      "Jejaring pulau-pulau timur dengan identitas pesisir, perikanan, dan perdagangan.",
+    history: "Jejaring pulau-pulau timur dengan identitas pesisir, perikanan, dan perdagangan.",
     highlights: ["Ritus pesisir", "Perikanan", "Kriya lokal"],
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
+    youtubeId: "dQw4w9WgXcQ",
+    sketchfabId: "3c5c5c5c5c5c5c5c",
   },
   mataraman: {
     displayName: "Mataraman",
@@ -509,11 +481,12 @@ const SUBCULTURE_PROFILES: Record<
       density: "493/km²",
       languages: ["Jawa Mataraman", "Indonesia"],
     },
-    history:
-      "Warna kebudayaan Jawa Mataraman—tata krama, gamelan, dan wayang—membentuk lanskap kebudayaan setempat.",
+    history: "Warna kebudayaan Jawa Mataraman—tata krama, gamelan, dan wayang—membentuk lanskap kebudayaan setempat.",
     highlights: ["Gamelan & wayang", "Adab Mataraman", "Seni tutur"],
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
+    youtubeId: "dQw4w9WgXcQ",
+    sketchfabId: "3c5c5c5c5c5c5c5c",
   },
   osing: {
     displayName: "Osing (Using)",
@@ -523,11 +496,12 @@ const SUBCULTURE_PROFILES: Record<
       density: "190/km²",
       languages: ["Osing/Using", "Jawa", "Indonesia"],
     },
-    history:
-      "Subkultur Osing mempunyai bahasa, musik, dan tarian khas; identitas kultural kuat di Banyuwangi.",
+    history: "Subkultur Osing mempunyai bahasa, musik, dan tarian khas; identitas kultural kuat di Banyuwangi.",
     highlights: ["Gandrung", "Barong & musik tradisional", "Batik Using"],
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
+    youtubeId: "dQw4w9WgXcQ",
+    sketchfabId: "3c5c5c5c5c5c5c5c",
   },
   panaragan: {
     displayName: "Panaragan",
@@ -537,11 +511,12 @@ const SUBCULTURE_PROFILES: Record<
       density: "205/km²",
       languages: ["Jawa", "Indonesia"],
     },
-    history:
-      "Kekuatan seni rakyat dan kerajinan kayu menjadi aksen keseharian Panaragan.",
+    history: "Kekuatan seni rakyat dan kerajinan kayu menjadi aksen keseharian Panaragan.",
     highlights: ["Kerajinan kayu", "Seni rakyat", "Upacara lokal"],
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
+    youtubeId: "dQw4w9WgXcQ",
+    sketchfabId: "3c5c5c5c5c5c5c5c",
   },
   pandalungan: {
     displayName: "Pandalungan",
@@ -551,11 +526,12 @@ const SUBCULTURE_PROFILES: Record<
       density: "367/km²",
       languages: ["Jawa", "Madura", "Indonesia"],
     },
-    history:
-      "Perpaduan Jawa–Madura melahirkan dialek, kuliner, dan ritus yang khas tapal kuda.",
+    history: "Perpaduan Jawa–Madura melahirkan dialek, kuliner, dan ritus yang khas tapal kuda.",
     highlights: ["Dialek Pandalungan", "Kuliner pesisir", "Tradisi campuran"],
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
+    youtubeId: "dQw4w9WgXcQ",
+    sketchfabId: "3c5c5c5c5c5c5c5c",
   },
   samin: {
     displayName: "Samin",
@@ -565,11 +541,12 @@ const SUBCULTURE_PROFILES: Record<
       density: "92/km²",
       languages: ["Jawa", "Indonesia"],
     },
-    history:
-      "Komunitas Samin dikenal lewat etika kejujuran, laku sederhana, dan sejarah gerakan sosial.",
+    history: "Komunitas Samin dikenal lewat etika kejujuran, laku sederhana, dan sejarah gerakan sosial.",
     highlights: ["Etika Samin", "Pertanian", "Komunitas mandiri"],
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
+    youtubeId: "dQw4w9WgXcQ",
+    sketchfabId: "3c5c5c5c5c5c5c5c",
   },
   tengger: {
     displayName: "Tengger",
@@ -579,77 +556,68 @@ const SUBCULTURE_PROFILES: Record<
       density: "92/km²",
       languages: ["Jawa Tenggeran", "Indonesia"],
     },
-    history:
-      "Komunitas pegunungan dengan ritus Yadnya Kasada dan lanskap Bromo yang sakral.",
-    highlights: [
-      "Yadnya Kasada",
-      "Pegunungan Bromo",
-      "Pertanian dataran tinggi",
-    ],
+    history: "Komunitas pegunungan dengan ritus Yadnya Kasada dan lanskap Bromo yang sakral.",
+    highlights: ["Yadnya Kasada", "Pegunungan Bromo", "Pertanian dataran tinggi"],
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
+    youtubeId: "dQw4w9WgXcQ",
+    sketchfabId: "3c5c5c5c5c5c5c5c",
   },
-};
+}
 
 export default function RegionDetailPage() {
-  const params = useParams();
-  const regionId = params.id as string;
+  const params = useParams()
+  const regionId = params.id as string
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [filteredItems, setFilteredItems] = useState<CulturalItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [filteredItems, setFilteredItems] = useState<CulturalItem[]>([])
 
-  const [videoIndex, setVideoIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [videoIndex, setVideoIndex] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
 
-  const [autoRotate, setAutoRotate] = useState(true);
-  const [viewerKey, setViewerKey] = useState(0); // remount to reset camera/controls
+  const [autoRotate, setAutoRotate] = useState(true)
+  const [viewerKey, setViewerKey] = useState(0) // remount to reset camera/controls
 
-  const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
 
-  const lexicon: LexiconEntry[] = LEXICON[regionId] || [];
+  const lexicon: LexiconEntry[] = LEXICON[regionId] || []
 
   const heroImage =
     (regionImages[regionId]?.[0]?.src as string) ||
-    `/placeholder.svg?height=640&width=1280&query=${encodeURIComponent(
-      `${regionId} cultural landscape`
-    )}`;
+    `/placeholder.svg?height=640&width=1280&query=${encodeURIComponent(`${regionId} cultural landscape`)}`
 
-  const thumbs = (regionImages[regionId] || []).slice(0, 6);
-  const profile = SUBCULTURE_PROFILES[regionId];
-  const baseVideoSrc = profile?.videoSrc || "/videos/subculture-sample.mp4";
-  const videos =
-    thumbs.length > 1 ? thumbs.map(() => baseVideoSrc) : [baseVideoSrc];
-  const posters = thumbs.length > 0 ? thumbs.map((t) => t.src) : [heroImage];
+  const thumbs = (regionImages[regionId] || []).slice(0, 6)
+  const profile = SUBCULTURE_PROFILES[regionId]
+  const baseVideoSrc = profile?.videoSrc || "/videos/subculture-sample.mp4"
+  const videos = thumbs.length > 1 ? thumbs.map(() => baseVideoSrc) : [baseVideoSrc]
+  const posters = thumbs.length > 0 ? thumbs.map((t) => t.src) : [heroImage]
 
-  const goPrev = () =>
-    setVideoIndex((i) => (i - 1 + videos.length) % videos.length);
-  const goNext = () => setVideoIndex((i) => (i + 1) % videos.length);
+  const goPrev = () => setVideoIndex((i) => (i - 1 + videos.length) % videos.length)
+  const goNext = () => setVideoIndex((i) => (i + 1) % videos.length)
 
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.load();
+    const v = videoRef.current
+    if (!v) return
+    v.load()
     if (isPlaying) {
-      const playPromise = v.play();
-      playPromise?.catch(() => setIsPlaying(false));
+      const playPromise = v.play()
+      playPromise?.catch(() => setIsPlaying(false))
     }
-  }, [videoIndex, isPlaying]);
+  }, [videoIndex, isPlaying])
 
   if (!lexicon.length) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">
-            Region Not Found
-          </h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">Region Not Found</h1>
           <Link href="/peta-budaya">
             <Button variant="outline">Back to Map</Button>
           </Link>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -657,10 +625,7 @@ export default function RegionDetailPage() {
       {/* Header */}
       <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 space-y-2">
-          <nav
-            aria-label="Breadcrumb"
-            className="text-xs text-muted-foreground"
-          >
+          <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground">
             <ol className="flex items-center gap-2">
               <li>
                 <Link href="/peta-budaya" className="hover:underline">
@@ -674,22 +639,14 @@ export default function RegionDetailPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/peta-budaya">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="hover:bg-accent/10"
-                >
+                <Button variant="ghost" size="sm" className="hover:bg-accent/10">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Map
                 </Button>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">
-                  {regionId} Glosarium Lokal
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Terms and definitions for this subculture.
-                </p>
+                <h1 className="text-2xl font-bold text-foreground">{regionId} Glosarium Lokal</h1>
+                <p className="text-sm text-muted-foreground">Terms and definitions for this subculture.</p>
               </div>
             </div>
           </div>
@@ -704,35 +661,23 @@ export default function RegionDetailPage() {
         <div className="container mx-auto px-4">
           <ul className="flex gap-2 overflow-x-auto py-2 no-scrollbar">
             <li>
-              <a
-                href="#region-profile"
-                className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground"
-              >
+              <a href="#region-profile" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
                 Background
               </a>
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <a
-                href="#video-profile"
-                className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground"
-              >
+              <a href="#video-profile" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
                 Profile Video
               </a>
             </li>
             <li>
-              <a
-                href="#viewer-3d"
-                className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground"
-              >
+              <a href="#viewer-3d" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
                 3D Object
               </a>
             </li>
             <li>
-              <a
-                href="#search-and-explore"
-                className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground"
-              >
+              <a href="#search-and-explore" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
                 Search Terms
               </a>
             </li>
@@ -741,10 +686,7 @@ export default function RegionDetailPage() {
       </nav>
 
       {/* Hero / CTA section with immersive image */}
-      <section
-        aria-label="Hero"
-        className="relative overflow-hidden border-b border-border"
-      >
+      <section aria-label="Hero" className="relative overflow-hidden border-b border-border">
         <div className="relative">
           <img
             src={heroImage || "/placeholder.svg"}
@@ -769,9 +711,8 @@ export default function RegionDetailPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
               >
-                Explore cultural identity, historical roots, and why this region
-                matters. Browse traditions, artifacts, and events in a
-                beautifully curated experience.
+                Explore cultural identity, historical roots, and why this region matters. Browse traditions, artifacts,
+                and events in a beautifully curated experience.
               </motion.p>
               <motion.div
                 className="mt-6 flex items-center justify-center gap-3"
@@ -780,9 +721,7 @@ export default function RegionDetailPage() {
                 transition={{ duration: 0.6, delay: 0.15 }}
               >
                 <a href="#search-and-explore">
-                  <Button className="bg-primary hover:bg-primary/90">
-                    Start exploring
-                  </Button>
+                  <Button className="bg-primary hover:bg-primary/90">Start exploring</Button>
                 </a>
                 <a href="#region-profile">
                   <Button variant="outline">About the region</Button>
@@ -795,103 +734,67 @@ export default function RegionDetailPage() {
 
       <main className="container mx-auto px-4 py-6 space-y-8">
         {/* Profile overview cards */}
-        <section
-          id="region-profile"
-          className="bg-card/60 rounded-xl shadow-sm border border-border p-6"
-        >
+        <section id="region-profile" className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
           {(() => {
-            const profile = SUBCULTURE_PROFILES[regionId];
+            const profile = SUBCULTURE_PROFILES[regionId]
             if (!profile)
               return (
                 <p className="text-sm text-muted-foreground">
-                  Detailed profile for this subculture is not yet available. Use
-                  the glossary below.
+                  Detailed profile for this subculture is not yet available. Use the glossary below.
                 </p>
-              );
-            const { displayName, demographics } = profile;
+              )
+            const { displayName, demographics } = profile
             return (
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-4">
-                  {displayName} — Brief Profile
-                </h2>
+                <h2 className="text-xl font-bold text-foreground mb-4">{displayName} — Brief Profile</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="rounded-lg border border-border bg-card/60 p-4">
-                    <div className="text-xs text-muted-foreground">
-                      Population (fictional)
-                    </div>
-                    <div className="font-semibold text-foreground">
-                      {demographics.population}
-                    </div>
+                    <div className="text-xs text-muted-foreground">Population (fictional)</div>
+                    <div className="font-semibold text-foreground">{demographics.population}</div>
                   </div>
                   <div className="rounded-lg border border-border bg-card/60 p-4">
-                    <div className="text-xs text-muted-foreground">
-                      Area Size
-                    </div>
-                    <div className="font-semibold text-foreground">
-                      {demographics.area}
-                    </div>
+                    <div className="text-xs text-muted-foreground">Area Size</div>
+                    <div className="font-semibold text-foreground">{demographics.area}</div>
                   </div>
                   <div className="rounded-lg border border-border bg-card/60 p-4">
                     <div className="text-xs text-muted-foreground">Density</div>
-                    <div className="font-semibold text-foreground">
-                      {demographics.density}
-                    </div>
+                    <div className="font-semibold text-foreground">{demographics.density}</div>
                   </div>
                   <div className="rounded-lg border border-border bg-card/60 p-4">
-                    <div className="text-xs text-muted-foreground">
-                      Language
-                    </div>
-                    <div className="font-semibold text-foreground">
-                      {demographics.languages.join(", ")}
-                    </div>
+                    <div className="text-xs text-muted-foreground">Language</div>
+                    <div className="font-semibold text-foreground">{demographics.languages.join(", ")}</div>
                   </div>
                 </div>
                 <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <article className="rounded-lg border border-border bg-card/60 p-4">
-                    <h3 className="font-semibold text-foreground mb-1">
-                      Brief History
-                    </h3>
+                    <h3 className="font-semibold text-foreground mb-1">Brief History</h3>
                     <p className="text-sm text-muted-foreground">
-                      {SUBCULTURE_PROFILES[regionId]?.history ||
-                        "History summary not available."}
+                      {SUBCULTURE_PROFILES[regionId]?.history || "History summary not available."}
                     </p>
                   </article>
                   <article className="rounded-lg border border-border bg-card/60 p-4">
-                    <h3 className="font-semibold text-foreground mb-1">
-                      Geography & Demographics
-                    </h3>
+                    <h3 className="font-semibold text-foreground mb-1">Geography & Demographics</h3>
                     <p className="text-sm text-muted-foreground">
                       {SUBCULTURE_PROFILES[regionId]
-                        ? `Area size ${
-                            SUBCULTURE_PROFILES[regionId]!.demographics.area
-                          }, density ${
+                        ? `Area size ${SUBCULTURE_PROFILES[regionId]!.demographics.area}, density ${
                             SUBCULTURE_PROFILES[regionId]!.demographics.density
-                          }, languages: ${SUBCULTURE_PROFILES[
-                            regionId
-                          ]!.demographics.languages.join(", ")}.`
+                          }, languages: ${SUBCULTURE_PROFILES[regionId]!.demographics.languages.join(", ")}.`
                         : "Geographic & demographic data not available."}
                     </p>
                   </article>
                   <article className="rounded-lg border border-border bg-card/60 p-4 md:col-span-2">
-                    <h3 className="font-semibold text-foreground mb-1">
-                      Cultural Overview
-                    </h3>
+                    <h3 className="font-semibold text-foreground mb-1">Cultural Overview</h3>
                     <ul className="list-disc pl-5 text-sm text-muted-foreground grid md:grid-cols-3 gap-x-4">
-                      {(SUBCULTURE_PROFILES[regionId]?.highlights || []).map(
-                        (h, i) => (
-                          <li key={i}>{h}</li>
-                        )
-                      )}
+                      {(SUBCULTURE_PROFILES[regionId]?.highlights || []).map((h, i) => (
+                        <li key={i}>{h}</li>
+                      ))}
                     </ul>
                   </article>
                   <aside className="rounded-lg border border-border bg-card/60 p-4 md:col-span-2 flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-foreground">
-                        Further Reading
-                      </h3>
+                      <h3 className="font-semibold text-foreground">Further Reading</h3>
                       <p className="text-sm text-muted-foreground">
-                        Fictional sources for in-depth exploration of the
-                        subculture.
+                        Fictional sources for in-depth exploration of the subculture.
                       </p>
                     </div>
                     <a
@@ -903,7 +806,7 @@ export default function RegionDetailPage() {
                   </aside>
                 </div>
               </div>
-            );
+            )
           })()}
         </section>
 
@@ -912,112 +815,44 @@ export default function RegionDetailPage() {
           aria-label="Video subkultur"
           className="rounded-xl shadow-sm border border-border bg-card/60 p-6"
         >
-          <div className="flex items-center gap-3">
-            <button
-              aria-label="Video sebelumnya"
-              onClick={goPrev}
-              className="p-2 rounded-md border border-border hover:bg-accent/10 disabled:opacity-50"
-              disabled={videos.length <= 1}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
+          {(() => {
+            const p = SUBCULTURE_PROFILES[regionId]
+            if (!p?.youtubeId) return null
+            return (
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">Cultural Profile Video</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Watch an in-depth exploration of {p.displayName}'s cultural heritage, traditions, and contemporary
+                    expressions. This video provides visual context and authentic perspectives on the subculture.
+                  </p>
+                </div>
 
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border bg-background/50">
-              <video
-                key={videoIndex}
-                ref={videoRef}
-                className="w-full h-full object-cover"
-                src={videos[videoIndex]}
-                poster={posters[videoIndex]}
-                controls={false}
-                playsInline
-                crossOrigin="anonymous"
-              />
-              {/* overlay gradient */}
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent" />
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border bg-background/50">
+                  <iframe
+                    className="w-full h-full"
+                    src={`https://www.youtube.com/embed/${p.youtubeId}?rel=0&modestbranding=1`}
+                    title={`${p.displayName} Cultural Profile Video`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                </div>
 
-              {/* overlay controls */}
-              <div className="absolute inset-x-0 bottom-0 p-3 flex items-center justify-between bg-gradient-to-t from-background/60 via-background/20 to-transparent">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      const v = videoRef.current;
-                      if (!v) return;
-                      if (v.paused) {
-                        v.play()
-                          .then(() => setIsPlaying(true))
-                          .catch(() => setIsPlaying(false));
-                      } else {
-                        v.pause();
-                        setIsPlaying(false);
-                      }
-                    }}
-                    aria-label={isPlaying ? "Jeda" : "Putar"}
-                    className="px-3 py-1 rounded-md bg-background/70 border border-border hover:bg-accent/10"
-                  >
-                    {isPlaying ? (
-                      <Pause className="w-4 h-4" />
-                    ) : (
-                      <Play className="w-4 h-4" />
-                    )}
-                  </button>
-                  <span className="text-xs text-muted-foreground">
-                    {profile?.displayName || regionId} — Video {videoIndex + 1}/
-                    {videos.length}
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
+                    Documentary
+                  </span>
+                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
+                    Cultural Heritage
+                  </span>
+                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
+                    {p.displayName}
                   </span>
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={goPrev}
-                    disabled={videos.length <= 1}
-                    className="px-2 py-1 rounded-md bg-background/70 border border-border hover:bg-accent/10 disabled:opacity-50"
-                    aria-label="Sebelumnya"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={goNext}
-                    disabled={videos.length <= 1}
-                    className="px-2 py-1 rounded-md bg-background/70 border border-border hover:bg-accent/10 disabled:opacity-50"
-                    aria-label="Berikutnya"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
               </div>
-            </div>
-
-            <button
-              aria-label="Video berikutnya"
-              onClick={goNext}
-              className="p-2 rounded-md border border-border hover:bg-accent/10 disabled:opacity-50"
-              disabled={videos.length <= 1}
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* thumbnails */}
-          <div className="mt-4 flex gap-2 overflow-x-auto no-scrollbar">
-            {posters.map((src, idx) => (
-              <button
-                key={idx}
-                onClick={() => setVideoIndex(idx)}
-                aria-label={`Pilih video ${idx + 1}`}
-                className={`min-w-[100px] h-16 rounded-md overflow-hidden border ${
-                  idx === videoIndex ? "border-primary" : "border-border"
-                } hover:border-foreground/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50`}
-              >
-                <img
-                  src={src || "/placeholder.svg"}
-                  alt={`Video ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                  crossOrigin="anonymous"
-                />
-              </button>
-            ))}
-          </div>
+            )
+          })()}
         </section>
 
         <section
@@ -1026,82 +861,56 @@ export default function RegionDetailPage() {
           className="rounded-xl shadow-sm border border-border bg-card/60 p-6"
         >
           {(() => {
-            const p = SUBCULTURE_PROFILES[regionId];
-            if (!p?.modelPath) return null;
+            const p = SUBCULTURE_PROFILES[regionId]
+            if (!p?.sketchfabId) return null
             return (
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h2 className="text-xl font-bold text-foreground">
-                      3D Objects Representing Regions
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      Explore 3D models that represent artifacts or landscapes
-                      of the subculture interactively.
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">3D Cultural Artifacts & Environments</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Explore interactive 3D models representing artifacts, architectural elements, or cultural landscapes
+                    of {p.displayName}. Rotate, zoom, and examine details from every angle to deepen your understanding
+                    of the material culture.
+                  </p>
+                </div>
+
+                <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
+                  <iframe
+                    className="w-full"
+                    style={{ height: "500px" }}
+                    src={`https://sketchfab.com/models/${p.sketchfabId}/embed?autospin=1&autostart=1`}
+                    title={`${p.displayName} 3D Model`}
+                    allow="autoplay; fullscreen; xr-spatial-tracking"
+                    allowFullScreen
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
+                      Interactive 3D
+                    </span>
+                    <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
+                      Artifact
+                    </span>
+                    <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
+                      {p.displayName}
+                    </span>
+                  </div>
+                  <div className="rounded-lg border border-border bg-background/50 p-3">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Interaction Tips:</strong> Use your mouse or touch to rotate the model. Scroll to zoom in
+                      and out. Click the fullscreen icon for an immersive viewing experience.
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setAutoRotate((v) => !v)}
-                      className="px-3 py-2 rounded-md border border-border hover:bg-accent/10 text-xs"
-                      aria-pressed={autoRotate}
-                      aria-label="Toggle auto-rotate"
-                    >
-                      {autoRotate ? (
-                        <RotateCw className="w-4 h-4 inline-block mr-1" />
-                      ) : (
-                        <RotateCcw className="w-4 h-4 inline-block mr-1" />
-                      )}
-                      {autoRotate ? "Auto Rotate" : "Rotate Off"}
-                    </button>
-                    <button
-                      onClick={() => setViewerKey((k) => k + 1)}
-                      className="px-3 py-2 rounded-md border border-border hover:bg-accent/10 text-xs"
-                      aria-label="Reset tampilan 3D"
-                    >
-                      Reset
-                    </button>
-                  </div>
-                </div>
-
-                {/* Simplified 3D placeholder */}
-                <div className="w-full h-[420px] rounded-lg overflow-hidden border border-border bg-muted/20 flex items-center justify-center">
-                  <div className="text-center space-y-4">
-                    <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
-                      <div className="w-8 h-8 text-primary">🏛️</div>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground">
-                        3D Model Preview
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Interactive 3D model will be available soon
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60">
-                    Popular Term 1
-                  </span>
-                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60">
-                    Popular Term 2
-                  </span>
-                  <button className="px-3 py-1 rounded-md text-xs border border-border hover:bg-accent/10">
-                    Object Choice Button
-                  </button>
                 </div>
               </div>
-            );
+            )
           })()}
         </section>
 
         {/* Search and Filter */}
-        <section
-          id="search-and-explore"
-          className="bg-card/60 rounded-xl shadow-sm border border-border p-6"
-        >
+        <section id="search-and-explore" className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
           <div className="flex flex-col gap-4" role="search">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -1115,9 +924,7 @@ export default function RegionDetailPage() {
             </div>
           </div>
           {searchQuery && (
-            <div className="mt-4 text-sm text-muted-foreground">
-              Displaying results for "{searchQuery}"
-            </div>
+            <div className="mt-4 text-sm text-muted-foreground">Displaying results for "{searchQuery}"</div>
           )}
         </section>
 
@@ -1128,21 +935,21 @@ export default function RegionDetailPage() {
               (e) =>
                 !searchQuery ||
                 e.term.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                e.definition.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+                e.definition.toLowerCase().includes(searchQuery.toLowerCase()),
+            )
 
             return (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filtered.map((entry, i) => {
-                  const isOpen = expandedIdx === i;
-                  const contentId = `lexicon-details-${i}`;
+                  const isOpen = expandedIdx === i
+                  const contentId = `lexicon-details-${i}`
 
                   const termSlug = entry.term
                     .normalize("NFD")
                     .replace(/[\u0300-\u036f]/g, "")
                     .toLowerCase()
                     .replace(/[^a-z0-9]+/g, "-")
-                    .replace(/(^-|-$)/g, "");
+                    .replace(/(^-|-$)/g, "")
 
                   return (
                     <article
@@ -1154,22 +961,14 @@ export default function RegionDetailPage() {
                         className="w-full text-left px-4 py-3 flex items-start justify-between gap-3 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         aria-expanded={isOpen}
                         aria-controls={contentId}
-                        onClick={() =>
-                          setExpandedIdx((prev) => (prev === i ? null : i))
-                        }
+                        onClick={() => setExpandedIdx((prev) => (prev === i ? null : i))}
                       >
                         <div>
-                          <h3 className="font-semibold text-foreground">
-                            {entry.term}
-                          </h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {entry.definition}
-                          </p>
+                          <h3 className="font-semibold text-foreground">{entry.term}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{entry.definition}</p>
                         </div>
                         <svg
-                          className={`w-4 h-4 mt-1 shrink-0 transition-transform ${
-                            isOpen ? "rotate-180" : ""
-                          }`}
+                          className={`w-4 h-4 mt-1 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
                           viewBox="0 0 20 20"
                           fill="currentColor"
                           aria-hidden="true"
@@ -1196,25 +995,15 @@ export default function RegionDetailPage() {
                         <div className="px-4 pb-4 pt-1">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">
-                                Makna Etimologi
-                              </h4>
-                              <p className="text-sm text-foreground/90">
-                                {entry.etimologi || "—"}
-                              </p>
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Makna Etimologi</h4>
+                              <p className="text-sm text-foreground/90">{entry.etimologi || "—"}</p>
                             </div>
                             <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">
-                                Makna Cultural
-                              </h4>
-                              <p className="text-sm text-foreground/90">
-                                {entry.culturalMeaning || "—"}
-                              </p>
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Makna Cultural</h4>
+                              <p className="text-sm text-foreground/90">{entry.culturalMeaning || "—"}</p>
                             </div>
                             <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">
-                                Varian Makna
-                              </h4>
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Varian Makna</h4>
                               {entry.variants && entry.variants.length > 0 ? (
                                 <div className="flex flex-wrap gap-2">
                                   {entry.variants.map((v, idx) => (
@@ -1231,28 +1020,18 @@ export default function RegionDetailPage() {
                               )}
                             </div>
                             <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">
-                                Common Meaning
-                              </h4>
-                              <p className="text-sm text-foreground/90">
-                                {entry.commonMeaning || "—"}
-                              </p>
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Common Meaning</h4>
+                              <p className="text-sm text-foreground/90">{entry.commonMeaning || "—"}</p>
                             </div>
                             <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">
-                                Keterangan
-                              </h4>
-                              <p className="text-sm text-foreground/90">
-                                {entry.note || "—"}
-                              </p>
+                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Keterangan</h4>
+                              <p className="text-sm text-foreground/90">{entry.note || "—"}</p>
                             </div>
                             <div className="rounded-lg border border-border bg-background/50 p-3">
                               <h4 className="text-xs font-medium text-muted-foreground mb-1">
                                 Ketersediaan Informasi lain
                               </h4>
-                              <p className="text-sm text-foreground/90">
-                                {entry.availability || "—"}
-                              </p>
+                              <p className="text-sm text-foreground/90">{entry.availability || "—"}</p>
                             </div>
                           </div>
                         </div>
@@ -1270,25 +1049,21 @@ export default function RegionDetailPage() {
                         </Link>
                       </div>
                     </article>
-                  );
+                  )
                 })}
 
                 {filtered.length === 0 && (
                   <div className="text-center py-12 col-span-full">
                     <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      Belum ada entri
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Glosarium untuk subkultur ini belum tersedia.
-                    </p>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Belum ada entri</h3>
+                    <p className="text-muted-foreground">Glosarium untuk subkultur ini belum tersedia.</p>
                   </div>
                 )}
               </div>
-            );
+            )
           })()}
         </section>
       </main>
     </div>
-  );
+  )
 }
