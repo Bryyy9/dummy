@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { LEXICON, type LexiconEntry } from "@/data/lexicon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 // Same slugify as listing for consistent matching
 function slugify(input: string) {
@@ -25,6 +26,16 @@ function findEntryBySlug(slug: string): EntryWithRegion | null {
     }
   }
   return null;
+}
+
+// Fungsi untuk generate kode unik berdasarkan regionKey dan term
+function generateTermCode(regionKey: string, term: string): string {
+  const regionCode = regionKey.substring(0, 3).toUpperCase();
+  const termCode = term.substring(0, 3).toUpperCase();
+  const hash = Math.abs(
+    term.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+  ) % 1000;
+  return `${regionCode}-${termCode}-${hash.toString().padStart(3, '0')}`;
 }
 
 export function generateMetadata({
@@ -55,8 +66,8 @@ export default function CulturalWordDetailPage({
     notFound();
   }
 
+  const termCode = generateTermCode(entry.regionKey, entry.term);
   const heroAlt = `Illustration for the term ${entry!.term}`;
-  // Use placeholder image per guidelines; hard-code query string
   const heroSrc = `/placeholder.svg?height=360&width=640&query=${encodeURIComponent(
     `illustration photo ${entry!.term} cultural term`
   )}`;
@@ -66,16 +77,22 @@ export default function CulturalWordDetailPage({
       <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-40">
         <div className="container mx-auto px-4 py-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground text-balance">
-              {entry!.term}
-            </h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-2xl font-bold text-foreground text-balance">
+                {entry!.term}
+              </h1>
+              <Badge 
+                variant="outline" 
+                className="text-xs font-mono bg-muted/50 text-muted-foreground border-border/50"
+              >
+                {termCode}
+              </Badge>
+            </div>
             <p className="text-sm text-muted-foreground">
               Subculture: {entry!.regionKey}
             </p>
-            <p className="text-sm text-muted-foreground">
-             Domain:
-            </p>
           </div>
+          
           <div className="flex gap-2">
             <Link href="/budaya/daerah/-">
               <Button variant="outline">Back to list</Button>
@@ -103,7 +120,7 @@ export default function CulturalWordDetailPage({
         </section>
 
         {/* Profile-like layout: three key cards similar to profile breakdown */}
-        <section aria-label="Term summary" className="grid grid-cols-1 4">
+        <section aria-label="Term summary" className="grid grid-cols-1 gap-4">
           <Card className="bg-card/60 border-border">
             <CardHeader>
               <CardTitle className="text-foreground">Definition</CardTitle>
@@ -114,24 +131,6 @@ export default function CulturalWordDetailPage({
               </p>
             </CardContent>
           </Card>
-
-          {/* <Card className="bg-card/60 border-border">
-            <CardHeader>
-              <CardTitle className="text-foreground">Etymology</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-relaxed text-muted-foreground">{entry!.etimologi || "—"}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/60 border-border">
-            <CardHeader>
-              <CardTitle className="text-foreground">Cultural Meaning</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-relaxed text-muted-foreground">{entry!.culturalMeaning || "—"}</p>
-            </CardContent>
-          </Card> */}
         </section>
 
         <section
@@ -162,7 +161,6 @@ export default function CulturalWordDetailPage({
 
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              {/* <CardTitle className="text-foreground">Common Meaning</CardTitle> */}
               <CardTitle className="text-foreground">Reference</CardTitle>
             </CardHeader>
             <CardContent>

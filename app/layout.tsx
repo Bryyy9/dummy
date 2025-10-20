@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Manrope } from "next/font/google"
-import { Suspense } from "react"
 import TransitionProvider from "@/components/ux/transition-provider"
 import "./globals.css"
 
@@ -26,11 +25,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${manrope.variable}`}>
-        <Suspense fallback={null}>
-          <TransitionProvider>{children}</TransitionProvider>
-        </Suspense>
+    <html lang="en" suppressHydrationWarning>
+      <body 
+        className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${manrope.variable}`}
+        suppressHydrationWarning
+      >
+        <TransitionProvider>{children}</TransitionProvider>
       </body>
     </html>
   )
