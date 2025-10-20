@@ -70,21 +70,7 @@ export function HeroSection({ onNavClick }: HeroSectionProps) {
                 </div>
               </AnimatedReveal>
 
-              <AnimatedReveal animation="fade-up" delay={1200}>
-                <div className="flex items-center gap-4 pt-8">
-                  <div className="flex items-center gap-2">
-                    <button className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300">
-                      <ArrowRight className="h-4 w-4 rotate-180" />
-                    </button>
-                    <button className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300">
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="text-white/80 text-sm font-medium">
-                    1<span className="text-white/60">/5</span>
-                  </div>
-                </div>
-              </AnimatedReveal>
+             
             </div>
           </AnimatedReveal>
 

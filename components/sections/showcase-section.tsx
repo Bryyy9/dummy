@@ -46,105 +46,7 @@ export function ShowcaseSection() {
           </AnimatedReveal>
         </div>
 
-        {/* Bento-style grid with subtle motion and immersive imagery */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
-          <AnimatedReveal animation="slide-right" delay={300}>
-            <article
-              className="md:col-span-4 relative rounded-2xl overflow-hidden bg-muted/30 border border-border/60"
-              aria-label="Feature: Interactive Cultural Map"
-            >
-              <div
-                className="aspect-[16/9] md:aspect-[16/8] bg-cover bg-center transition-transform duration-700 hover:scale-[1.03]"
-                style={{
-                  backgroundImage: "url('/immersive-cultural-map-with-diverse-patterns.jpg')",
-                }}
-                role="img"
-                aria-label="Immersive cultural map with diverse patterns"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/20 to-transparent" />
-              <div className="absolute inset-x-6 bottom-6">
-                <h3 className="text-xl md:text-2xl font-semibold">Explore the Cultural Map</h3>
-                <p className="text-sm text-muted-foreground max-w-prose mt-2">
-                  Pan, zoom, and select regions to uncover curated stories about identity, history, and significance.
-                </p>
-                <div className="mt-4">
-                  <EnhancedButton size="sm" className="px-4">
-                    Open Map
-                  </EnhancedButton>
-                </div>
-              </div>
-            </article>
-          </AnimatedReveal>
-
-          <AnimatedReveal animation="slide-left" delay={350}>
-            <article
-              className="md:col-span-2 relative rounded-2xl overflow-hidden bg-muted/30 border border-border/60"
-              aria-label="Feature: Curated Collections"
-            >
-              <div
-                className="aspect-[16/9] md:aspect-[4/5] bg-cover bg-center transition-transform duration-700 hover:scale-[1.03]"
-                style={{
-                  backgroundImage: "url('/curated-cultural-collection-artifacts.jpg')",
-                }}
-                role="img"
-                aria-label="Curated cultural collection artifacts"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/20 to-transparent" />
-              <div className="absolute inset-x-5 bottom-5">
-                <h3 className="text-lg md:text-xl font-semibold">Curated Collections</h3>
-                <p className="text-sm text-muted-foreground">
-                  Browse themed galleries of artifacts, textiles, music, and culinary heritage.
-                </p>
-              </div>
-            </article>
-          </AnimatedReveal>
-
-          <AnimatedReveal animation="slide-right" delay={400}>
-            <article
-              className="md:col-span-2 relative rounded-2xl overflow-hidden bg-muted/30 border border-border/60"
-              aria-label="Feature: Live Events"
-            >
-              <div
-                className="aspect-[16/9] md:aspect-[4/5] bg-cover bg-center transition-transform duration-700 hover:scale-[1.03]"
-                style={{
-                  backgroundImage: "url('/traditional-festival-with-performers.jpg')",
-                }}
-                role="img"
-                aria-label="Traditional festival with performers"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/20 to-transparent" />
-              <div className="absolute inset-x-5 bottom-5">
-                <h3 className="text-lg md:text-xl font-semibold">Live Events</h3>
-                <p className="text-sm text-muted-foreground">
-                  Find festivals and performances that bring culture to life around you.
-                </p>
-              </div>
-            </article>
-          </AnimatedReveal>
-
-          <AnimatedReveal animation="slide-left" delay={450}>
-            <article
-              className="md:col-span-4 relative rounded-2xl overflow-hidden bg-muted/30 border border-border/60"
-              aria-label="Feature: Stories & Oral Histories"
-            >
-              <div
-                className="aspect-[16/9] md:aspect-[16/8] bg-cover bg-center transition-transform duration-700 hover:scale-[1.03]"
-                style={{
-                  backgroundImage: "url('/oral-histories-and-storytelling-sessions.jpg')",
-                }}
-                role="img"
-                aria-label="Oral histories and storytelling sessions"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/20 to-transparent" />
-              <div className="absolute inset-x-6 bottom-6">
-                <h3 className="text-xl md:text-2xl font-semibold">Stories & Oral Histories</h3>
-                <p className="text-sm text-muted-foreground max-w-prose mt-2">
-                  Dive into deeply researched narratives recorded with local communities and cultural bearers.
-                </p>
-              </div>
-            </article>
-          </AnimatedReveal>
-        </div>
+      
 
         <div className="group relative mt-12">
           {/* Edge fade for visual polish */}
@@ -177,15 +79,6 @@ export function ShowcaseSection() {
             </div>
           </div>
         </div>
-
-        {/* Optional CTA below ticker for continuity with page style */}
-        <AnimatedReveal animation="fade-up" delay={600}>
-          <div className="text-center mt-10">
-            <EnhancedButton size="lg" effect="glow" className="px-8">
-              Start Exploring
-            </EnhancedButton>
-          </div>
-        </AnimatedReveal>
       </div>
 
       <style jsx>{`
