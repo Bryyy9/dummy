@@ -688,7 +688,7 @@ export default function RegionDetailPage() {
                   {regionId} Glosarium Lokal
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Istilah dan definisi untuk subkultur ini.
+                  Terms and definitions for this subculture.
                 </p>
               </div>
             </div>
