@@ -48,7 +48,7 @@ export const LEXICON: Record<string, LexiconEntry[]> = {
   ],
   mataraman: [
     { term: "Tata Krama", definition: "Etiquette and manners that are prominent in Mataraman culture." },
-    { term: "Gamelan", definition: "A traditional Javanese musical ensemble of tuned percussion instruments." },
+    { term: "Gamelan", definition: "Pujan is a worship ritual of the Tengger community. The name rooted in the Sanskrit and Old Javanese word puja (‘respect, worship, and prayer’). This ritual is within the village calendar and is held in certain month every year. In the past, Pujan took the form of a grand feast at the village priest’s house. Today, pujan is held as a brief prayer and symbolic banquet attended by priests and village officials, with food contributed by the community. The series of pujan concludes with the distribution of dishes to village leaders and small offerings at sacred sites as a manifestation of the community’s spiritual involvement." },
   ],
   osing: [
     { term: "Using/Osing", definition: "The local Banyuwangi ethnic group and language with distinctive traditions." },
