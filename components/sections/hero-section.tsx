@@ -108,7 +108,7 @@ export function HeroSection({ onNavClick }: HeroSectionProps) {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   <div className="absolute bottom-2 left-2 right-2">
-                    <h4 className="text-white text-sm font-bold mb-1">Malang</h4>
+                    <h4 className="text-white text-sm font-bold mb-1">Panaragan</h4>
                     <EnhancedButton
                       size="sm"
                       className="bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 text-xs px-3 py-1"
@@ -128,7 +128,7 @@ export function HeroSection({ onNavClick }: HeroSectionProps) {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   <div className="absolute bottom-2 left-2 right-2">
-                    <h4 className="text-white text-sm font-bold mb-1">Surabaya</h4>
+                    <h4 className="text-white text-sm font-bold mb-1">Arekan</h4>
                     <EnhancedButton
                       size="sm"
                       className="bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 text-xs px-3 py-1"
