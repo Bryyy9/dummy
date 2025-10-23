@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, MapPin } from "lucide-react"
+import { ArrowLeft, MapPin, Play } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -18,16 +18,6 @@ export default function RegionDetailPage() {
 
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [filteredItems, setFilteredItems] = useState<any[]>([])
-
-  const [videoIndex, setVideoIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-
-  const [autoRotate, setAutoRotate] = useState(true)
-  const [viewerKey, setViewerKey] = useState(0)
-
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
 
   const [isNavSticky, setIsNavSticky] = useState(false)
@@ -39,12 +29,6 @@ export default function RegionDetailPage() {
   const heroImage = getRegionHeroImage(regionId)
 
   const profile = SUBCULTURE_PROFILES[regionId]
-  const baseVideoSrc = "/videos/subculture-sample.mp4"
-  const videos = [baseVideoSrc]
-  const posters = [heroImage]
-
-  const goPrev = () => setVideoIndex((i) => (i - 1 + videos.length) % videos.length)
-  const goNext = () => setVideoIndex((i) => (i + 1) % videos.length)
 
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -56,21 +40,11 @@ export default function RegionDetailPage() {
   }, [searchQuery, lexicon])
 
   useEffect(() => {
-    const v = videoRef.current
-    if (!v) return
-    v.load()
-    if (isPlaying) {
-      const playPromise = v.play()
-      playPromise?.catch(() => setIsPlaying(false))
-    }
-  }, [videoIndex, isPlaying])
-
-  useEffect(() => {
     const handleScroll = () => {
       const headerHeight = 64
       setIsNavSticky(window.scrollY > headerHeight)
 
-      const sections = ["region-profile", "video-profile", "viewer-3d", "search-and-explore"]
+      const sections = ["region-profile", "search-and-explore"]
       for (const sectionId of sections) {
         const element = document.getElementById(sectionId)
         if (element) {
@@ -151,34 +125,10 @@ export default function RegionDetailPage() {
                     : "hover:bg-accent/20 text-foreground"
                 }`}
               >
-                Background
+                Profile
               </a>
             </li>
             <li aria-hidden="true">/</li>
-            <li>
-              <a
-                href="#video-profile"
-                className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                  activeSection === "video-profile"
-                    ? "bg-primary/20 text-primary font-medium"
-                    : "hover:bg-accent/20 text-foreground"
-                }`}
-              >
-                Profile Video
-              </a>
-            </li>
-            <li>
-              <a
-                href="#viewer-3d"
-                className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                  activeSection === "viewer-3d"
-                    ? "bg-primary/20 text-primary font-medium"
-                    : "hover:bg-accent/20 text-foreground"
-                }`}
-              >
-                3D Object
-              </a>
-            </li>
             <li>
               <a
                 href="#search-and-explore"
@@ -243,8 +193,8 @@ export default function RegionDetailPage() {
       </section>
 
       <main className="container mx-auto px-4 py-6 space-y-8">
-        {/* Profile overview cards */}
-        <section id="region-profile" className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
+        {/* Profile section */}
+        <section id="region-profile" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 md:p-8">
           {(() => {
             const profile = SUBCULTURE_PROFILES[regionId]
             if (!profile)
@@ -253,180 +203,98 @@ export default function RegionDetailPage() {
                   Detailed profile for this subculture is not yet available. Use the glossary below.
                 </p>
               )
-            const { displayName, demographics } = profile
+            const { displayName, history, highlights } = profile
             return (
-              <div>
-                <h2 className="text-xl font-bold text-foreground mb-4">{displayName} — Brief Profile</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="rounded-lg border border-border bg-card/60 p-4">
-                    <div className="text-xs text-muted-foreground">Population (fictional)</div>
-                    <div className="font-semibold text-foreground">{demographics.population}</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-card/60 p-4">
-                    <div className="text-xs text-muted-foreground">Area Size</div>
-                    <div className="font-semibold text-foreground">{demographics.area}</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-card/60 p-4">
-                    <div className="text-xs text-muted-foreground">Density</div>
-                    <div className="font-semibold text-foreground">{demographics.density}</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-card/60 p-4">
-                    <div className="text-xs text-muted-foreground">Language</div>
-                    <div className="font-semibold text-foreground">{demographics.languages.join(", ")}</div>
-                  </div>
-                </div>
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <article className="rounded-lg border border-border bg-card/60 p-4">
-                    <h3 className="font-semibold text-foreground mb-1">Brief History</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {SUBCULTURE_PROFILES[regionId]?.history || "History summary not available."}
-                    </p>
-                  </article>
-                  <article className="rounded-lg border border-border bg-card/60 p-4">
-                    <h3 className="font-semibold text-foreground mb-1">Geography & Demographics</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {SUBCULTURE_PROFILES[regionId]
-                        ? `Area size ${SUBCULTURE_PROFILES[regionId]!.demographics.area}, density ${
-                            SUBCULTURE_PROFILES[regionId]!.demographics.density
-                          }, languages: ${SUBCULTURE_PROFILES[regionId]!.demographics.languages.join(", ")}.`
-                        : "Geographic & demographic data not available."}
-                    </p>
-                  </article>
-                  <article className="rounded-lg border border-border bg-card/60 p-4 md:col-span-2">
-                    <h3 className="font-semibold text-foreground mb-1">Cultural Overview</h3>
-                    <ul className="list-disc pl-5 text-sm text-muted-foreground grid md:grid-cols-3 gap-x-4">
-                      {(SUBCULTURE_PROFILES[regionId]?.highlights || []).map((h, i) => (
-                        <li key={i}>{h}</li>
-                      ))}
-                    </ul>
-                  </article>
-                  <aside className="rounded-lg border border-border bg-card/60 p-4 md:col-span-2 flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-foreground">Further Reading</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Fictional sources for in-depth exploration of the subculture.
-                      </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-start">
+                {/* Left: Profile Information */}
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-white font-bold text-lg">
+                      {displayName.charAt(0)}
                     </div>
-                    <a
-                      href="#video-profile"
-                      className="px-3 py-2 rounded-md border border-border hover:bg-accent/10 text-sm"
-                    >
-                      Explore
-                    </a>
-                  </aside>
-                </div>
-              </div>
-            )
-          })()}
-        </section>
-
-        <section
-          id="video-profile"
-          aria-label="Video subkultur"
-          className="rounded-xl shadow-sm border border-border bg-card/60 p-6"
-        >
-          {(() => {
-            const p = SUBCULTURE_PROFILES[regionId]
-            if (!p?.video?.youtubeId) {
-              return (
-                <div className="text-center py-8">
-                  <p className="text-sm text-muted-foreground">
-                    Video profile for this subculture is not yet available.
-                  </p>
-                </div>
-              )
-            }
-            return (
-              <div className="space-y-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-2">Cultural Profile Video</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Watch an in-depth exploration of {p.displayName}'s cultural heritage, traditions, and contemporary
-                    expressions. This video provides visual context and authentic perspectives on the subculture.
-                  </p>
-                </div>
-
-                <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border bg-background/50">
-                  <iframe
-                    className="w-full h-full"
-                    src={`https://www.youtube.com/embed/${p.video.youtubeId}?rel=0&modestbranding=1`}
-                    title={`${p.displayName} Cultural Profile Video`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    loading="lazy"
-                  />
-                </div>
-
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                    Documentary
-                  </span>
-                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                    Cultural Heritage
-                  </span>
-                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                    {p.displayName}
-                  </span>
-                </div>
-              </div>
-            )
-          })()}
-        </section>
-
-        <section
-          id="viewer-3d"
-          aria-label="Penampil 3D"
-          className="rounded-xl shadow-sm border border-border bg-card/60 p-6"
-        >
-          {(() => {
-            const p = SUBCULTURE_PROFILES[regionId]
-            if (!p?.model3d?.sketchfabId) {
-              return (
-                <div className="text-center py-8">
-                  <p className="text-sm text-muted-foreground">3D model for this subculture is not yet available.</p>
-                </div>
-              )
-            }
-            return (
-              <div className="space-y-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-2">3D Cultural Artifacts & Environments</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Explore interactive 3D models representing artifacts, architectural elements, or cultural landscapes
-                    of {p.displayName}. Rotate, zoom, and examine details from every angle to deepen your understanding
-                    of the material culture.
-                  </p>
-                </div>
-
-                <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
-                  <iframe
-                    className="w-full"
-                    style={{ height: "500px" }}
-                    src={`https://sketchfab.com/models/${p.model3d.sketchfabId}/embed?autospin=1&autostart=1`}
-                    title={`${p.displayName} 3D Model`}
-                    allow="autoplay; fullscreen; xr-spatial-tracking"
-                    allowFullScreen
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                      Interactive 3D
-                    </span>
-                    <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                      Artifact
-                    </span>
-                    <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                      {p.displayName}
-                    </span>
+                    <div>
+                      <h3 className="font-semibold text-foreground">{displayName}</h3>
+                      <p className="text-xs text-muted-foreground">Subculture Profile</p>
+                    </div>
                   </div>
-                  <div className="rounded-lg border border-border bg-background/50 p-3">
-                    <p className="text-xs text-muted-foreground">
-                      <strong>Interaction Tips:</strong> Use your mouse or touch to rotate the model. Scroll to zoom in
-                      and out. Click the fullscreen icon for an immersive viewing experience.
-                    </p>
+
+                  {/* Rating */}
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className="text-lg">
+                        ★
+                      </span>
+                    ))}
                   </div>
+
+                  {/* Description */}
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-foreground text-sm">About {displayName}</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{history}</p>
+
+                    {/* Highlights */}
+                    <div className="space-y-2">
+                      <h5 className="text-xs font-medium text-muted-foreground uppercase">Key Highlights</h5>
+                      <ul className="space-y-1">
+                        {highlights.map((h, i) => (
+                          <li key={i} className="text-sm text-foreground flex items-start gap-2">
+                            <span className="text-primary mt-1">•</span>
+                            <span>{h}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Center: Large Image */}
+                <div className="flex flex-col gap-3">
+                  <div className="relative w-full aspect-square rounded-lg overflow-hidden border border-border bg-background/50">
+                    <img
+                      src={heroImage || "/placeholder.svg?height=400&width=400&query=subculture"}
+                      alt={`${displayName} cultural imagery`}
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">Cultural imagery of {displayName}</p>
+                </div>
+
+                {/* Right: Video Preview */}
+                <div className="flex flex-col gap-3">
+                  {profile.video?.youtubeId ? (
+                    <>
+                      <div className="relative w-full aspect-square rounded-lg overflow-hidden border border-border bg-background/50 group cursor-pointer">
+                        <img
+                          src={`https://img.youtube.com/vi/${profile.video.youtubeId}/maxresdefault.jpg`}
+                          alt={profile.video.title}
+                          className="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
+                          crossOrigin="anonymous"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                          <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
+                            <Play className="w-6 h-6 text-primary fill-primary ml-1" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-foreground line-clamp-2">{profile.video.title}</p>
+                        <a
+                          href={`https://www.youtube.com/watch?v=${profile.video.youtubeId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button size="sm" variant="outline" className="w-full bg-transparent">
+                            See more travel perks
+                          </Button>
+                        </a>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="w-full aspect-square rounded-lg border border-border bg-background/50 flex items-center justify-center">
+                      <p className="text-sm text-muted-foreground">Video not available</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )
