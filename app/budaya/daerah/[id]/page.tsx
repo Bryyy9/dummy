@@ -39,7 +39,7 @@ export default function RegionDetailPage() {
   const heroImage = getRegionHeroImage(regionId)
 
   const profile = SUBCULTURE_PROFILES[regionId]
-  const baseVideoSrc = profile?.videoSrc || "/videos/subculture-sample.mp4"
+  const baseVideoSrc = "/videos/subculture-sample.mp4"
   const videos = [baseVideoSrc]
   const posters = [heroImage]
 

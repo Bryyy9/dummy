@@ -298,7 +298,7 @@ export const SUBCULTURE_PROFILES: Record<string, SubcultureProfile> = {
       tags: ["Yadnya Kasada", "Bromo", "Ritus Tradisional"],
     },
     model3d: {
-      sketchfabId: "84f5b344957540a295743def72f1db66",
+      sketchfabId: "e0197431bb6b49c78f9cd53313b94d5d",
       title: "Gunung Bromo",
       description: "Model 3D interaktif dari Gunung Bromo yang sakral bagi Tengger.",
       artifactType: "Lanskap Alam",

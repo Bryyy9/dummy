@@ -25,7 +25,7 @@ export const LEXICON: Record<string, LexiconEntry[]> = {
   arekan: [
     {
       term: "Arek",
-      termCode: generateTermCode("arekan", "Arek"),
+      termCode: "arekan",
       definition: "A designation for the speech style and urban coastal identity of Surabaya and its surroundings.",
       etimologi: "Derived from 'arek' (child/young person) in the Arek Javanese dialect.",
       culturalMeaning: "Represents coastal urban egalitarianism and the 'arek Suroboyo' solidarity.",
@@ -157,6 +157,7 @@ export const LEXICON: Record<string, LexiconEntry[]> = {
   ],
   tengger: [
     {
+      imageId: "1gCGm9DZrfZOvueXfiQyqI1DO1gTweC3F",
       term: "Pujan",
       termCode: generateTermCode("Tengger", "Pujan"),
       definition:
