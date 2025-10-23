@@ -8,37 +8,6 @@ import { ArrowRight, MapPin, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SUBCULTURE_PROFILES } from "@/data/subculture-profiles"
 
-type SubcultureProfile = {
-  displayName: string
-  demographics: {
-    population: string
-    area: string
-    density: string
-    languages: string[]
-  }
-  history: string
-  highlights: string[]
-  video: {
-    youtubeId: string
-    title: string
-    description: string
-    duration: string
-    tags: string[]
-  }
-  model3d: {
-    sketchfabId: string
-    title: string
-    description: string
-    artifactType: string
-    tags: string[]
-  }
-}
-
-const subcultures = Object.entries(SUBCULTURE_PROFILES).map(([key, profile]) => ({
-  id: key,
-  ...profile,
-}))
-
 export default function SubculturesGalleryPage() {
   const [selectedSubculture, setSelectedSubculture] = useState<string | null>(null)
 
@@ -60,9 +29,9 @@ export default function SubculturesGalleryPage() {
       <main className="container mx-auto px-4 py-12">
         {/* Subcultures Grid */}
         <div className="space-y-16">
-          {subcultures.map((subculture, index) => (
+          {Object.entries(SUBCULTURE_PROFILES).map(([id, subculture], index) => (
             <motion.section
-              key={subculture.id}
+              key={id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -76,7 +45,7 @@ export default function SubculturesGalleryPage() {
                     <h2 className="text-3xl font-bold text-foreground mb-2">{subculture.displayName}</h2>
                     <p className="text-muted-foreground max-w-2xl">{subculture.history}</p>
                   </div>
-                  <Link href={`/budaya/daerah/${subculture.id}`}>
+                  <Link href={`/budaya/daerah/${id}`}>
                     <Button variant="outline" size="sm" className="shrink-0 bg-transparent">
                       <BookOpen className="w-4 h-4 mr-2" />
                       Glosarium
@@ -106,7 +75,7 @@ export default function SubculturesGalleryPage() {
 
                 {/* Highlights */}
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {subculture.highlights.map((highlight, i) => (
+                  {subculture.highlights.map((highlight: string, i: number) => (
                     <span
                       key={i}
                       className="px-3 py-1 rounded-full text-xs border border-border bg-background/50 text-muted-foreground"
@@ -142,7 +111,7 @@ export default function SubculturesGalleryPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      {subculture.video.tags.map((tag, i) => (
+                      {subculture.video.tags.map((tag: string, i: number) => (
                         <span
                           key={i}
                           className="px-2 py-1 rounded-full text-xs border border-border bg-background/50 text-muted-foreground"
@@ -176,7 +145,7 @@ export default function SubculturesGalleryPage() {
 
                     <div className="space-y-2">
                       <div className="flex flex-wrap gap-2">
-                        {subculture.model3d.tags.map((tag, i) => (
+                        {subculture.model3d.tags.map((tag: string, i: number) => (
                           <span
                             key={i}
                             className="px-2 py-1 rounded-full text-xs border border-border bg-background/50 text-muted-foreground"
@@ -200,7 +169,7 @@ export default function SubculturesGalleryPage() {
                 <p className="text-sm text-muted-foreground">
                   Pelajari lebih lanjut tentang {subculture.displayName} dan istilah budayanya
                 </p>
-                <Link href={`/budaya/daerah/${subculture.id}`}>
+                <Link href={`/budaya/daerah/${id}`}>
                   <Button variant="ghost" size="sm" className="hover:bg-accent/20">
                     Jelajahi Glosarium
                     <ArrowRight className="w-4 h-4 ml-2" />
