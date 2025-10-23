@@ -94,9 +94,9 @@ export function CulturalGalleries({ onNavClick }: CulturalGalleriesProps) {
 
         <AnimatedReveal animation="fade-up" delay={800}>
           <div className="text-center mt-12">
-            <Link href="/budaya/daerah/-" aria-label="Buka Glosarium Budaya">
+            <Link href="/budaya" aria-label="Buka Glosarium Budaya">
               <EnhancedButton size="lg" className="gradient-purple">
-                  Open Cultural Glossary
+                  Open Sub Cultural Glossary
                 <ArrowRight className="h-5 w-5 ml-2" />
               </EnhancedButton>
             </Link>

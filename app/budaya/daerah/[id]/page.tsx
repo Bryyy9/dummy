@@ -561,7 +561,7 @@ const SUBCULTURE_PROFILES: Record<
     modelPath: "/assets/3d/duck.glb",
     videoSrc: "/videos/subculture-sample.mp4",
     youtubeId: "dQw4w9WgXcQ",
-    sketchfabId: "3c5c5c5c5c5c5c5c",
+    sketchfabId: "84f5b344957540a295743def72f1db66",
   },
 }
 

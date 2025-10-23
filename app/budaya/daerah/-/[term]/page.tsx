@@ -11,7 +11,7 @@ function slugify(input: string) {
   return input
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // remove combining diacritics
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9\s-]/g, "")
     .trim()
     .replace(/\s+/g, "-");
@@ -26,16 +26,6 @@ function findEntryBySlug(slug: string): EntryWithRegion | null {
     }
   }
   return null;
-}
-
-// Fungsi untuk generate kode unik berdasarkan regionKey dan term
-function generateTermCode(regionKey: string, term: string): string {
-  const regionCode = regionKey.substring(0, 3).toUpperCase();
-  const termCode = term.substring(0, 3).toUpperCase();
-  const hash = Math.abs(
-    term.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
-  ) % 1000;
-  return `${regionCode}-${termCode}-${hash.toString().padStart(3, '0')}`;
 }
 
 export function generateMetadata({
@@ -66,7 +56,6 @@ export default function CulturalWordDetailPage({
     notFound();
   }
 
-  const termCode = generateTermCode(entry.regionKey, entry.term);
   const heroAlt = `Illustration for the term ${entry!.term}`;
   const heroSrc = `/placeholder.svg?height=360&width=640&query=${encodeURIComponent(
     `illustration photo ${entry!.term} cultural term`
@@ -85,7 +74,7 @@ export default function CulturalWordDetailPage({
                 variant="outline" 
                 className="text-xs font-mono bg-muted/50 text-muted-foreground border-border/50"
               >
-                {termCode}
+                {entry!.termCode}
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -119,7 +108,7 @@ export default function CulturalWordDetailPage({
           />
         </section>
 
-        {/* Profile-like layout: three key cards similar to profile breakdown */}
+        {/* Profile-like layout */}
         <section aria-label="Term summary" className="grid grid-cols-1 gap-4">
           <Card className="bg-card/60 border-border">
             <CardHeader>
@@ -141,27 +130,38 @@ export default function CulturalWordDetailPage({
             <CardHeader>
               <CardTitle className="text-foreground">Variants</CardTitle>
             </CardHeader>
-            <CardContent>
-              {entry!.variants && entry!.variants.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {entry!.variants.map((v, i) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1 rounded-full text-xs border border-border bg-background/60"
-                    >
-                      {v}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">—</p>
-              )}
+             <CardContent>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {entry!.variants}
+              </p>
             </CardContent>
           </Card>
 
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Reference</CardTitle>
+              <CardTitle className="text-foreground">Etymology</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {entry!.etimologi || "—"}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/60 border-border">
+            <CardHeader>
+              <CardTitle className="text-foreground">Cultural Meaning</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {entry!.culturalMeaning || "—"}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/60 border-border">
+            <CardHeader>
+              <CardTitle className="text-foreground">Common Meaning</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">

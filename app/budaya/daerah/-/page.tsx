@@ -100,6 +100,7 @@ export default function AllCulturalWordsPage() {
             )
           })}
         </section>
+        
       </main>
     </div>
   )
