@@ -260,7 +260,15 @@ export default function RegionDetailPage() {
         >
           {(() => {
             const p = SUBCULTURE_PROFILES[regionId]
-            if (!p?.youtubeId) return null
+            if (!p?.video?.youtubeId) {
+              return (
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted-foreground">
+                    Video profile for this subculture is not yet available.
+                  </p>
+                </div>
+              )
+            }
             return (
               <div className="space-y-4">
                 <div>
@@ -274,7 +282,7 @@ export default function RegionDetailPage() {
                 <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border bg-background/50">
                   <iframe
                     className="w-full h-full"
-                    src={`https://www.youtube.com/embed/${p.youtubeId}?rel=0&modestbranding=1`}
+                    src={`https://www.youtube.com/embed/${p.video.youtubeId}?rel=0&modestbranding=1`}
                     title={`${p.displayName} Cultural Profile Video`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -305,7 +313,13 @@ export default function RegionDetailPage() {
         >
           {(() => {
             const p = SUBCULTURE_PROFILES[regionId]
-            if (!p?.sketchfabId) return null
+            if (!p?.model3d?.sketchfabId) {
+              return (
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted-foreground">3D model for this subculture is not yet available.</p>
+                </div>
+              )
+            }
             return (
               <div className="space-y-4">
                 <div>
@@ -321,7 +335,7 @@ export default function RegionDetailPage() {
                   <iframe
                     className="w-full"
                     style={{ height: "500px" }}
-                    src={`https://sketchfab.com/models/${p.sketchfabId}/embed?autospin=1&autostart=1`}
+                    src={`https://sketchfab.com/models/${p.model3d.sketchfabId}/embed?autospin=1&autostart=1`}
                     title={`${p.displayName} 3D Model`}
                     allow="autoplay; fullscreen; xr-spatial-tracking"
                     allowFullScreen
