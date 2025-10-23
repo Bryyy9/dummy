@@ -2,20 +2,22 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, Search, MapPin } from "lucide-react"
+import { ArrowLeft, MapPin } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { SearchInput } from "@/components/search-input"
 import { LEXICON, type LexiconEntry } from "@/data/lexicon"
 import { SUBCULTURE_PROFILES } from "@/data/subculture-profiles"
 import { getRegionHeroImage } from "@/data/region-images"
+import { searchLexiconEntries, type SearchResult } from "@/lib/search-utils"
 
 export default function RegionDetailPage() {
   const params = useParams()
   const regionId = params.id as string
 
   const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [filteredItems, setFilteredItems] = useState<any[]>([])
 
@@ -43,6 +45,15 @@ export default function RegionDetailPage() {
 
   const goPrev = () => setVideoIndex((i) => (i - 1 + videos.length) % videos.length)
   const goNext = () => setVideoIndex((i) => (i + 1) % videos.length)
+
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const results = searchLexiconEntries(lexicon, searchQuery)
+      setSearchResults(results)
+    } else {
+      setSearchResults([])
+    }
+  }, [searchQuery, lexicon])
 
   useEffect(() => {
     const v = videoRef.current
@@ -422,38 +433,33 @@ export default function RegionDetailPage() {
           })()}
         </section>
 
-        {/* Search and Filter */}
         <section id="search-and-explore" className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
           <div className="flex flex-col gap-4" role="search">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                aria-label={`Search terms in ${regionId}`}
-                placeholder={`Search terms or keywords in ${regionId}...`}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-background/50 border-border focus:ring-primary/20"
-              />
+            <div>
+              <h2 className="text-xl font-bold text-foreground mb-2">Search Lexicon</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Search across terms, definitions, transliterations, and more to find exactly what you're looking for.
+              </p>
             </div>
+            <SearchInput
+              aria-label={`Search terms in ${regionId}`}
+              placeholder={`Search terms, definitions, transliterations...`}
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onClear={() => setSearchQuery("")}
+              resultCount={searchResults.length}
+              showResultCount={true}
+            />
           </div>
-          {searchQuery && (
-            <div className="mt-4 text-sm text-muted-foreground">Displaying results for "{searchQuery}"</div>
-          )}
         </section>
 
-        {/* Lexicon list */}
         <section aria-label="Daftar istilah">
           {(() => {
-            const filtered = lexicon.filter(
-              (e) =>
-                !searchQuery ||
-                e.term.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                e.definition.toLowerCase().includes(searchQuery.toLowerCase()),
-            )
+            const displayItems = searchQuery ? searchResults.map((r) => r.entry) : lexicon
 
             return (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filtered.map((entry, i) => {
+                {displayItems.map((entry, i) => {
                   const isOpen = expandedIdx === i
                   const contentId = `lexicon-details-${i}`
 
@@ -494,7 +500,6 @@ export default function RegionDetailPage() {
                         </svg>
                       </button>
 
-                      {/* Smooth expandable content */}
                       <motion.div
                         id={contentId}
                         initial={false}
@@ -550,7 +555,6 @@ export default function RegionDetailPage() {
                         </div>
                       </motion.div>
 
-                      {/* Clearly visible detail navigation button inside the card */}
                       <div className="px-4 pb-3">
                         <Link
                           href={`/budaya/daerah/-/${termSlug}`}
@@ -565,11 +569,17 @@ export default function RegionDetailPage() {
                   )
                 })}
 
-                {filtered.length === 0 && (
+                {displayItems.length === 0 && (
                   <div className="text-center py-12 col-span-full">
                     <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Belum ada entri</h3>
-                    <p className="text-muted-foreground">Glosarium untuk subkultur ini belum tersedia.</p>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      {searchQuery ? "No results found" : "Belum ada entri"}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {searchQuery
+                        ? `No lexicon entries match "${searchQuery}". Try different keywords.`
+                        : "Glosarium untuk subkultur ini belum tersedia."}
+                    </p>
                   </div>
                 )}
               </div>
