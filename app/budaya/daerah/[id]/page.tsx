@@ -46,6 +46,8 @@ export default function RegionDetailPage() {
   const goPrev = () => setVideoIndex((i) => (i - 1 + videos.length) % videos.length)
   const goNext = () => setVideoIndex((i) => (i + 1) % videos.length)
 
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
   useEffect(() => {
     if (searchQuery.trim()) {
       const results = searchLexiconEntries(lexicon, searchQuery)
@@ -98,6 +100,15 @@ export default function RegionDetailPage() {
       </div>
     )
   }
+
+  const galleryImages = [
+    heroImage || "/subculture-gallery-1.jpg",
+    "/subculture-gallery-2.jpg",
+    "/subculture-gallery-3.jpg",
+  ]
+
+  const goToPrev = () => setCurrentImageIndex((i) => (i - 1 + galleryImages.length) % galleryImages.length)
+  const goToNext = () => setCurrentImageIndex((i) => (i + 1) % galleryImages.length)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
@@ -253,67 +264,103 @@ export default function RegionDetailPage() {
                   Detailed profile for this subculture is not yet available. Use the glossary below.
                 </p>
               )
-            const { displayName, demographics } = profile
+
+            const { displayName, history, highlights } = profile
+
+            // Create gallery images - using hero image and placeholder variations
+
             return (
-              <div>
-                <h2 className="text-xl font-bold text-foreground mb-4">{displayName} — Brief Profile</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="rounded-lg border border-border bg-card/60 p-4">
-                    <div className="text-xs text-muted-foreground">Population (fictional)</div>
-                    <div className="font-semibold text-foreground">{demographics.population}</div>
+              <div className="space-y-6">
+                {/* Image Gallery with Recent Articles Sidebar */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Image Carousel */}
+                  <div className="lg:col-span-2">
+                    <div className="relative rounded-lg overflow-hidden border border-border bg-background/50">
+                      <div className="relative aspect-video">
+                        <img
+                          src={galleryImages[currentImageIndex] || "/placeholder.svg"}
+                          alt={`${displayName} gallery image ${currentImageIndex + 1}`}
+                          className="w-full h-full object-cover"
+                          crossOrigin="anonymous"
+                        />
+                        {/* Navigation Arrows */}
+                        <button
+                          onClick={goToPrev}
+                          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                          aria-label="Previous image"
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={goToNext}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                          aria-label="Next image"
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* Pagination Dots */}
+                      <div className="flex items-center justify-center gap-2 py-4 bg-background/50">
+                        {galleryImages.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setCurrentImageIndex(idx)}
+                            className={`w-2 h-2 rounded-full transition-colors ${
+                              idx === currentImageIndex ? "bg-primary" : "bg-muted-foreground/40"
+                            }`}
+                            aria-label={`Go to image ${idx + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <div className="rounded-lg border border-border bg-card/60 p-4">
-                    <div className="text-xs text-muted-foreground">Area Size</div>
-                    <div className="font-semibold text-foreground">{demographics.area}</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-card/60 p-4">
-                    <div className="text-xs text-muted-foreground">Density</div>
-                    <div className="font-semibold text-foreground">{demographics.density}</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-card/60 p-4">
-                    <div className="text-xs text-muted-foreground">Language</div>
-                    <div className="font-semibold text-foreground">{demographics.languages.join(", ")}</div>
-                  </div>
-                </div>
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <article className="rounded-lg border border-border bg-card/60 p-4">
-                    <h3 className="font-semibold text-foreground mb-1">Brief History</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {SUBCULTURE_PROFILES[regionId]?.history || "History summary not available."}
-                    </p>
-                  </article>
-                  <article className="rounded-lg border border-border bg-card/60 p-4">
-                    <h3 className="font-semibold text-foreground mb-1">Geography & Demographics</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {SUBCULTURE_PROFILES[regionId]
-                        ? `Area size ${SUBCULTURE_PROFILES[regionId]!.demographics.area}, density ${
-                            SUBCULTURE_PROFILES[regionId]!.demographics.density
-                          }, languages: ${SUBCULTURE_PROFILES[regionId]!.demographics.languages.join(", ")}.`
-                        : "Geographic & demographic data not available."}
-                    </p>
-                  </article>
-                  <article className="rounded-lg border border-border bg-card/60 p-4 md:col-span-2">
-                    <h3 className="font-semibold text-foreground mb-1">Cultural Overview</h3>
-                    <ul className="list-disc pl-5 text-sm text-muted-foreground grid md:grid-cols-3 gap-x-4">
-                      {(SUBCULTURE_PROFILES[regionId]?.highlights || []).map((h, i) => (
-                        <li key={i}>{h}</li>
+
+                  {/* Recent Articles Sidebar */}
+                  <aside className="rounded-lg border border-border bg-background/50 p-4">
+                    <h3 className="font-bold text-foreground mb-4">Recent Articles</h3>
+                    <ul className="space-y-3">
+                      {highlights.slice(0, 3).map((article, idx) => (
+                        <li
+                          key={idx}
+                          className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                        >
+                          {article}
+                        </li>
                       ))}
                     </ul>
-                  </article>
-                  <aside className="rounded-lg border border-border bg-card/60 p-4 md:col-span-2 flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-foreground">Further Reading</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Fictional sources for in-depth exploration of the subculture.
-                      </p>
-                    </div>
-                    <a
-                      href="#video-profile"
-                      className="px-3 py-2 rounded-md border border-border hover:bg-accent/10 text-sm"
-                    >
-                      Explore
-                    </a>
                   </aside>
+                </div>
+
+                {/* Descriptive Text Section */}
+                <div className="rounded-lg border border-border bg-background/50 p-6 space-y-4">
+                  <h2 className="text-2xl font-bold text-foreground">{displayName}</h2>
+                  <div className="space-y-3 text-muted-foreground">
+                    <p className="text-base leading-relaxed">{history}</p>
+                    <p className="text-base leading-relaxed">
+                      This subculture is characterized by its unique traditions, artistic expressions, and cultural
+                      practices that have been preserved and evolved over generations. The community maintains strong
+                      connections to its heritage while adapting to contemporary influences, creating a dynamic cultural
+                      landscape.
+                    </p>
+                  </div>
+
+                  {/* Key Highlights */}
+                  <div className="pt-4">
+                    <h3 className="font-semibold text-foreground mb-3">Key Cultural Elements</h3>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {highlights.map((highlight, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="text-primary mt-1">•</span>
+                          <span className="text-sm text-muted-foreground">{highlight}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             )
