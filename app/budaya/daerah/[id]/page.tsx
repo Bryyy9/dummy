@@ -28,6 +28,10 @@ export default function RegionDetailPage() {
 
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
 
+  const [isNavSticky, setIsNavSticky] = useState(false)
+  const [activeSection, setActiveSection] = useState<string>("region-profile")
+  const navRef = useRef<HTMLElement | null>(null)
+
   const lexicon: LexiconEntry[] = LEXICON[regionId] || []
 
   const heroImage = getRegionHeroImage(regionId)
@@ -49,6 +53,27 @@ export default function RegionDetailPage() {
       playPromise?.catch(() => setIsPlaying(false))
     }
   }, [videoIndex, isPlaying])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const headerHeight = 64
+      setIsNavSticky(window.scrollY > headerHeight)
+
+      const sections = ["region-profile", "video-profile", "viewer-3d", "search-and-explore"]
+      for (const sectionId of sections) {
+        const element = document.getElementById(sectionId)
+        if (element) {
+          const rect = element.getBoundingClientRect()
+          if (rect.top <= 200) {
+            setActiveSection(sectionId)
+          }
+        }
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   if (!lexicon.length) {
     return (
@@ -98,29 +123,60 @@ export default function RegionDetailPage() {
 
       {/* In-page subnav */}
       <nav
+        ref={navRef}
         aria-label="Halaman sub-bab"
-        className="bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-[64px] z-40 border-b border-border"
+        className={`bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-[64px] z-40 border-b border-border transition-shadow duration-200 ${
+          isNavSticky ? "shadow-md" : ""
+        }`}
       >
         <div className="container mx-auto px-4">
           <ul className="flex gap-2 overflow-x-auto py-2 no-scrollbar">
             <li>
-              <a href="#region-profile" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
+              <a
+                href="#region-profile"
+                className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                  activeSection === "region-profile"
+                    ? "bg-primary/20 text-primary font-medium"
+                    : "hover:bg-accent/20 text-foreground"
+                }`}
+              >
                 Background
               </a>
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <a href="#video-profile" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
+              <a
+                href="#video-profile"
+                className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                  activeSection === "video-profile"
+                    ? "bg-primary/20 text-primary font-medium"
+                    : "hover:bg-accent/20 text-foreground"
+                }`}
+              >
                 Profile Video
               </a>
             </li>
             <li>
-              <a href="#viewer-3d" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
+              <a
+                href="#viewer-3d"
+                className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                  activeSection === "viewer-3d"
+                    ? "bg-primary/20 text-primary font-medium"
+                    : "hover:bg-accent/20 text-foreground"
+                }`}
+              >
                 3D Object
               </a>
             </li>
             <li>
-              <a href="#search-and-explore" className="px-3 py-2 rounded-md text-sm hover:bg-accent/20 text-foreground">
+              <a
+                href="#search-and-explore"
+                className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                  activeSection === "search-and-explore"
+                    ? "bg-primary/20 text-primary font-medium"
+                    : "hover:bg-accent/20 text-foreground"
+                }`}
+              >
                 Search Terms
               </a>
             </li>
