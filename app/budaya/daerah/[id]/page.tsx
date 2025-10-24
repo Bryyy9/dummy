@@ -52,12 +52,13 @@ export default function RegionDetailPage() {
 
   useEffect(() => {
     if (searchQuery.trim()) {
-      const results = searchLexiconEntries(lexicon, searchQuery)
+      const currentLexicon = LEXICON[regionId] || []
+      const results = searchLexiconEntries(currentLexicon, searchQuery)
       setSearchResults(results)
     } else {
       setSearchResults([])
     }
-  }, [searchQuery, lexicon])
+  }, [searchQuery, regionId])
 
   useEffect(() => {
     const v = videoRef.current
