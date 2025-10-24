@@ -34,6 +34,8 @@ export default function RegionDetailPage() {
   const [activeSection, setActiveSection] = useState<string>("region-profile")
   const navRef = useRef<HTMLElement | null>(null)
 
+  const [current3DModelIndex, setCurrent3DModelIndex] = useState(0)
+
   const lexicon: LexiconEntry[] = LEXICON[regionId] || []
 
   const heroImage = getRegionHeroImage(regionId)
@@ -109,6 +111,33 @@ export default function RegionDetailPage() {
 
   const goToPrev = () => setCurrentImageIndex((i) => (i - 1 + galleryImages.length) % galleryImages.length)
   const goToNext = () => setCurrentImageIndex((i) => (i + 1) % galleryImages.length)
+
+  const create3DModels = () => {
+    if (!profile?.model3d) return []
+
+    const primaryModel = {
+      id: profile.model3d.sketchfabId,
+      title: profile.model3d.title,
+      description: profile.model3d.description,
+      artifactType: profile.model3d.artifactType,
+      tags: profile.model3d.tags,
+    }
+
+    // Create related artifact models based on highlights
+    const relatedModels = profile.highlights.slice(0, 2).map((highlight, idx) => ({
+      id: profile.model3d.sketchfabId, // In production, these would be different IDs
+      title: `${highlight} - 3D Model`,
+      description: `Interactive 3D representation of ${highlight} from ${profile.displayName}`,
+      artifactType: highlight,
+      tags: [highlight, "Artifact", "Interactive"],
+    }))
+
+    return [primaryModel, ...relatedModels]
+  }
+
+  const models3D = create3DModels()
+  const go3DPrev = () => setCurrent3DModelIndex((i) => (i - 1 + models3D.length) % models3D.length)
+  const go3DNext = () => setCurrent3DModelIndex((i) => (i + 1) % models3D.length)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
@@ -427,13 +456,16 @@ export default function RegionDetailPage() {
         >
           {(() => {
             const p = SUBCULTURE_PROFILES[regionId]
-            if (!p?.model3d?.sketchfabId) {
+            if (!p?.model3d?.sketchfabId || models3D.length === 0) {
               return (
                 <div className="text-center py-8">
-                  <p className="text-sm text-muted-foreground">3D model for this subculture is not yet available.</p>
+                  <p className="text-sm text-muted-foreground">3D models for this subculture are not yet available.</p>
                 </div>
               )
             }
+
+            const currentModel = models3D[current3DModelIndex]
+
             return (
               <div className="space-y-4">
                 <div>
@@ -445,29 +477,77 @@ export default function RegionDetailPage() {
                   </p>
                 </div>
 
+                {/* 3D Model Viewer */}
                 <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
                   <iframe
+                    key={`model-${current3DModelIndex}`}
                     className="w-full"
                     style={{ height: "500px" }}
-                    src={`https://sketchfab.com/models/${p.model3d.sketchfabId}/embed?autospin=1&autostart=1`}
-                    title={`${p.displayName} 3D Model`}
+                    src={`https://sketchfab.com/models/${currentModel.id}/embed?autospin=1&autostart=1`}
+                    title={`${currentModel.title}`}
                     allow="autoplay; fullscreen; xr-spatial-tracking"
                     allowFullScreen
                   />
+
+                  {/* Navigation Arrows */}
+                  {models3D.length > 1 && (
+                    <>
+                      <button
+                        onClick={go3DPrev}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                        aria-label="Previous 3D model"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={go3DNext}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                        aria-label="Next 3D model"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
                 </div>
 
-                <div className="space-y-3">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                      Interactive 3D
-                    </span>
-                    <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                      Artifact
-                    </span>
-                    <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                      {p.displayName}
-                    </span>
+                {/* Pagination Dots */}
+                {models3D.length > 1 && (
+                  <div className="flex items-center justify-center gap-2">
+                    {models3D.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrent3DModelIndex(idx)}
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                          idx === current3DModelIndex ? "bg-primary" : "bg-muted-foreground/40"
+                        }`}
+                        aria-label={`Go to 3D model ${idx + 1}`}
+                      />
+                    ))}
                   </div>
+                )}
+
+                {/* Model Information */}
+                <div className="space-y-3">
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">{currentModel.title}</h3>
+                    <p className="text-sm text-muted-foreground">{currentModel.description}</p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {currentModel.tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
                   <div className="rounded-lg border border-border bg-background/50 p-3">
                     <p className="text-xs text-muted-foreground">
                       <strong>Interaction Tips:</strong> Use your mouse or touch to rotate the model. Scroll to zoom in
