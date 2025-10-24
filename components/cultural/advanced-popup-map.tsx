@@ -17,10 +17,10 @@ interface Region {
 }
 
 const REGIONS: Region[] = [
-  // 1. AREKAN - Hijau terang (#8CF000)
+  // banten
   {
-    id: 'arekan',
-    name: 'Arekan',
+    id: 'banten',
+    name: 'Banten',
     color: '#8CF000',
     description: 'Urban coastal subculture with egalitarian traditions',
     population: '~5.1M',
@@ -39,10 +39,10 @@ const REGIONS: Region[] = [
     pathData: "M291.5 48.5C291.5 58.5 299.5 57 291.5 67C290.992 67.6351 290.436 68.2198 289.841 68.7575V78C289.894 79 289.4 81.5 287 83.5V90.5L283.5 94.5L279 96L281.5 103.5V108.5C281.167 111.167 279 115.6 273 112C272.333 110.667 270.4 108.1 268 108.5L265 112L262.5 111L243 111.5L232 114.5L223 108.5H213.5L205.5 105.5L200 111.5V118L203.5 124.5L198.5 132V141.5L202 150.5C200.833 156 200.2 168.6 207 175L215 178C214.833 179.667 213.8 183.2 211 184C208 184.167 202 186.4 202 194C200.167 196.833 196.2 202.7 195 203.5C194.333 206.167 193.1 212.3 193.5 215.5C223.1 207.5 220.5 219.667 215.5 230C205.9 246.8 197 242 193 246.5C180.2 273.3 198.333 281.333 209 282C251.4 294.8 281.667 293.667 291.5 291.5C330.3 295.9 362.333 302 373.5 304.5C400.7 326.1 424.5 337.5 433 340.5C499 360.1 534.333 353.167 539 350C537.5 324.5 556.5 331 561 331C567 333 564.5 337.5 567.5 338C571 334.5 568 332 571 330C573.446 330.367 577.171 329.991 579.5 331L583.5 333C584.535 333.69 586.686 330.503 588 332V329L583.5 326L579.5 321.5L581 315.5V309.5L578 302L576 294V289.5L571 286V284L567.5 279.5L566 274.5L562.204 276L558 277.5L550 276V266C556.8 258 552.833 252.667 550 251C552 243.8 558.5 243 561.5 243.5C564.7 245.1 569.167 244.833 571 244.5L578 239.5C588.4 236.7 587 230 585 227L588 220.5L585 215.5L582 207L585 201C588.6 199.8 591.5 197.167 592.5 196L594.5 188V179.726L582 189C547.6 185.4 541.666 151.167 543 134.5C524.6 125.3 519.666 106.667 519.5 98.5C514.166 93.1667 501.6 85.7 494 98.5C486.4 111.3 477.167 110.167 473.5 108C451.5 105.6 437.333 90 433 82.5C413 82.5 415 85.5 412.5 92C398 82.5 385.5 81.6667 379.5 82.5C366.7 75.3 354.833 56.8333 350.5 48.5C335.7 41.7 322.667 45.6667 318 48.5C292.5 30 291.5 38.5 291.5 48.5Z"
   },
 
-  // 3. MATARAMAN - Kuning (#FAFA10)
+  // jateng
   {
-    id: 'mataraman',
-    name: 'Mataraman',
+    id: 'jateng',
+    name: 'Jawa Tengah',
     color: '#FAFA10',
     description: 'Refined Javanese etiquette and gamelan traditions',
     population: '~3.6M',
@@ -51,10 +51,10 @@ const REGIONS: Region[] = [
   },
 
 
-  // 5. TENGGER - Hijau (#32D723) dengan opacity 0.5
+  // arekan
   {
-    id: 'tengger',
-    name: 'Tengger',
+    id: 'arekan',
+    name: 'arekan',
     color: '#32D723',
     description: 'Mountain community with sacred Bromo landscape',
     population: '~110K',
@@ -64,8 +64,8 @@ const REGIONS: Region[] = [
 
   // 6. PANDALUNGAN - Ungu (#5F23D7) dengan opacity 0.5
   {
-    id: 'pandalungan',
-    name: 'Pandalungan',
+    id: 'osing',
+    name: 'Osing',
     color: '#5F23D7',
     description: 'Javanese-Madurese cultural blend',
     population: '~2.2M',
@@ -73,10 +73,10 @@ const REGIONS: Region[] = [
     pathData: "M1297 333C1287.4 321 1269.67 319 1262 319.5C1259.17 321.167 1253.1 324.8 1251.5 326C1249.5 327.5 1241.1 326 1237.8 326C1234.5 326 1228.5 322 1224.5 327.5C1220.5 333 1224 338 1220.5 340.5C1217 343 1211.5 346 1214 351C1216 355 1223.83 358.667 1227.5 360C1230.67 358.333 1237.8 355 1241 355C1245 355 1251 355 1256.5 353C1262 351 1275.5 350 1280.5 355C1284.5 359 1289.5 361.667 1291.5 362.5C1295.33 362.667 1303.5 362.4 1305.5 360C1307.5 357.6 1317.67 362 1322.5 364.5L1319.5 370.5L1322.5 374L1319.5 380.5V385.5L1317 390.5L1319.5 398L1316 402.5L1317 411L1312.5 418.5L1315 426.5L1310.5 432.409C1325.17 435.225 1337.63 443.958 1344.5 451C1362.5 445.8 1368.33 453.167 1369 457.5C1383.8 466.3 1387.83 467.5 1388 467L1382.5 445.5L1388 439L1401.5 442.182H1415L1412 434L1401.5 426.5L1406.05 414L1401.5 402.5L1419.5 392.5C1428.17 395.833 1444.9 399.3 1442.5 386.5C1440.1 373.7 1447.17 365.167 1451 362.5C1455.83 360.167 1467.9 356.9 1477.5 362.5C1487.1 368.1 1507.91 366.167 1515.5 364.5C1517.25 360.407 1517.5 359.5 1517.5 355.5C1515.9 343.5 1494.17 340.5 1483.5 340.5C1469.9 340.5 1456 324.5 1449 319L1445.5 322L1427.5 333C1416.37 329.769 1412.72 331.694 1409.32 335.442C1408.28 336.595 1407.26 337.92 1406.05 339.32C1405.84 339.562 1405.63 339.805 1405.41 340.051C1392.28 334.773 1380.46 334.498 1371.62 335.968C1365.43 336.996 1360.7 338.879 1358 340.5C1322.8 346.5 1302.67 338 1297 333Z"
   },
 
-  // 7. PANARAGAN - Biru muda (#4514F6)
+  // samin
   {
-    id: 'panaragan',
-    name: 'Panaragan',
+    id: 'samin',
+    name: 'Samin',
     color: '#4514F6',
     description: 'Folk arts and woodcraft traditions',
     population: '~0.9M',
@@ -84,10 +84,10 @@ const REGIONS: Region[] = [
     pathData: "M1128.5 252.5L1132.5 240H1121L1115.58 237H1105.5L1101.5 242L1099.5 244.5H1093L1089.02 252.5L1085.5 260V268V275.5L1077.04 282.5L1068 290.5L1080 294L1093 295.5L1099.5 290.5H1118.5L1108 279.5L1115.58 270.5V258.5L1128.5 252.5Z"
   },
 
-  // 8. SAMIN - Hijau tosca (#23D7C2)
+  // tengger
   {
-    id: 'samin',
-    name: 'Samin',
+    id: 'tengger',
+    name: 'Tengger',
     color: '#23D7C2',
     description: 'Community known for honesty ethics',
     population: '~35K',
@@ -97,8 +97,8 @@ const REGIONS: Region[] = [
 
   // 9. MADURA-BASE - Abu-abu kehijauan (#BABC65)
   {
-    id: 'madura-base',
-    name: 'Madura-Base',
+    id: 'mataraman',
+    name: 'Mataraman',
     color: '#BABC65',
     description: 'Base Madurese cultural practices',
     population: '~1.1M',
@@ -108,8 +108,8 @@ const REGIONS: Region[] = [
 
   // 10. MADURA-BAWEAN - Pulau kecil atas tengah (#BB65BC)
   {
-    id: 'madura-bawean',
-    name: 'Madura-Bawean',
+    id: 'madura-base',
+    name: 'Madura-Base',
     color: '#BB65BC',
     description: 'Island subculture with maritime traditions',
     population: '~70K',
@@ -131,7 +131,7 @@ const REGIONS: Region[] = [
   // 12. MERAH (Red area) - Area merah (#FF5151)
   {
     id: 'red-area',
-    name: 'Red Cultural Zone',
+    name: 'DIY',
     color: '#FF5151',
     description: 'Special cultural preservation area',
     population: 'Variable',
@@ -139,10 +139,10 @@ const REGIONS: Region[] = [
     pathData: "M847.5 395C869.9 398.2 891.5 410 899.5 415.5C908.408 415.755 915.865 416.69 922 417.967V413L920.5 409L917.5 410.5L915.5 409L914 407V402.5L910.5 395V385L912.5 377V369.5L915.5 361C915.1 354.2 911 353.833 909 354.5L905 351L903.5 354.5L898.5 352.5L895.5 350L891 352.5L878 348L873.5 351L867.5 346L862.5 325.5C864.5 313.5 861.333 309.833 859.5 309.5C852.7 311.9 846.667 319.167 844.5 322.5C836.9 325.3 831.667 332.667 830 336L827.5 325.5L822 327.5L812 326.5C806.8 326.1 806.167 329.667 806.5 331.5L809.5 334L807.5 342L797 354.5L795.5 359.5L791 367.163C795.647 370.215 798.124 372.99 799 375C805 384.6 833.833 392.333 847.5 395Z"
   },
 
-  // 13. PINK (Pink area) - Area pink (#F61482)
+  // panaragan
   {
-    id: 'pink-area',
-    name: 'Pink Cultural Zone',
+    id: 'panaragan',
+    name: 'Panaragan',
     color: '#F61482',
     description: 'Emerging cultural development area',
     population: 'Variable',
