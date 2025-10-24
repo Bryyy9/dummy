@@ -5,7 +5,7 @@ export type LexiconEntry = {
   etimologi?: string
   culturalMeaning?: string
   variants?: string[]
-  commonMeaning?: string
+  reference?: string
   note?: string
   availability?: string
   imageId?: string
@@ -30,7 +30,7 @@ export const LEXICON: Record<string, LexiconEntry[]> = {
       etimologi: "Derived from 'arek' (child/young person) in the Arek Javanese dialect.",
       culturalMeaning: "Represents coastal urban egalitarianism and the 'arek Suroboyo' solidarity.",
       variants: ["arek", "arek-an"],
-      commonMeaning: "Young person/child with the Arek speech style.",
+      reference: "Young person/child with the Arek speech style.",
       note: "Frequently appears in everyday expressions and regional songs.",
       availability: "Extensive popular documentation; academic research is available.",
       transliterasi: "Arèk",
@@ -55,7 +55,7 @@ export const LEXICON: Record<string, LexiconEntry[]> = {
       etimologi: "Possibly from 'kerapan' (chase/race) + 'sapi' (bull).",
       culturalMeaning: "A symbol of social, economic, and communal prestige.",
       variants: ["kerapan sapi"],
-      commonMeaning: "Traditional bull racing.",
+      reference: "Traditional bull racing.",
       availability: "Plentiful documentaries and media coverage.",
       transliterasi: "Karapan Sapi",
       audioFile: "/audio/madura/karapan-sapi.mp3",
@@ -164,13 +164,17 @@ export const LEXICON: Record<string, LexiconEntry[]> = {
         "Pujan is a worship ritual of the Tengger community. The name is rooted in the Sanskrit and Old Javanese word 'puja' (meaning 'respect, worship, and prayer'). This ritual is part of the village calendar and is held in a specific month every year. In the past, Pujan took the form of a grand feast at the village priest's house. Today, Pujan is held as a brief prayer and symbolic banquet attended by priests and village officials, with food contributed by the community. The series of Pujan concludes with the distribution of dishes to village leaders and small offerings at sacred sites as a manifestation of the community's spiritual involvement.",
       etimologi:
         "puja (pujO) : (S) kn. pangaji-aji, panêmbah, donga di-[x]: 1 dipêpundhi, dikurmati bangêt (tmr. marang dewa, ent. tmr. kang kinasihan) 2 br. dianakake sarana cipta (sêmadi) dipujakake ak: didongakake, dipujèkake pujan br: dadine (anane) sarana dipuja pêpujan br: 1 sêsêmbahan, kang diaji-aji (dewa) 2 kang kinasih bangêt. Sumber: Bausastra Jawa, Poerwadarminta, 1939, #75.",
-      culturalMeaning: `https://www.sastra.org/leksikon`,
       variants: [
-        "In classical and krama Javanese (honorifics), puja denotes reverence, prayer, or worship, with related morphological forms such as pujan (the means or outcome of worship) and pêpujan (that which is worshipped or glorified). Among Tengger people, pujan has evolved into a distinctive collective ritual tied to the cycle of time and the village's social structure, a practice unique to this community and not found elsewhere in Java. While related to selametan or kenduren, pujan differs in its calendar, the role of the village shaman, and the more structured nature of its offerings. In Hindu and Buddhist contexts, puja continues to signify prayer, though without the socio-communal dimension characteristic of Tengger. Over time, pujan has shifted from a large, open-air feast to a more limited, symbolic form of prayer, while still requiring collective contributions. These transformations reflect adaptation to modernity, preserving both its core meaning of divine reverence and the maintenance of sustainable village harmony.",
+        "In classical and krama Javanese (honorifics), puja denotes reverence, prayer, or worship, with related morphological forms such as pujan (the means or outcome of worship) and pêpujan (that which is worshipped or glorified). Among Tengger people, pujan has evolved into a distinctive collective ritual tied to the cycle of time and the village’s social structure, a practice unique to this community and not found elsewhere in Java. While related to selametan or kenduren, pujan differs in its calendar, the role of the village shaman, and the more structured nature of its offerings. In Hindu and Buddhist contexts, puja continues to signify prayer, though without the socio-communal dimension characteristic of Tengger. Over time, pujan has shifted from a large, open-air feast to a more limited, symbolic form of prayer, while still requiring collective contributions. These transformations reflect adaptation to modernity, preserving both its core meaning of divine reverence and the maintenance of sustainable village harmony."
       ],
-      commonMeaning: "Young person/child with the Arek speech style.",
+      
+      reference: `“Pujan, From the Sanskrit and Old Javanese term for "worship," Tengger pujan are celebrated in the fourth, eighth, ninth, and twelfth months of the Tengger calendar year; several villages celebrate a fifth pujan in the seventh month, in addition. Once marked by feasting at the village priest's house, pujan today involve a brief invocation and meal at the priest's house. Supported by food contributions from all households in the village, attendance is restricted to village officials and the priest” (Hefner, 1989:112-113).
+
+      "The pujan illustrates this pattern clearly, and also shows to what degree ordinary villagers are drawn into the ceremony... The actual ritual service—a more or less standard invocation of the gods—lasts only about five minutes. The remainder of the evening is devoted to the meal... The pujan circuit is completed the following morning. Trays of cooked food (ater-ater) are sent from the priest’s house to village officials, and small earth offerings are set out by the roadside, cemetery, bridge, and other locations around the village." (Hefner, 1985: 114).
+
+      "Manusia harus mengadakan pujan pada bulan purnama, tilem, galungan, panawangan, kasada, dan kapitu. Jika pujan dilaksanakan, Durga-Kala tidak akan mengganggu manusia. Ketiga Dewa tersebut terus-menerus mengajari manusia cara memuja dan memberikan sesaji kepada Durga-Kala sebagai manifestasi Sang Hyang Widhi." (Sukmawan, 2018:123).`,
       note: "Frequently appears in everyday expressions and regional songs.",
-      availability: "Extensive popular documentation; academic research is available.",
+      availability: `https://www.sastra.org/leksikon`,
       transliterasi: "Pujan",
       audioFile: "/audio/tengger/pujan.mp3",
     },

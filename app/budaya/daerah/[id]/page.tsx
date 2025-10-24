@@ -666,7 +666,7 @@ export default function RegionDetailPage() {
                             </div>
                             <div className="rounded-lg border border-border bg-background/50 p-3">
                               <h4 className="text-xs font-medium text-muted-foreground mb-1">Common Meaning</h4>
-                              <p className="text-sm text-foreground/90">{entry.commonMeaning || "—"}</p>
+                              <p className="text-sm text-foreground/90">{entry.reference || "—"}</p>
                             </div>
                             <div className="rounded-lg border border-border bg-background/50 p-3">
                               <h4 className="text-xs font-medium text-muted-foreground mb-1">Keterangan</h4>

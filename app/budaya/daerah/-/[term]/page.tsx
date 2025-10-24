@@ -149,7 +149,7 @@ export default function CulturalWordDetailPage({
           aria-label="Additional information"
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
-          {entry!.transliterasi && (
+          {/* {entry!.transliterasi && (
             <Card className="bg-card/60 border-border">
               <CardHeader>
                 <CardTitle className="text-foreground">
@@ -170,7 +170,7 @@ export default function CulturalWordDetailPage({
                 </div>
               </CardContent>
             </Card>
-          )}
+          )} */}
 
           <Card className="bg-card/60 border-border">
             <CardHeader>
@@ -183,7 +183,7 @@ export default function CulturalWordDetailPage({
             </CardContent>
           </Card>
 
-          <Card className="bg-card/60 border-border">
+          {/* <Card className="bg-card/60 border-border">
             <CardHeader>
               <CardTitle className="text-foreground">Etymology</CardTitle>
             </CardHeader>
@@ -192,12 +192,12 @@ export default function CulturalWordDetailPage({
                 {entry!.etimologi || "—"}
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
 
-          <Card className="bg-card/60 border-border">
+          {/* <Card className="bg-card/60 border-border">
             <CardHeader>
               <CardTitle className="text-foreground">
-                Cultural Meaning
+                culturalMeaning
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -216,7 +216,7 @@ export default function CulturalWordDetailPage({
                 </p>
               )}
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card className="bg-card/60 border-border">
             <CardHeader>
@@ -224,12 +224,12 @@ export default function CulturalWordDetailPage({
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {entry!.commonMeaning || "—"}
+                {entry!.reference || "—"}
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-card/60 border-border">
+          {/* <Card className="bg-card/60 border-border">
             <CardHeader>
               <CardTitle className="text-foreground">Notes</CardTitle>
             </CardHeader>
@@ -238,7 +238,7 @@ export default function CulturalWordDetailPage({
                 {entry!.note || "—"}
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card className="bg-card/60 border-border">
             <CardHeader>
@@ -247,9 +247,20 @@ export default function CulturalWordDetailPage({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {entry!.availability || "—"}
-              </p>
+              {entry?.availability ? (
+                <a
+                  href={entry.availability}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 underline hover:text-blue-600"
+                >
+                  {entry.availability}
+                </a>
+              ) : (
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  —
+                </p>
+              )}
             </CardContent>
           </Card>
         </section>
