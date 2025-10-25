@@ -104,7 +104,7 @@ export default function RegionDetailPage() {
     )
   }
 
-  const galleryImages = [
+  const galleryImages = profile?.galleryImages?.map((img) => img.url) || [
     heroImage || "/subculture-gallery-1.jpg",
     "/subculture-gallery-2.jpg",
     "/subculture-gallery-3.jpg",
@@ -114,26 +114,17 @@ export default function RegionDetailPage() {
   const goToNext = () => setCurrentImageIndex((i) => (i + 1) % galleryImages.length)
 
   const create3DModels = () => {
-    if (!profile?.model3d) return []
+    if (!profile) return []
 
-    const primaryModel = {
-      id: profile.model3d.sketchfabId,
-      title: profile.model3d.title,
-      description: profile.model3d.description,
-      artifactType: profile.model3d.artifactType,
-      tags: profile.model3d.tags,
-    }
-
-    // Create related artifact models based on highlights
-    const relatedModels = profile.highlights.slice(0, 2).map((highlight, idx) => ({
-      id: profile.model3d.sketchfabId, // In production, these would be different IDs
-      title: `${highlight} - 3D Model`,
-      description: `Interactive 3D representation of ${highlight} from ${profile.displayName}`,
-      artifactType: highlight,
-      tags: [highlight, "Artifact", "Interactive"],
-    }))
-
-    return [primaryModel, ...relatedModels]
+    return profile.model3dArray && profile.model3dArray.length > 0
+      ? profile.model3dArray.map((model) => ({
+          id: model.sketchfabId,
+          title: model.title,
+          description: model.description,
+          artifactType: model.artifactType,
+          tags: model.tags,
+        }))
+      : []
   }
 
   const models3D = create3DModels()
@@ -457,7 +448,7 @@ export default function RegionDetailPage() {
         >
           {(() => {
             const p = SUBCULTURE_PROFILES[regionId]
-            if (!p?.model3d?.sketchfabId || models3D.length === 0) {
+            if (!p?.model3dArray || p.model3dArray.length === 0) {
               return (
                 <div className="text-center py-8">
                   <p className="text-sm text-muted-foreground">3D models for this subculture are not yet available.</p>
