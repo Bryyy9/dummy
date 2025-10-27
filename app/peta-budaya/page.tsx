@@ -24,7 +24,7 @@ import { LEXICON, type LexiconEntry } from "@/data/lexicon"
 
 export default function PetaBudayaPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [searchCategory, setSearchCategory] = useState<"subculture" | "lexicon">("subculture")
+  const [searchCategory, setSearchCategory] = useState<"subculture" | "lexicon" | "all">("all")
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
   const [showSearchResults, setShowSearchResults] = useState(false)
   const [searchResults, setSearchResults] = useState<Region[] | LexiconEntry[]>([])
@@ -50,7 +50,7 @@ export default function PetaBudayaPage() {
         if (results.length > 0) {
           setSelectedRegion((results[0] as Region).id)
         }
-      } else {
+      } else if (searchCategory === "lexicon") {
         const results: LexiconEntry[] = []
         const lowerQuery = query.toLowerCase()
 
@@ -63,6 +63,29 @@ export default function PetaBudayaPage() {
         }
         setSearchResults(results)
         setShowSearchResults(true)
+      } else if (searchCategory === "all") {
+        const regionResults = REGIONS.filter(
+          (region) =>
+            region.name.toLowerCase().includes(query.toLowerCase()) ||
+            region.highlights.some((element) => element.toLowerCase().includes(query.toLowerCase())),
+        )
+
+        const lexiconResults: LexiconEntry[] = []
+        const lowerQuery = query.toLowerCase()
+        for (const [regionKey, entries] of Object.entries(LEXICON)) {
+          for (const entry of entries) {
+            if (entry.term.toLowerCase().includes(lowerQuery) || entry.definition.toLowerCase().includes(lowerQuery)) {
+              lexiconResults.push(entry)
+            }
+          }
+        }
+
+        const combinedResults = [...regionResults, ...lexiconResults] as (Region | LexiconEntry)[]
+        setSearchResults(combinedResults)
+        setShowSearchResults(true)
+        if (regionResults.length > 0) {
+          setSelectedRegion((regionResults[0] as Region).id)
+        }
       }
     } else {
       setShowSearchResults(false)
@@ -70,7 +93,7 @@ export default function PetaBudayaPage() {
     }
   }
 
-  const handleCategoryChange = (category: "subculture" | "lexicon") => {
+  const handleCategoryChange = (category: "subculture" | "lexicon" | "all") => {
     setSearchCategory(category)
   }
 
@@ -236,6 +259,16 @@ export default function PetaBudayaPage() {
                 <div className="flex gap-2 mb-4 items-center justify-between">
                   <div className="flex gap-2">
                     <button
+                      onClick={() => handleCategoryChange("all")}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        searchCategory === "all"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      All
+                    </button>
+                    <button
                       onClick={() => handleCategoryChange("subculture")}
                       className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                         searchCategory === "subculture"
@@ -256,16 +289,70 @@ export default function PetaBudayaPage() {
                       Lexicon
                     </button>
                   </div>
-                  <button
-                    onClick={handleClearSearch}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    ✕ Close
-                  </button>
+                  <div className="flex items-center gap-4">
+                    <div className="text-sm font-medium text-foreground bg-primary/10 px-3 py-1 rounded-full">
+                      {searchResults.length} {searchResults.length === 1 ? "result" : "results"} found
+                    </div>
+                    <button
+                      onClick={handleClearSearch}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      ✕ Close
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
-                  {searchCategory === "subculture" ? (
+                  {searchCategory === "all" ? (
+                    searchResults.length > 0 ? (
+                      <>
+                        {(searchResults as (Region | LexiconEntry)[]).map((item, idx) => {
+                          const isRegion = "highlights" in item
+                          return (
+                            <motion.div
+                              key={`search-all-${isRegion ? "region" : "lexicon"}-${idx}`}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className={`rounded-lg border border-border bg-card/60 p-4 ${
+                                isRegion ? "cursor-pointer hover:bg-card/80 transition-colors" : ""
+                              }`}
+                              onClick={() => isRegion && handleRegionClick((item as Region).id)}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="font-semibold text-foreground">
+                                    {item.term || (item as Region).name}
+                                  </div>
+                                  <div className="text-sm text-muted-foreground mt-1">
+                                    {isRegion
+                                      ? (item as Region).highlights &&
+                                        Array.isArray((item as Region).highlights) &&
+                                        (item as Region).highlights.length > 0
+                                        ? (item as Region).highlights.join(" • ")
+                                        : "No highlights available"
+                                      : (item as LexiconEntry).definition}
+                                  </div>
+                                  {!isRegion && (item as LexiconEntry).transliterasi && (
+                                    <div className="text-xs text-muted-foreground mt-2">
+                                      Transliterasi:{" "}
+                                      <span className="italic">{(item as LexiconEntry).transliterasi}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <span className="ml-2 px-2 py-1 text-xs font-medium rounded bg-primary/10 text-primary whitespace-nowrap">
+                                  {isRegion ? "Region" : "Term"}
+                                </span>
+                              </div>
+                            </motion.div>
+                          )
+                        })}
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No results found matching "{searchQuery}"
+                      </p>
+                    )
+                  ) : searchCategory === "subculture" ? (
                     (searchResults as Region[]).length > 0 ? (
                       <>
                         {(searchResults as Region[]).map((region) => (
