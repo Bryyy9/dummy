@@ -28,6 +28,7 @@ export default function PetaBudayaPage() {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
   const [showSearchResults, setShowSearchResults] = useState(false)
   const [searchResults, setSearchResults] = useState<(Region | LexiconEntry)[]>([])
+  const [lexiconRegionMap, setLexiconRegionMap] = useState<Record<string, string>>({})
   const router = useRouter()
 
   useEffect(() => {
@@ -52,16 +53,22 @@ export default function PetaBudayaPage() {
         }
       } else if (searchCategory === "lexicon") {
         const results: LexiconEntry[] = []
+        const regionMap: Record<string, string> = {}
         const lowerQuery = query.toLowerCase()
 
         for (const [regionKey, entries] of Object.entries(LEXICON)) {
+          const region = REGIONS.find((r) => r.id === regionKey)
+          const regionName = region?.name || regionKey
+
           for (const entry of entries) {
             if (entry.term.toLowerCase().includes(lowerQuery) || entry.definition.toLowerCase().includes(lowerQuery)) {
               results.push(entry)
+              regionMap[entry.termCode] = regionName
             }
           }
         }
         setSearchResults(results)
+        setLexiconRegionMap(regionMap)
         setShowSearchResults(true)
       } else if (searchCategory === "all") {
         const regionResults = REGIONS.filter(
@@ -71,17 +78,23 @@ export default function PetaBudayaPage() {
         )
 
         const lexiconResults: LexiconEntry[] = []
+        const regionMap: Record<string, string> = {}
         const lowerQuery = query.toLowerCase()
         for (const [regionKey, entries] of Object.entries(LEXICON)) {
+          const region = REGIONS.find((r) => r.id === regionKey)
+          const regionName = region?.name || regionKey
+
           for (const entry of entries) {
             if (entry.term.toLowerCase().includes(lowerQuery) || entry.definition.toLowerCase().includes(lowerQuery)) {
               lexiconResults.push(entry)
+              regionMap[entry.termCode] = regionName
             }
           }
         }
 
         const combinedResults = [...regionResults, ...lexiconResults] as (Region | LexiconEntry)[]
         setSearchResults(combinedResults)
+        setLexiconRegionMap(regionMap)
         setShowSearchResults(true)
         if (regionResults.length > 0) {
           setSelectedRegion((regionResults[0] as Region).id)
@@ -89,6 +102,8 @@ export default function PetaBudayaPage() {
       }
     } else {
       setShowSearchResults(false)
+      setSearchResults([])
+      setLexiconRegionMap({})
       setSelectedRegion(null)
     }
   }
@@ -332,11 +347,23 @@ export default function PetaBudayaPage() {
                                         : "No highlights available"
                                       : (item as LexiconEntry).definition}
                                   </div>
-                                  {!isRegion && (item as LexiconEntry).transliterasi && (
-                                    <div className="text-xs text-muted-foreground mt-2">
-                                      Transliterasi:{" "}
-                                      <span className="italic">{(item as LexiconEntry).transliterasi}</span>
-                                    </div>
+                                  {!isRegion && (
+                                    <>
+                                      {(item as LexiconEntry).transliterasi && (
+                                        <div className="text-xs text-muted-foreground mt-2">
+                                          Transliterasi:{" "}
+                                          <span className="italic">{(item as LexiconEntry).transliterasi}</span>
+                                        </div>
+                                      )}
+                                      {lexiconRegionMap[(item as LexiconEntry).termCode] && (
+                                        <div className="text-xs text-primary mt-2 font-medium">
+                                          📍 From:{" "}
+                                          <span className="font-semibold">
+                                            {lexiconRegionMap[(item as LexiconEntry).termCode]}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </>
                                   )}
                                 </div>
                                 <span className="ml-2 px-2 py-1 text-xs font-medium rounded bg-primary/10 text-primary whitespace-nowrap">
@@ -391,6 +418,11 @@ export default function PetaBudayaPage() {
                           {entry.transliterasi && (
                             <div className="text-xs text-muted-foreground mt-2">
                               Transliterasi: <span className="italic">{entry.transliterasi}</span>
+                            </div>
+                          )}
+                          {lexiconRegionMap[entry.termCode] && (
+                            <div className="text-xs text-primary mt-2 font-medium">
+                              📍 From: <span className="font-semibold">{lexiconRegionMap[entry.termCode]}</span>
                             </div>
                           )}
                         </motion.div>
