@@ -1,8 +1,10 @@
 // components/layout/footer.tsx
 "use client"
 
+import type React from "react"
+
 import Link from "next/link"
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Globe, Heart } from "lucide-react"
+import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
@@ -42,6 +44,20 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
   return (
     <footer className="bg-gradient-to-br from-muted/50 via-background to-muted/30 border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Newsletter Section */}
+        <div className="border-b border-border pb-8 mb-8">
+          <div className="max-w-md mx-auto text-center">
+            <h3 className="font-semibold text-foreground mb-2">Stay Updated</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Subscribe to our newsletter for the latest updates on East Java's cultural heritage.
+            </p>
+            <form onSubmit={handleSubscribe} className="flex gap-2">
+              <Input type="email" placeholder="Enter your email" className="flex-1" required />
+              <Button type="submit">Subscribe</Button>
+            </form>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
           <div className="space-y-4">
@@ -101,10 +117,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
             <ul className="space-y-2">
               {culturalLinks.map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
+                  <Link href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -118,34 +131,12 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
             <ul className="space-y-2">
               {resources.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
+                  <a href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     {link.label}
                   </a>
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
-
-        {/* Newsletter Section */}
-        <div className="border-t border-border pt-8 mb-8">
-          <div className="max-w-md mx-auto text-center">
-            <h3 className="font-semibold text-foreground mb-2">Stay Updated</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Subscribe to our newsletter for the latest updates on East Java's cultural heritage.
-            </p>
-            <form onSubmit={handleSubscribe} className="flex gap-2">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1"
-                required
-              />
-              <Button type="submit">Subscribe</Button>
-            </form>
           </div>
         </div>
 
@@ -168,10 +159,7 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
               <Phone className="h-5 w-5 text-primary mt-0.5" />
               <div>
                 <p className="font-medium text-foreground">Phone</p>
-                <a
-                  href="tel:+62341551611"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
+                <a href="tel:+62341551611" className="text-muted-foreground hover:text-primary transition-colors">
                   +62 341 551611
                 </a>
               </div>
@@ -194,8 +182,8 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
         <div className="border-t border-border pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <span>Â© 2024 UB Corpora. All rights reserved.</span>
-              <span className="hidden md:inline">â€¢</span>
+              <span>© 2025 UB Corpora. All rights reserved.</span>
+              <span className="hidden md:inline">•</span>
               <span className="hidden md:inline">Made with</span>
               <Heart className="h-4 w-4 text-red-500 fill-current hidden md:inline" />
               <span className="hidden md:inline">by Universitas Brawijaya</span>
