@@ -292,7 +292,7 @@ export default function PetaBudayaPage() {
                   ) : (searchResults as LexiconEntry[]).length > 0 ? (
                     (searchResults as LexiconEntry[]).map((entry, idx) => (
                       <motion.div
-                        key={idx}
+                        key={`${entry.term}-${idx}`}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="rounded-lg border border-border bg-card/60 p-4"
@@ -367,7 +367,10 @@ export default function PetaBudayaPage() {
 
                         <div className="space-y-3">
                           {terms.slice(0, 6).map((entry, idx) => (
-                            <div key={idx} className="rounded-lg border border-border bg-card/60 p-3">
+                            <div
+                              key={`${entry.term}-${idx}`}
+                              className="rounded-lg border border-border bg-card/60 p-3"
+                            >
                               <div className="font-semibold text-foreground">{entry.term}</div>
                               <div className="text-sm text-muted-foreground mt-1">{entry.definition}</div>
                             </div>
