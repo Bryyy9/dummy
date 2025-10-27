@@ -9,6 +9,7 @@ import { useState, useRef } from "react"
 export function ShowcaseSection() {
   const [hoveredLogoIndex, setHoveredLogoIndex] = useState<number | null>(null)
   const [tooltipPosition, setTooltipPosition] = useState<"top" | "bottom">("top")
+  const [tooltipAlignment, setTooltipAlignment] = useState<"left" | "center" | "right">("center")
   const tooltipRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -26,13 +27,25 @@ export function ShowcaseSection() {
 
     const element = event.currentTarget as HTMLElement
     const rect = element.getBoundingClientRect()
-    const tooltipHeight = 48 // approximate height of tooltip
+    const tooltipHeight = 48
     const spaceAbove = rect.top
 
     if (spaceAbove < tooltipHeight + 20) {
       setTooltipPosition("bottom")
     } else {
       setTooltipPosition("top")
+    }
+
+    const spaceLeft = rect.left
+    const spaceRight = window.innerWidth - rect.right
+    const tooltipWidth = 160 // approximate width of tooltip
+
+    if (spaceLeft < tooltipWidth / 2 + 20) {
+      setTooltipAlignment("left")
+    } else if (spaceRight < tooltipWidth / 2 + 20) {
+      setTooltipAlignment("right")
+    } else {
+      setTooltipAlignment("center")
     }
   }
 
@@ -67,66 +80,76 @@ export function ShowcaseSection() {
             </p>
           </AnimatedReveal>
         </div>
+      </div>
 
-        <div className="group relative mt-12">
-          {/* Edge fade for visual polish */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-background to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-background to-transparent" />
+      <div className="group relative mt-12 w-screen -ml-[calc((100vw-100%)/2)] overflow-visible">
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
 
-          <div
-            ref={containerRef}
-            className="marquee relative overflow-visible rounded-xl border border-border/60 bg-muted/20"
-            aria-label="Scrolling partner logos"
-          >
-            {/* Track: duplicated content for seamless loop */}
-            <div className="marquee-track flex items-center gap-10 md:gap-14 py-6 will-change-transform">
-              {Array.from({ length: 2 }).map((_, dup) =>
-                logos.map((logo, i) => {
-                  const logoIndex = i
-                  const isHovered = hoveredLogoIndex === logoIndex
+        <div
+          ref={containerRef}
+          className="marquee relative overflow-visible w-full border-y border-border/60 bg-muted/20"
+          aria-label="Scrolling partner logos"
+        >
+          <div className="marquee-track flex items-center gap-10 md:gap-14 py-6 will-change-transform px-8 sm:px-12 lg:px-16">
+            {Array.from({ length: 2 }).map((_, dup) =>
+              logos.map((logo, i) => {
+                const logoIndex = i
+                const isHovered = hoveredLogoIndex === logoIndex
 
-                  return (
-                    <div
-                      key={`${dup}-${i}`}
-                      className="flex-shrink-0 opacity-80 hover:opacity-100 transition-opacity duration-200 relative group/logo"
-                      aria-hidden={dup === 1 ? true : undefined}
-                      onMouseEnter={(e) => handleMouseEnter(logoIndex, e)}
-                      onMouseLeave={() => setHoveredLogoIndex(null)}
-                    >
-                      <img
-                        src={logo.src || "/placeholder.svg"}
-                        alt={logo.alt}
-                        height={48}
-                        width={120}
-                        className="h-12 w-[120px] object-contain"
-                      />
+                return (
+                  <div
+                    key={`${dup}-${i}`}
+                    className="flex-shrink-0 opacity-80 hover:opacity-100 transition-opacity duration-200 relative group/logo"
+                    aria-hidden={dup === 1 ? true : undefined}
+                    onMouseEnter={(e) => handleMouseEnter(logoIndex, e)}
+                    onMouseLeave={() => setHoveredLogoIndex(null)}
+                  >
+                    <img
+                      src={logo.src || "/placeholder.svg"}
+                      alt={logo.alt}
+                      height={48}
+                      width={120}
+                      className="h-12 w-[120px] object-contain"
+                    />
 
-                      {isHovered && (
-                        <div
-                          ref={tooltipRef}
-                          className={`absolute left-1/2 -translate-x-1/2 z-50 pointer-events-none ${
-                            tooltipPosition === "top" ? "bottom-full mb-3" : "top-full mt-3"
-                          }`}
-                        >
-                          <div className="relative">
-                            <div className="px-4 py-2.5 bg-foreground text-background text-sm font-semibold rounded-lg whitespace-nowrap shadow-xl border border-foreground/30 backdrop-blur-md animate-in fade-in zoom-in-95 duration-200">
-                              {logo.alt}
-                              <div
-                                className={`absolute w-0 h-0 border-l-3 border-r-3 border-l-transparent border-r-transparent left-1/2 -translate-x-1/2 ${
-                                  tooltipPosition === "top"
-                                    ? "top-full border-t-3 border-t-foreground"
-                                    : "bottom-full border-b-3 border-b-foreground"
-                                }`}
-                              />
-                            </div>
+                    {isHovered && (
+                      <div
+                        ref={tooltipRef}
+                        className={`absolute z-50 pointer-events-auto ${
+                          tooltipPosition === "top" ? "bottom-full mb-3" : "top-full mt-3"
+                        } ${
+                          tooltipAlignment === "left"
+                            ? "left-0"
+                            : tooltipAlignment === "right"
+                              ? "right-0"
+                              : "left-1/2 -translate-x-1/2"
+                        }`}
+                      >
+                        <div className="relative">
+                          <div className="px-4 py-2.5 bg-foreground text-background text-sm font-semibold rounded-lg whitespace-normal max-w-xs shadow-xl border border-foreground/30 backdrop-blur-md animate-in fade-in zoom-in-95 duration-200">
+                            {logo.alt}
+                            <div
+                              className={`absolute w-0 h-0 border-l-3 border-r-3 border-l-transparent border-r-transparent ${
+                                tooltipAlignment === "left"
+                                  ? "left-4"
+                                  : tooltipAlignment === "right"
+                                    ? "right-4"
+                                    : "left-1/2 -translate-x-1/2"
+                              } ${
+                                tooltipPosition === "top"
+                                  ? "top-full border-t-3 border-t-foreground"
+                                  : "bottom-full border-b-3 border-b-foreground"
+                              }`}
+                            />
                           </div>
                         </div>
-                      )}
-                    </div>
-                  )
-                }),
-              )}
-            </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              }),
+            )}
           </div>
         </div>
       </div>

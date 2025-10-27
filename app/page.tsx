@@ -9,6 +9,7 @@ import { ContactSection } from "@/components/sections/contact-section"
 import { Footer } from "@/components/layout/footer"
 import { useNavigation } from "@/hooks/use-navigation"
 import { ShowcaseSection } from "@/components/sections/showcase-section"
+import { NewsletterSection } from "@/components/sections/newsletter-section"
 
 export default function CulturalHeritagePage() {
   const { handleNavClick, handleCategoryNavigation } = useNavigation()
@@ -107,15 +108,15 @@ export default function CulturalHeritagePage() {
 
         <CulturalGalleries onNavClick={handleNavClick} />
 
-        {/* New polished section for immersive visuals and clear guidance */}
         <ShowcaseSection />
 
-        {/* Section pengganti eksplorasi: Globe 3D */}
         <GlobeSection />
 
         <AboutSection onNavClick={handleNavClick} />
 
         <ContactSection />
+
+        <NewsletterSection />
 
         <Footer onNavClick={handleNavClick} onCategoryClick={handleCategoryClick} />
       </div>

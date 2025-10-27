@@ -64,10 +64,10 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
           </AnimatedReveal>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16 auto-rows-fr">
           <AnimatedReveal animation="slide-up" delay={800}>
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50">
-              <CardContent className="p-8 text-center">
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-8 text-center h-full flex flex-col items-center justify-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <BookOpen className="h-8 w-8 text-primary" />
                 </div>
@@ -81,8 +81,8 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
           </AnimatedReveal>
 
           <AnimatedReveal animation="slide-up" delay={1000}>
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50">
-              <CardContent className="p-8 text-center">
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-8 text-center h-full flex flex-col items-center justify-center">
                 <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="h-8 w-8 text-emerald-600" />
                 </div>
@@ -96,8 +96,8 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
           </AnimatedReveal>
 
           <AnimatedReveal animation="slide-up" delay={1200}>
-            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50">
-              <CardContent className="p-8 text-center">
+            <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
+              <CardContent className="p-8 text-center h-full flex flex-col items-center justify-center">
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Globe className="h-8 w-8 text-amber-600" />
                 </div>
@@ -145,28 +145,28 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
 
           <AnimatedReveal animation="slide-left" delay={1600}>
             <div className="grid grid-cols-2 gap-6">
-              <div className="text-center p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg">
-                <Award className="h-8 w-8 text-primary mx-auto mb-2" />
-                <div className="text-2xl font-bold text-primary">500+</div>
-                <div className="text-sm text-muted-foreground">Documented Cultures</div>
+              <div className="text-center p-6 bg-gradient-to-br from-rose-100 to-rose-200 rounded-lg border border-rose-200/50 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
+                <Award className="h-8 w-8 text-rose-600 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-rose-700">500+</div>
+                <div className="text-sm text-rose-600/80">Documented Cultures</div>
               </div>
 
-              <div className="text-center p-6 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg">
-                <Users className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-emerald-600">38</div>
-                <div className="text-sm text-muted-foreground">Regions/Cities</div>
+              <div className="text-center p-6 bg-gradient-to-br from-teal-100 to-teal-200 rounded-lg border border-teal-200/50 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
+                <Users className="h-8 w-8 text-teal-600 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-teal-700">38</div>
+                <div className="text-sm text-teal-600/80">Regions/Cities</div>
               </div>
 
-              <div className="text-center p-6 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg">
-                <BookOpen className="h-8 w-8 text-amber-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-amber-600">12</div>
-                <div className="text-sm text-muted-foreground">Cultural Categories</div>
+              <div className="text-center p-6 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg border border-orange-200/50 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
+                <BookOpen className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-orange-700">12</div>
+                <div className="text-sm text-orange-600/80">Cultural Categories</div>
               </div>
 
-              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-                <Sparkles className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-blue-600">100+</div>
-                <div className="text-sm text-muted-foreground">Contributors</div>
+              <div className="text-center p-6 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg border border-purple-200/50 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
+                <Sparkles className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-purple-700">100+</div>
+                <div className="text-sm text-purple-600/80">Contributors</div>
               </div>
             </div>
           </AnimatedReveal>

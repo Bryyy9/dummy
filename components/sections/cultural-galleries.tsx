@@ -12,8 +12,7 @@ interface CulturalGalleriesProps {
 
 export function CulturalGalleries({ onNavClick }: CulturalGalleriesProps) {
   const subRegions = [
-  
-     {
+    {
       id: "mataraman",
       name: "Mataraman",
       description: "Rooted in Javanese agrarian traditions with refined, orderly etiquette.",
@@ -42,22 +41,23 @@ export function CulturalGalleries({ onNavClick }: CulturalGalleriesProps) {
   return (
     <section className="py-20 bg-muted/30 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-         <AnimatedReveal animation="fade-up">
+        <AnimatedReveal animation="fade-up">
           <div className="text-center mb-12">
             <Badge variant="secondary" className="bg-card/80 backdrop-blur-sm border-border">
               Cultural Sub-regions
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold mt-4 text-balance">Explore Cultural Sub-regions</h2>
             <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto text-pretty">
-              Each sub-region has its own unique character, traditions, and cultural expressions. Browse the cards below to get started.
+              Each sub-region has its own unique character, traditions, and cultural expressions. Browse the cards below
+              to get started.
             </p>
           </div>
         </AnimatedReveal>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
           {subRegions.map((sr, index) => (
             <AnimatedReveal key={sr.id} animation="scale-up" delay={200 + index * 100}>
-              <div className="group relative overflow-hidden rounded-xl bg-card border border-border hover-lift">
+              <div className="group relative overflow-hidden rounded-xl bg-card border border-border hover-lift h-full flex flex-col">
                 <div className="aspect-[4/3] relative overflow-hidden">
                   <div
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
@@ -71,15 +71,15 @@ export function CulturalGalleries({ onNavClick }: CulturalGalleriesProps) {
                   </div>
                 </div>
 
-                <div className="p-4">
+                <div className="p-4 flex flex-col flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-bold text-lg group-hover:text-primary transition-colors">{sr.name}</h3>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
                   </div>
 
-                  <p className="text-sm text-muted-foreground mb-4">{sr.description}</p>
+                  <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-3">{sr.description}</p>
 
-                  <div className="flex items-center justify-end">
+                  <div className="flex items-center justify-end mt-auto">
                     <Link href={`/budaya/daerah/${sr.id}`} aria-label={`Lihat rincian sub daerah ${sr.name}`}>
                       <EnhancedButton size="sm" className="min-w-[104px]">
                         Details
@@ -96,7 +96,7 @@ export function CulturalGalleries({ onNavClick }: CulturalGalleriesProps) {
           <div className="text-center mt-12">
             <Link href="/budaya" aria-label="Buka Glosarium Budaya">
               <EnhancedButton size="lg" className="gradient-purple">
-                  Open Sub Cultural Glossary
+                Open Sub Cultural Glossary
                 <ArrowRight className="h-5 w-5 ml-2" />
               </EnhancedButton>
             </Link>
