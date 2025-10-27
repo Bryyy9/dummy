@@ -129,36 +129,42 @@ export default function SubculturesGalleryPage() {
                         <span className="w-1 h-6 bg-accent rounded-full" />
                         Model 3D Interaktif
                       </h3>
-                      <p className="text-sm text-muted-foreground">{subculture.model3d.description}</p>
-                    </div>
+                      {subculture.model3dArray && subculture.model3dArray.length > 0 ? (
+                        <>
+                          <p className="text-sm text-muted-foreground">{subculture.model3dArray[0].description}</p>
 
-                    <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
-                      <iframe
-                        className="w-full"
-                        style={{ height: "400px" }}
-                        src={`https://sketchfab.com/models/${subculture.model3d.sketchfabId}/embed?autospin=1&autostart=1`}
-                        title={subculture.model3d.title}
-                        allow="autoplay; fullscreen; xr-spatial-tracking"
-                        allowFullScreen
-                      />
-                    </div>
+                          <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
+                            <iframe
+                              className="w-full"
+                              style={{ height: "400px" }}
+                              src={`https://sketchfab.com/models/${subculture.model3dArray[0].sketchfabId}/embed?autospin=1&autostart=1`}
+                              title={subculture.model3dArray[0].title}
+                              allow="autoplay; fullscreen; xr-spatial-tracking"
+                              allowFullScreen
+                            />
+                          </div>
 
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap gap-2">
-                        {subculture.model3d.tags.map((tag: string, i: number) => (
-                          <span
-                            key={i}
-                            className="px-2 py-1 rounded-full text-xs border border-border bg-background/50 text-muted-foreground"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="rounded-lg border border-border bg-background/50 p-3">
-                        <p className="text-xs text-muted-foreground">
-                          <strong>Tipe Artefak:</strong> {subculture.model3d.artifactType}
-                        </p>
-                      </div>
+                          <div className="space-y-2">
+                            <div className="flex flex-wrap gap-2">
+                              {subculture.model3dArray[0].tags.map((tag: string, i: number) => (
+                                <span
+                                  key={i}
+                                  className="px-2 py-1 rounded-full text-xs border border-border bg-background/50 text-muted-foreground"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                            <div className="rounded-lg border border-border bg-background/50 p-3">
+                              <p className="text-xs text-muted-foreground">
+                                <strong>Tipe Artefak:</strong> {subculture.model3dArray[0].artifactType}
+                              </p>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">Model 3D tidak tersedia</p>
+                      )}
                     </div>
                   </div>
                 </div>
