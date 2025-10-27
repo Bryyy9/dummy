@@ -28,8 +28,6 @@ export default function RegionDetailPage() {
   const [autoRotate, setAutoRotate] = useState(true)
   const [viewerKey, setViewerKey] = useState(0)
 
-  const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
-
   const [isNavSticky, setIsNavSticky] = useState(false)
   const [activeSection, setActiveSection] = useState<string>("region-profile")
   const navRef = useRef<HTMLElement | null>(null)
@@ -579,9 +577,6 @@ export default function RegionDetailPage() {
             return (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {displayItems.map((entry, i) => {
-                  const isOpen = expandedIdx === i
-                  const contentId = `lexicon-details-${i}`
-
                   const termSlug = entry.term
                     .normalize("NFD")
                     .replace(/[\u0300-\u036f]/g, "")
@@ -594,85 +589,10 @@ export default function RegionDetailPage() {
                       key={`${entry.term}-${i}`}
                       className="rounded-xl shadow-sm border bg-card/60 border-border overflow-hidden"
                     >
-                      <button
-                        type="button"
-                        className="w-full text-left px-4 py-3 flex items-start justify-between gap-3 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                        aria-expanded={isOpen}
-                        aria-controls={contentId}
-                        onClick={() => setExpandedIdx((prev) => (prev === i ? null : i))}
-                      >
-                        <div>
-                          <h3 className="font-semibold text-foreground">{entry.term}</h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{entry.definition}</p>
-                        </div>
-                        <svg
-                          className={`w-4 h-4 mt-1 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          aria-hidden="true"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.127l3.71-3.896a.75.75 0 111.08 1.04l-4.24 4.46a.75.75 0 01-1.08 0l-4.24-4.46a.75.75 0 01.02-1.06z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-
-                      <motion.div
-                        id={contentId}
-                        initial={false}
-                        animate={{
-                          height: isOpen ? "auto" : 0,
-                          opacity: isOpen ? 1 : 0,
-                        }}
-                        transition={{ duration: 0.24, ease: "easeInOut" }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-4 pb-4 pt-1">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Makna Etimologi</h4>
-                              <p className="text-sm text-foreground/90">{entry.etimologi || "—"}</p>
-                            </div>
-                            <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Makna Cultural</h4>
-                              <p className="text-sm text-foreground/90">{entry.culturalMeaning || "—"}</p>
-                            </div>
-                            <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Varian Makna</h4>
-                              {entry.variants && entry.variants.length > 0 ? (
-                                <div className="flex flex-wrap gap-2">
-                                  {entry.variants.map((v, idx) => (
-                                    <span
-                                      key={idx}
-                                      className="px-2 py-0.5 rounded-full border border-border bg-card/60 text-xs"
-                                    >
-                                      {v}
-                                    </span>
-                                  ))}
-                                </div>
-                              ) : (
-                                <p className="text-sm text-foreground/90">—</p>
-                              )}
-                            </div>
-                            <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Common Meaning</h4>
-                              <p className="text-sm text-foreground/90">{entry.reference || "—"}</p>
-                            </div>
-                            <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">Keterangan</h4>
-                              <p className="text-sm text-foreground/90">{entry.note || "—"}</p>
-                            </div>
-                            <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <h4 className="text-xs font-medium text-muted-foreground mb-1">
-                                Ketersediaan Informasi lain
-                              </h4>
-                              <p className="text-sm text-foreground/90">{entry.availability || "—"}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
+                      <div className="px-4 py-3">
+                        <h3 className="font-semibold text-foreground">{entry.term}</h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{entry.definition}</p>
+                      </div>
 
                       <div className="px-4 pb-3">
                         <Link

@@ -1,10 +1,17 @@
 "use client"
 
+import type React from "react"
+
 import { Badge } from "@/components/ui/badge"
-import { EnhancedButton } from "@/components/interactive/enhanced-button"
 import { AnimatedReveal } from "@/components/common/animated-reveal"
+import { useState, useRef } from "react"
 
 export function ShowcaseSection() {
+  const [hoveredLogoIndex, setHoveredLogoIndex] = useState<number | null>(null)
+  const [tooltipPosition, setTooltipPosition] = useState<"top" | "bottom">("top")
+  const tooltipRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
   const logos = [
     { src: "/partner-logo-1.png", alt: "Partner Logo 1" },
     { src: "/partner-logo-2.png", alt: "Partner Logo 2" },
@@ -13,6 +20,21 @@ export function ShowcaseSection() {
     { src: "/partner-logo-abstract-5.png", alt: "Partner Logo 5" },
     { src: "/partner-logo-6.png", alt: "Partner Logo 6" },
   ]
+
+  const handleMouseEnter = (index: number, event: React.MouseEvent) => {
+    setHoveredLogoIndex(index)
+
+    const element = event.currentTarget as HTMLElement
+    const rect = element.getBoundingClientRect()
+    const tooltipHeight = 48 // approximate height of tooltip
+    const spaceAbove = rect.top
+
+    if (spaceAbove < tooltipHeight + 20) {
+      setTooltipPosition("bottom")
+    } else {
+      setTooltipPosition("top")
+    }
+  }
 
   return (
     <section
@@ -46,35 +68,63 @@ export function ShowcaseSection() {
           </AnimatedReveal>
         </div>
 
-      
-
         <div className="group relative mt-12">
           {/* Edge fade for visual polish */}
           <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-background to-transparent" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-background to-transparent" />
 
           <div
-            className="marquee relative overflow-hidden rounded-xl border border-border/60 bg-muted/20"
+            ref={containerRef}
+            className="marquee relative overflow-visible rounded-xl border border-border/60 bg-muted/20"
             aria-label="Scrolling partner logos"
           >
             {/* Track: duplicated content for seamless loop */}
             <div className="marquee-track flex items-center gap-10 md:gap-14 py-6 will-change-transform">
               {Array.from({ length: 2 }).map((_, dup) =>
-                logos.map((logo, i) => (
-                  <div
-                    key={`${dup}-${i}`}
-                    className="flex-shrink-0 opacity-80 hover:opacity-100 transition-opacity duration-200"
-                    aria-hidden={dup === 1 ? true : undefined}
-                  >
-                    <img
-                      src={logo.src || "/placeholder.svg"}
-                      alt={logo.alt}
-                      height={48}
-                      width={120}
-                      className="h-12 w-[120px] object-contain"
-                    />
-                  </div>
-                )),
+                logos.map((logo, i) => {
+                  const logoIndex = i
+                  const isHovered = hoveredLogoIndex === logoIndex
+
+                  return (
+                    <div
+                      key={`${dup}-${i}`}
+                      className="flex-shrink-0 opacity-80 hover:opacity-100 transition-opacity duration-200 relative group/logo"
+                      aria-hidden={dup === 1 ? true : undefined}
+                      onMouseEnter={(e) => handleMouseEnter(logoIndex, e)}
+                      onMouseLeave={() => setHoveredLogoIndex(null)}
+                    >
+                      <img
+                        src={logo.src || "/placeholder.svg"}
+                        alt={logo.alt}
+                        height={48}
+                        width={120}
+                        className="h-12 w-[120px] object-contain"
+                      />
+
+                      {isHovered && (
+                        <div
+                          ref={tooltipRef}
+                          className={`absolute left-1/2 -translate-x-1/2 z-50 pointer-events-none ${
+                            tooltipPosition === "top" ? "bottom-full mb-3" : "top-full mt-3"
+                          }`}
+                        >
+                          <div className="relative">
+                            <div className="px-4 py-2.5 bg-foreground text-background text-sm font-semibold rounded-lg whitespace-nowrap shadow-xl border border-foreground/30 backdrop-blur-md animate-in fade-in zoom-in-95 duration-200">
+                              {logo.alt}
+                              <div
+                                className={`absolute w-0 h-0 border-l-3 border-r-3 border-l-transparent border-r-transparent left-1/2 -translate-x-1/2 ${
+                                  tooltipPosition === "top"
+                                    ? "top-full border-t-3 border-t-foreground"
+                                    : "bottom-full border-b-3 border-b-foreground"
+                                }`}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                }),
               )}
             </div>
           </div>
