@@ -201,6 +201,9 @@ export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
 
   const currentRegion = REGIONS.find((r: Region) => r.id === hoveredRegion)
 
+  const specialPositioningRegions = ["madura-bawean", "madura-kangean", "osing", "mataraman"]
+  const shouldUseSmartPositioning = hoveredRegion && specialPositioningRegions.includes(hoveredRegion)
+
   useEffect(() => {
     if (!hoveredRegion || !cardRef.current || !containerRef.current) return
 
@@ -213,56 +216,118 @@ export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
     const spaceRight = containerRect.width - (mousePos.x - containerRect.left)
 
     const cardHeight = cardRect.height
-    const cardWidth = cardRect.width
+    const cardWidth = Math.min(cardRect.width, containerRect.width - 32)
     const padding = 24
     const minEdgeDistance = 16
-
-    // Determine vertical position (above or below)
-    const shouldBeAbove = spaceAbove > cardHeight + padding || spaceBelow < cardHeight + padding
-
-    // Determine horizontal alignment with smart repositioning
-    let x = mousePos.x - containerRect.left
-    let horizontalAlign: "left" | "center" | "right" = "center"
-
-    const leftThreshold = cardWidth / 2 + minEdgeDistance
-    const rightThreshold = containerRect.width - cardWidth / 2 - minEdgeDistance
-
-    if (x - cardWidth / 2 < leftThreshold) {
-      // Too close to left edge - align to left
-      x = minEdgeDistance + cardWidth / 2
-      horizontalAlign = "left"
-    } else if (x + cardWidth / 2 > rightThreshold) {
-      // Too close to right edge - align to right
-      x = containerRect.width - minEdgeDistance - cardWidth / 2
-      horizontalAlign = "right"
-    } else {
-      // Enough space - center on cursor
-      horizontalAlign = "center"
-    }
-
-    // Calculate vertical position with smooth spacing
-    let y = mousePos.y - containerRect.top
+    const horizontalOffset = 20
     const verticalOffset = 16
 
-    if (shouldBeAbove) {
-      y = y - cardHeight - verticalOffset
+    if (shouldUseSmartPositioning) {
+      // Determine best horizontal position based on available space
+      let x = mousePos.x - containerRect.left
+      let horizontalAlign: "left" | "center" | "right" = "center"
+
+      // Check if card fits to the left
+      if (spaceLeft > cardWidth / 2 + horizontalOffset + minEdgeDistance) {
+        x = mousePos.x - containerRect.left - cardWidth / 2 - horizontalOffset
+        horizontalAlign = "left"
+      }
+      // Check if card fits to the right
+      else if (spaceRight > cardWidth / 2 + horizontalOffset + minEdgeDistance) {
+        x = mousePos.x - containerRect.left + cardWidth / 2 + horizontalOffset
+        horizontalAlign = "right"
+      }
+      // Default to center with boundary checks
+      else {
+        const leftThreshold = cardWidth / 2 + minEdgeDistance
+        const rightThreshold = containerRect.width - cardWidth / 2 - minEdgeDistance
+
+        if (x - cardWidth / 2 < leftThreshold) {
+          x = minEdgeDistance + cardWidth / 2
+          horizontalAlign = "left"
+        } else if (x + cardWidth / 2 > rightThreshold) {
+          x = containerRect.width - minEdgeDistance - cardWidth / 2
+          horizontalAlign = "right"
+        } else {
+          horizontalAlign = "center"
+        }
+      }
+
+      // Determine best vertical position based on available space
+      let y = mousePos.y - containerRect.top
+      let direction: "top" | "bottom" = "bottom"
+
+      // Prefer positioning above if enough space
+      if (spaceAbove > cardHeight + padding) {
+        y = mousePos.y - containerRect.top - cardHeight - verticalOffset
+        direction = "top"
+      }
+      // Otherwise position below
+      else if (spaceBelow > cardHeight + padding) {
+        y = mousePos.y - containerRect.top + verticalOffset
+        direction = "bottom"
+      }
+      // If neither has enough space, choose the direction with more space
+      else {
+        if (spaceAbove > spaceBelow) {
+          y = mousePos.y - containerRect.top - cardHeight - verticalOffset
+          direction = "top"
+        } else {
+          y = mousePos.y - containerRect.top + verticalOffset
+          direction = "bottom"
+        }
+      }
+
+      // Ensure card doesn't go above or below container
+      const maxY = containerRect.height - cardHeight - minEdgeDistance
+      y = Math.max(minEdgeDistance, Math.min(y, maxY))
+
+      setCardPosition({
+        x: Math.max(minEdgeDistance, Math.min(x, containerRect.width - minEdgeDistance)),
+        y,
+        direction,
+        horizontalAlign,
+      })
     } else {
-      y = y + verticalOffset
+      const shouldBeAbove = spaceAbove > cardHeight + padding || spaceBelow < cardHeight + padding
+
+      let x = mousePos.x - containerRect.left
+      let horizontalAlign: "left" | "center" | "right" = "center"
+
+      const leftThreshold = cardWidth / 2 + minEdgeDistance
+      const rightThreshold = containerRect.width - cardWidth / 2 - minEdgeDistance
+
+      if (x - cardWidth / 2 < leftThreshold) {
+        x = minEdgeDistance + cardWidth / 2
+        horizontalAlign = "left"
+      } else if (x + cardWidth / 2 > rightThreshold) {
+        x = containerRect.width - minEdgeDistance - cardWidth / 2
+        horizontalAlign = "right"
+      } else {
+        horizontalAlign = "center"
+      }
+
+      let y = mousePos.y - containerRect.top
+      if (shouldBeAbove) {
+        y = y - cardHeight - verticalOffset
+      } else {
+        y = y + verticalOffset
+      }
+
+      const maxY = containerRect.height - cardHeight - minEdgeDistance
+      y = Math.max(minEdgeDistance, Math.min(y, maxY))
+
+      setCardPosition({
+        x: Math.max(minEdgeDistance, Math.min(x, containerRect.width - minEdgeDistance)),
+        y,
+        direction: shouldBeAbove ? "top" : "bottom",
+        horizontalAlign,
+      })
     }
-
-    // Ensure card doesn't go above or below container
-    y = Math.max(minEdgeDistance, Math.min(y, containerRect.height - cardHeight - minEdgeDistance))
-
-    setCardPosition({
-      x,
-      y,
-      direction: shouldBeAbove ? "top" : "bottom",
-      horizontalAlign,
-    })
-  }, [hoveredRegion, mousePos])
+  }, [hoveredRegion, mousePos, shouldUseSmartPositioning])
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full overflow-hidden">
       <svg
         ref={containerRef}
         viewBox="0 0 1745 515"
@@ -329,7 +394,7 @@ export function AdvancedPopupMap({ onRegionClick }: AdvancedPopupMapProps) {
               top: `${cardPosition.y}px`,
               transform: "translate(-50%, 0)",
               width: "360px",
-              maxWidth: "calc(100vw - 32px)",
+              maxWidth: "calc(100% - 32px)",
             }}
           >
             <div className="bg-card/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-border/80 overflow-hidden">
