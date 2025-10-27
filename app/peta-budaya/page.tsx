@@ -1,21 +1,16 @@
 // app/peta-budaya/page.tsx
-"use client";
+"use client"
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, ArrowLeft, Info, BookOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import Link from "next/link";
-import { AdvancedPopupMap, REGIONS, type Region } from "@/components/cultural/advanced-popup-map";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Search, ArrowLeft, Info, BookOpen } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import Link from "next/link"
+import { AdvancedPopupMap, REGIONS, type Region } from "@/components/cultural/advanced-popup-map"
+import { useRouter } from "next/navigation"
+import Image from "next/image"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -23,76 +18,101 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { ParallaxBackground } from "@/components/common/parallax-background";
-import { LEXICON } from "@/data/lexicon";
+} from "@/components/ui/breadcrumb"
+import { ParallaxBackground } from "@/components/common/parallax-background"
+import { LEXICON, type LexiconEntry } from "@/data/lexicon"
 
 export default function PetaBudayaPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const [searchResults, setSearchResults] = useState<Region[]>([]);
-  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchCategory, setSearchCategory] = useState<"subculture" | "lexicon">("subculture")
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
+  const [showSearchResults, setShowSearchResults] = useState(false)
+  const [searchResults, setSearchResults] = useState<Region[] | LexiconEntry[]>([])
+  const router = useRouter()
 
-  // Handle search functionality
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      handleSearch(searchQuery)
+    }
+  }, [searchCategory])
+
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
+    setSearchQuery(query)
     if (query.trim()) {
-      const results = REGIONS.filter(
-        (region) =>
-          region.name.toLowerCase().includes(query.toLowerCase()) ||
-          region.highlights.some((element) =>
-            element.toLowerCase().includes(query.toLowerCase())
-          )
-      );
-      setSearchResults(results);
-      setShowSearchResults(true);
-      if (results.length > 0) {
-        setSelectedRegion(results[0].id);
+      if (searchCategory === "subculture") {
+        const results = REGIONS.filter(
+          (region) =>
+            region.name.toLowerCase().includes(query.toLowerCase()) ||
+            region.highlights.some((element) => element.toLowerCase().includes(query.toLowerCase())),
+        )
+        setSearchResults(results as Region[])
+        setShowSearchResults(true)
+        if (results.length > 0) {
+          setSelectedRegion((results[0] as Region).id)
+        }
+      } else {
+        const results: LexiconEntry[] = []
+        const lowerQuery = query.toLowerCase()
+
+        for (const entries of Object.values(LEXICON)) {
+          for (const entry of entries) {
+            if (entry.term.toLowerCase().includes(lowerQuery) || entry.definition.toLowerCase().includes(lowerQuery)) {
+              results.push(entry)
+            }
+          }
+        }
+        setSearchResults(results)
+        setShowSearchResults(true)
       }
     } else {
-      setShowSearchResults(false);
-      setSelectedRegion(null);
+      setShowSearchResults(false)
+      setSelectedRegion(null)
     }
-  };
+  }
+
+  const handleCategoryChange = (category: "subculture" | "lexicon") => {
+    setSearchCategory(category)
+  }
+
+  const handleClearSearch = () => {
+    setSearchQuery("")
+    setShowSearchResults(false)
+    setSearchResults([])
+    setSelectedRegion(null)
+  }
 
   // Handle region click
   const handleRegionClick = (regionId: string) => {
-    router.push(`/budaya/daerah/${regionId}`);
-  };
+    router.push(`/budaya/daerah/${regionId}`)
+  }
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+      <div
+        className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background"
+        style={{ scrollBehavior: "smooth" }}
+      >
         {/* Header */}
         <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Link href="/">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="hover:bg-accent/10"
-                  >
+                  <Button variant="ghost" size="sm" className="hover:bg-accent/10">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back
                   </Button>
                 </Link>
                 <div>
-                  <h1 className="text-2xl font-bold text-foreground">
-                    East Java Cultural Map
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Explore the cultural richness of each region
-                  </p>
+                  <h1 className="text-2xl font-bold text-foreground">East Java Cultural Map</h1>
+                  <p className="text-sm text-muted-foreground">Explore the cultural richness of each region</p>
                 </div>
               </div>
               <div className="flex items-center gap-4 max-w-md w-full">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                   <Input
-                    placeholder="Search regions or cultural items..."
+                    placeholder={searchCategory === "subculture" ? "Search regions..." : "Search cultural terms..."}
                     value={searchQuery}
                     onChange={(e) => handleSearch(e.target.value)}
                     className="pl-10 bg-background/50 border-border focus:ring-primary/20"
@@ -141,9 +161,8 @@ export default function PetaBudayaPage() {
                 transition={{ duration: 0.6, delay: 0.05, ease: "easeOut" }}
                 className="mt-2 md:mt-3 text-pretty text-sm md:text-base text-gray-200 max-w-2xl"
               >
-                Navigate an elegant cultural map to explore regions, traditions,
-                artifacts, and events—curated to reveal identity, history, and
-                significance with clarity and beauty.
+                Navigate an elegant cultural map to explore regions, traditions, artifacts, and events—curated to reveal
+                identity, history, and significance with clarity and beauty.
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -152,9 +171,7 @@ export default function PetaBudayaPage() {
                 className="mt-4 flex flex-col sm:flex-row items-start gap-3"
               >
                 <Link href="#map">
-                  <Button className="bg-primary hover:bg-primary/90">
-                    Start Exploring
-                  </Button>
+                  <Button className="bg-primary hover:bg-primary/90">Start Exploring</Button>
                 </Link>
                 <Link href="/budaya/daerah/-">
                   <Button
@@ -166,10 +183,7 @@ export default function PetaBudayaPage() {
                   </Button>
                 </Link>
                 <Button variant="ghost" asChild>
-                  <a
-                    href="#how-to"
-                    className="hover:underline text-gray-200"
-                  >
+                  <a href="#how-to" className="hover:underline text-gray-200">
                     How it works
                   </a>
                 </Button>
@@ -179,11 +193,7 @@ export default function PetaBudayaPage() {
         </section>
 
         {/* How it works section */}
-        <section
-          id="how-to"
-          aria-label="How it works"
-          className="container mx-auto px-4 py-6"
-        >
+        <section id="how-to" aria-label="How it works" className="container mx-auto px-4 py-6">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -216,149 +226,175 @@ export default function PetaBudayaPage() {
 
         {/* Main content with map */}
         <div id="map" className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Left sidebar with search results */}
-            <div className="lg:col-span-1">
-              <div className="bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border p-6 sticky top-24">
-                <h3 className="font-semibold text-foreground mb-2">Search Results</h3>
-                <p className="text-xs text-muted-foreground mb-4">
-                  {searchQuery 
-                    ? `Found ${searchResults.length} region(s) matching "${searchQuery}"`
-                    : "Search for regions or cultural elements"
-                  }
-                </p>
-                
-                <AnimatePresence>
-                  {showSearchResults && searchResults.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="space-y-2"
+          <div className="w-full">
+            {showSearchResults && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-6 bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border p-4"
+              >
+                <div className="flex gap-2 mb-4 items-center justify-between">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleCategoryChange("subculture")}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        searchCategory === "subculture"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
                     >
-                      {searchResults.map((region) => (
-                        <motion.button
-                          key={region.id}
-                          onClick={() => handleRegionClick(region.id)}
-                          className="w-full text-left p-3 rounded-lg border border-border hover:bg-accent/5 transition-colors"
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          <div className="flex items-center gap-2 mb-1">
-                            <div 
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: region.color }}
-                            />
-                            <span className="font-medium text-sm">{region.name}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2">
-                            {region.description}
-                          </p>
-                        </motion.button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-
-            {/* Right side with map */}
-            <div className="lg:col-span-3">
-              <div className="bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border overflow-hidden">
-                <div className="p-4 border-b border-border bg-gradient-to-r from-primary/5 to-accent/5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-lg font-semibold text-foreground">
-                        Interactive Map of East Java
-                      </h2>
-                      <p className="text-sm text-muted-foreground">
-                        Hover over regions to explore their cultural heritage
-                      </p>
-                    </div>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="text-sm">
-                          Hover to see details, click to explore glossary
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
+                      Subculture
+                    </button>
+                    <button
+                      onClick={() => handleCategoryChange("lexicon")}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        searchCategory === "lexicon"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      Lexicon
+                    </button>
                   </div>
+                  <button
+                    onClick={handleClearSearch}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    ✕ Close
+                  </button>
                 </div>
 
-                {/* Map Component - UNCHANGED */}
-                <div className="relative h-[600px]">
-                  <AdvancedPopupMap onRegionClick={handleRegionClick} />
+                <div className="space-y-3">
+                  {searchCategory === "subculture" ? (
+                    (searchResults as Region[]).length > 0 ? (
+                      (searchResults as Region[]).map((region) => (
+                        <motion.div
+                          key={region.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="rounded-lg border border-border bg-card/60 p-4 cursor-pointer hover:bg-card/80 transition-colors"
+                          onClick={() => handleRegionClick(region.id)}
+                        >
+                          <div className="font-semibold text-foreground">{region.name}</div>
+                          <div className="text-sm text-muted-foreground mt-1">
+                            {region.highlights && Array.isArray(region.highlights) && region.highlights.length > 0
+                              ? region.highlights.join(" • ")
+                              : "No highlights available"}
+                          </div>
+                        </motion.div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No subcultures found matching "{searchQuery}"
+                      </p>
+                    )
+                  ) : (searchResults as LexiconEntry[]).length > 0 ? (
+                    (searchResults as LexiconEntry[]).map((entry, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="rounded-lg border border-border bg-card/60 p-4"
+                      >
+                        <div className="font-semibold text-foreground">{entry.term}</div>
+                        <div className="text-sm text-muted-foreground mt-1">{entry.definition}</div>
+                        {entry.transliterasi && (
+                          <div className="text-xs text-muted-foreground mt-2">
+                            Transliterasi: <span className="italic">{entry.transliterasi}</span>
+                          </div>
+                        )}
+                      </motion.div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No lexicon entries found matching "{searchQuery}"
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Map section - now full width */}
+            <div className="bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border overflow-hidden">
+              <div className="p-4 border-b border-border bg-gradient-to-r from-primary/5 to-accent/5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-foreground">Interactive Map of East Java</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Hover over regions to explore their cultural heritage
+                    </p>
+                  </div>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm">Hover to see details, click to explore glossary</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
 
-              {/* Selected region glossary preview */}
-              <AnimatePresence>
-                {selectedRegion && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="mt-6 bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border p-6"
-                  >
-                    {(() => {
-                      const region = REGIONS.find((r) => r.id === selectedRegion);
-                      if (!region) return null;
-                      const terms = LEXICON[selectedRegion] || [];
-
-                      return (
-                        <div>
-                          <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-xl font-bold text-foreground">
-                              {region.name} — Cultural Glossary
-                            </h3>
-                            <Link href={`/budaya/daerah/${region.id}`}>
-                              <Button className="bg-primary hover:bg-primary/90">
-                                View Full Glossary
-                              </Button>
-                            </Link>
-                          </div>
-                          
-                          <div className="space-y-3">
-                            {terms.slice(0, 6).map((entry, idx) => (
-                              <div
-                                key={idx}
-                                className="rounded-lg border border-border bg-card/60 p-3"
-                              >
-                                <div className="font-semibold text-foreground">
-                                  {entry.term}
-                                </div>
-                                <div className="text-sm text-muted-foreground mt-1">
-                                  {entry.definition}
-                                </div>
-                              </div>
-                            ))}
-                            
-                            {terms.length === 0 && (
-                              <p className="text-sm text-muted-foreground text-center py-4">
-                                No glossary entries available for this region yet.
-                              </p>
-                            )}
-                            
-                            {terms.length > 6 && (
-                              <div className="text-center pt-2">
-                                <Link href={`/budaya/daerah/${region.id}`}>
-                                  <Button variant="outline" size="sm">
-                                    View All ({terms.length} terms)
-                                  </Button>
-                                </Link>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* Map Component */}
+              <div className="relative h-[600px]">
+                <AdvancedPopupMap onRegionClick={handleRegionClick} />
+              </div>
             </div>
+
+            {/* Selected region glossary preview */}
+            <AnimatePresence>
+              {selectedRegion && !showSearchResults && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="mt-6 bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border p-6"
+                >
+                  {(() => {
+                    const region = REGIONS.find((r) => r.id === selectedRegion)
+                    if (!region) return null
+                    const terms = LEXICON[selectedRegion] || []
+
+                    return (
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-xl font-bold text-foreground">{region.name} — Cultural Glossary</h3>
+                          <Link href={`/budaya/daerah/${region.id}`}>
+                            <Button className="bg-primary hover:bg-primary/90">View Full Glossary</Button>
+                          </Link>
+                        </div>
+
+                        <div className="space-y-3">
+                          {terms.slice(0, 6).map((entry, idx) => (
+                            <div key={idx} className="rounded-lg border border-border bg-card/60 p-3">
+                              <div className="font-semibold text-foreground">{entry.term}</div>
+                              <div className="text-sm text-muted-foreground mt-1">{entry.definition}</div>
+                            </div>
+                          ))}
+
+                          {terms.length === 0 && (
+                            <p className="text-sm text-muted-foreground text-center py-4">
+                              No glossary entries available for this region yet.
+                            </p>
+                          )}
+
+                          {terms.length > 6 && (
+                            <div className="text-center pt-2">
+                              <Link href={`/budaya/daerah/${region.id}`}>
+                                <Button variant="outline" size="sm">
+                                  View All ({terms.length} terms)
+                                </Button>
+                              </Link>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })()}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -368,5 +404,5 @@ export default function PetaBudayaPage() {
         </section>
       </div>
     </TooltipProvider>
-  );
+  )
 }
