@@ -54,7 +54,7 @@ export default function PetaBudayaPage() {
         const results: LexiconEntry[] = []
         const lowerQuery = query.toLowerCase()
 
-        for (const entries of Object.values(LEXICON)) {
+        for (const [regionKey, entries] of Object.entries(LEXICON)) {
           for (const entry of entries) {
             if (entry.term.toLowerCase().includes(lowerQuery) || entry.definition.toLowerCase().includes(lowerQuery)) {
               results.push(entry)
@@ -81,7 +81,6 @@ export default function PetaBudayaPage() {
     setSelectedRegion(null)
   }
 
-  // Handle region click
   const handleRegionClick = (regionId: string) => {
     router.push(`/budaya/daerah/${regionId}`)
   }
@@ -202,19 +201,19 @@ export default function PetaBudayaPage() {
             className="rounded-xl border border-border bg-card/60 backdrop-blur-sm p-4 md:p-5"
           >
             <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 text-sm text-muted-foreground">
-              <li className="flex items-start gap-3">
+              <li key="how-to-1" className="flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
                   1
                 </span>
                 Hover over any region on the map to see detailed information instantly.
               </li>
-              <li className="flex items-start gap-3">
+              <li key="how-to-2" className="flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
                   2
                 </span>
                 Use the search box to find specific regions and their cultural highlights.
               </li>
-              <li className="flex items-start gap-3">
+              <li key="how-to-3" className="flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
                   3
                 </span>
@@ -268,44 +267,48 @@ export default function PetaBudayaPage() {
                 <div className="space-y-3">
                   {searchCategory === "subculture" ? (
                     (searchResults as Region[]).length > 0 ? (
-                      (searchResults as Region[]).map((region) => (
-                        <motion.div
-                          key={region.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="rounded-lg border border-border bg-card/60 p-4 cursor-pointer hover:bg-card/80 transition-colors"
-                          onClick={() => handleRegionClick(region.id)}
-                        >
-                          <div className="font-semibold text-foreground">{region.name}</div>
-                          <div className="text-sm text-muted-foreground mt-1">
-                            {region.highlights && Array.isArray(region.highlights) && region.highlights.length > 0
-                              ? region.highlights.join(" • ")
-                              : "No highlights available"}
-                          </div>
-                        </motion.div>
-                      ))
+                      <>
+                        {(searchResults as Region[]).map((region) => (
+                          <motion.div
+                            key={`search-region-${region.id}`}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="rounded-lg border border-border bg-card/60 p-4 cursor-pointer hover:bg-card/80 transition-colors"
+                            onClick={() => handleRegionClick(region.id)}
+                          >
+                            <div className="font-semibold text-foreground">{region.name}</div>
+                            <div className="text-sm text-muted-foreground mt-1">
+                              {region.highlights && Array.isArray(region.highlights) && region.highlights.length > 0
+                                ? region.highlights.join(" • ")
+                                : "No highlights available"}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </>
                     ) : (
                       <p className="text-sm text-muted-foreground text-center py-4">
                         No subcultures found matching "{searchQuery}"
                       </p>
                     )
                   ) : (searchResults as LexiconEntry[]).length > 0 ? (
-                    (searchResults as LexiconEntry[]).map((entry, idx) => (
-                      <motion.div
-                        key={`${entry.term}-${idx}`}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="rounded-lg border border-border bg-card/60 p-4"
-                      >
-                        <div className="font-semibold text-foreground">{entry.term}</div>
-                        <div className="text-sm text-muted-foreground mt-1">{entry.definition}</div>
-                        {entry.transliterasi && (
-                          <div className="text-xs text-muted-foreground mt-2">
-                            Transliterasi: <span className="italic">{entry.transliterasi}</span>
-                          </div>
-                        )}
-                      </motion.div>
-                    ))
+                    <>
+                      {(searchResults as LexiconEntry[]).map((entry, idx) => (
+                        <motion.div
+                          key={`search-lexicon-${entry.termCode}-${idx}`}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="rounded-lg border border-border bg-card/60 p-4"
+                        >
+                          <div className="font-semibold text-foreground">{entry.term}</div>
+                          <div className="text-sm text-muted-foreground mt-1">{entry.definition}</div>
+                          {entry.transliterasi && (
+                            <div className="text-xs text-muted-foreground mt-2">
+                              Transliterasi: <span className="italic">{entry.transliterasi}</span>
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
+                    </>
                   ) : (
                     <p className="text-sm text-muted-foreground text-center py-4">
                       No lexicon entries found matching "{searchQuery}"
@@ -368,7 +371,7 @@ export default function PetaBudayaPage() {
                         <div className="space-y-3">
                           {terms.slice(0, 6).map((entry, idx) => (
                             <div
-                              key={`${entry.term}-${idx}`}
+                              key={`preview-${selectedRegion}-${entry.termCode}-${idx}`}
                               className="rounded-lg border border-border bg-card/60 p-3"
                             >
                               <div className="font-semibold text-foreground">{entry.term}</div>
