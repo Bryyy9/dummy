@@ -27,7 +27,7 @@ export default function PetaBudayaPage() {
   const [searchCategory, setSearchCategory] = useState<"subculture" | "lexicon" | "all">("all")
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
   const [showSearchResults, setShowSearchResults] = useState(false)
-  const [searchResults, setSearchResults] = useState<Region[] | LexiconEntry[]>([])
+  const [searchResults, setSearchResults] = useState<(Region | LexiconEntry)[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -321,7 +321,7 @@ export default function PetaBudayaPage() {
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="font-semibold text-foreground">
-                                    {item.term || (item as Region).name}
+                                    {"highlights" in item ? (item as Region).name : (item as LexiconEntry).term}
                                   </div>
                                   <div className="text-sm text-muted-foreground mt-1">
                                     {isRegion
