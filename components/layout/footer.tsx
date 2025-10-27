@@ -1,71 +1,92 @@
+// components/layout/footer.tsx
 "use client"
 
-import { Globe } from "lucide-react"
 import Link from "next/link"
+import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Globe, Heart } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import Image from "next/image"
 
 interface FooterProps {
   onNavClick: (section: string) => void
-  onCategoryClick: (category: string) => void
+  onCategoryClick?: (category: string) => void
 }
 
 export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
-  const navigationLinks = [
-    { id: "beranda", label: "Home" },
-    { id: "eksplorasi", label: "Explore" },
-    { id: "tentang", label: "About" },
-    { id: "kontak", label: "Contact" },
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Handle newsletter subscription
+    console.log("Newsletter subscription")
+  }
+
+  const quickLinks = [
+    { label: "Home", section: "beranda" },
+    { label: "About", section: "tentang" },
+    { label: "Exploration", section: "eksplorasi" },
+    { label: "Contact", section: "kontak" },
   ]
 
-  const categoryLinks = [
-    { category: "tari", label: "Traditional Dance" },
-    { category: "makanan", label: "Cuisine" },
-    { category: "batik", label: "Batik" },
-    { category: "musik", label: "Music" },
+  const culturalLinks = [
+    { label: "Cultural Map", href: "/peta-budaya" },
+    { label: "Sub-regions", href: "/budaya" },
+    { label: "Cultural Glossary", href: "/budaya/daerah/-" },
+  ]
+
+  const resources = [
+    { label: "Documentation", href: "#" },
+    { label: "Research", href: "#" },
+    { label: "Gallery", href: "#" },
+    { label: "Events", href: "#" },
   ]
 
   return (
-    <footer className="bg-background border-t border-border py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-4 gap-8">
-          {/* Brand */}
+    <footer className="bg-gradient-to-br from-muted/50 via-background to-muted/30 border-t border-border">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          {/* Brand Section */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
-                <Globe className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <h3 className="text-lg font-bold text-primary">UB Corpora</h3>
+            <div className="relative w-40 h-20 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg">
+              <Image
+                src="/Logo.png"
+                alt="UB Corpora Logo"
+                width={150}
+                height={75}
+                className="object-contain"
+                priority
+              />
             </div>
-            <p className="text-sm text-muted-foreground">
-              A digital platform to preserve and introduce East Java's cultural heritage to the world.
+            <p className="text-sm text-muted-foreground text-pretty">
+              A digital platform dedicated to preserving and introducing the cultural wealth of East Java to present and
+              future generations.
             </p>
+            <div className="flex space-x-3">
+              <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                <a href="https://facebook.com/universitasbrawijaya" target="_blank" rel="noopener noreferrer">
+                  <Facebook className="h-4 w-4" />
+                </a>
+              </Button>
+              <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                <a href="https://instagram.com/universitasbrawijaya" target="_blank" rel="noopener noreferrer">
+                  <Instagram className="h-4 w-4" />
+                </a>
+              </Button>
+              <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
+                <a href="https://twitter.com/universitasub" target="_blank" rel="noopener noreferrer">
+                  <Twitter className="h-4 w-4" />
+                </a>
+              </Button>
+            </div>
           </div>
 
-          {/* Navigation */}
+          {/* Quick Links */}
           <div>
-            <h4 className="font-semibold mb-4">Navigation</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {navigationLinks.map((link) => (
-                <li key={link.id}>
-                  <button onClick={() => onNavClick(link.id)} className="hover:text-primary transition-colors">
-                    {link.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Categories */}
-          <div>
-            <h4 className="font-semibold mb-4">Cultural Categories</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {categoryLinks.map((link) => (
-                <li key={link.category}>
+            <h3 className="font-semibold text-foreground mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              {quickLinks.map((link) => (
+                <li key={link.section}>
                   <button
-                    onClick={() => {
-                      onCategoryClick(link.category)
-                      onNavClick("eksplorasi")
-                    }}
-                    className="hover:text-primary transition-colors"
+                    onClick={() => onNavClick(link.section)}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
                   </button>
@@ -74,36 +95,123 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
             </ul>
           </div>
 
-          {/* Contact & Glosarium */}
+          {/* Cultural Content */}
           <div>
-            <h4 className="font-semibold mb-4">Contact</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground mb-6">
-              <li>info@ubcorpra.ac.id</li>
-              <li>+62 341 551611</li>
-              <li>Universitas Brawijaya</li>
-              <li>Malang, East Java</li>
+            <h3 className="font-semibold text-foreground mb-4">Cultural Content</h3>
+            <ul className="space-y-2">
+              {culturalLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Glosarium</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="/budaya/daerah/-" className="hover:text-primary transition-colors">
-                    Semua Istilah Budaya
-                  </Link>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h3 className="font-semibold text-foreground mb-4">Resources</h3>
+            <ul className="space-y-2">
+              {resources.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {link.label}
+                  </a>
                 </li>
-                <li>
-                  <Link href="/peta-budaya" className="hover:text-primary transition-colors">
-                    Peta Budaya
-                  </Link>
-                </li>
-              </ul>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Newsletter Section */}
+        <div className="border-t border-border pt-8 mb-8">
+          <div className="max-w-md mx-auto text-center">
+            <h3 className="font-semibold text-foreground mb-2">Stay Updated</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Subscribe to our newsletter for the latest updates on East Java's cultural heritage.
+            </p>
+            <form onSubmit={handleSubscribe} className="flex gap-2">
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1"
+                required
+              />
+              <Button type="submit">Subscribe</Button>
+            </form>
+          </div>
+        </div>
+
+        {/* Contact Info */}
+        <div className="border-t border-border pt-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+            <div className="flex items-start space-x-3">
+              <Mail className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="font-medium text-foreground">Email</p>
+                <a
+                  href="mailto:info@ubcorpra.ac.id"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  info@ubcorpra.ac.id
+                </a>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <Phone className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="font-medium text-foreground">Phone</p>
+                <a
+                  href="tel:+62341551611"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  +62 341 551611
+                </a>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <MapPin className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="font-medium text-foreground">Address</p>
+                <p className="text-muted-foreground">
+                  Universitas Brawijaya
+                  <br />
+                  Malang, East Java
+                </p>
+              </div>
             </div>
           </div>
         </div>
-        
-        <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>© 2025 UB Corpora. All rights reserved. Built with ❤️ for East Java's culture.</p>
+
+        {/* Bottom Bar */}
+        <div className="border-t border-border pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <span>Â© 2024 UB Corpora. All rights reserved.</span>
+              <span className="hidden md:inline">â€¢</span>
+              <span className="hidden md:inline">Made with</span>
+              <Heart className="h-4 w-4 text-red-500 fill-current hidden md:inline" />
+              <span className="hidden md:inline">by Universitas Brawijaya</span>
+            </div>
+            <div className="flex space-x-6 text-sm">
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                Privacy Policy
+              </a>
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                Terms of Service
+              </a>
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                Sitemap
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
