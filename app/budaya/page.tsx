@@ -1,220 +1,150 @@
-// app/budaya/daerah/page.tsx
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { ArrowRight, MapPin, BookOpen } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Search, ArrowLeft } from "lucide-react"
+import { AnimatedReveal } from "@/components/common/animated-reveal"
+import { EnhancedButton } from "@/components/interactive/enhanced-button"
 import { SUBCULTURE_PROFILES } from "@/data/subculture-profiles"
+import { NewsletterSection } from "@/components/sections/newsletter-section"
+import { Footer } from "@/components//layout/footer"
+import { useNavigation } from "@/hooks/use-navigation"
+import { Input } from "@/components/ui/input"
 
 export default function SubculturesGalleryPage() {
-  const [selectedSubculture, setSelectedSubculture] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const { handleNavClick, handleCategoryNavigation } = useNavigation()
+
+  const handleCategoryClick = (category: string) => {
+    handleCategoryNavigation(category)
+  }
+
+  const searchCategory = "subculture"
+  const handleSearch = (value: string) => {
+    setSearchQuery(value)
+  }
+
+  const subRegions = Object.entries(SUBCULTURE_PROFILES).map(([id, sub]) => ({
+    id,
+    name: sub.displayName,
+    description: sub.history,
+    image: sub.thumbnail || "/placeholder.jpg",
+  }))
+
+  const filteredSubRegions = subRegions.filter((sr) =>
+    sr.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      {/* Header */}
-      <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-8">
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <h1 className="text-4xl font-bold text-foreground mb-2">Subkultur Daerah</h1>
-            <p className="text-muted-foreground max-w-2xl">
-              Jelajahi kekayaan budaya dari berbagai subkultur di Jawa Timur. Setiap subkultur memiliki video dokumenter
-              dan model 3D interaktif yang menampilkan warisan budaya unik mereka.
-            </p>
-          </motion.div>
+    <div className="min-h-screen bg-[#111827] text-foreground">
+      {/* === HEADER (match Leksikon style) === */}
+      <header className="text-center py-16 px-4 sm:px-6 lg:px-8">
+        {/* Tombol Back sejajar dengan konten */}
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 text-left">
+          <button
+            onClick={() => (window.location.href = "/budaya/peta")}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Kembali
+          </button>
         </div>
+
+        {/* Badge mirip Leksikon */}
+        <Badge
+          variant="secondary"
+          className="bg-blue-950/60 text-blue-300 border border-blue-900 px-4 py-1 rounded-full mb-4"
+        >
+          🗺️ SUBKULTUR BUDAYA
+        </Badge>
+
+        <h1 className="text-4xl font-extrabold text-foreground mb-2">
+          Jelajahi Subkultur Budaya
+        </h1>
+        <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+          Setiap subkultur memiliki karakter dan tradisi unik yang memperkaya identitas budaya Jawa Timur.
+          Pilih salah satu wilayah untuk menjelajah lebih jauh.
+        </p>
+
+        {/* === Search Bar === */}
+        <AnimatedReveal animation="fade-up" delay={150}>
+          <div className="relative max-w-md mx-auto mt-10">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                placeholder={
+                  searchCategory === "subculture"
+                    ? "Cari wilayah budaya..."
+                    : "Cari istilah budaya..."
+                }
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="pl-10 bg-background/50 border border-border focus:ring-primary/20"
+              />
+            </div>
+          </div>
+        </AnimatedReveal>
       </header>
 
-      <main className="container mx-auto px-4 py-12">
-        {/* Subcultures Grid */}
-        <div className="space-y-16">
-          {Object.entries(SUBCULTURE_PROFILES).map(([id, subculture], index) => (
-            <motion.section
-              key={id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              className="rounded-2xl border border-border bg-card/60 overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-            >
-              {/* Section Header */}
-              <div className="bg-gradient-to-r from-primary/10 to-accent/10 border-b border-border p-6 md:p-8">
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div>
-                    <h2 className="text-3xl font-bold text-foreground mb-2">{subculture.displayName}</h2>
-                    <p className="text-muted-foreground max-w-2xl">{subculture.history}</p>
+      {/* === CONTENT === */}
+      <main className="container mx-auto px-4 pb-16">
+        {filteredSubRegions.length > 0 ? (
+          <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
+            {filteredSubRegions.map((sr, index) => (
+              <AnimatedReveal
+                key={sr.id}
+                animation="scale-up"
+                delay={200 + index * 100}
+              >
+                {/* === Card style disamakan dengan Leksikon === */}
+                <div className="group relative overflow-hidden rounded-2xl bg-card/40 border border-border backdrop-blur-sm transition-all hover:shadow-lg hover:border-primary/40 h-full flex flex-col">
+                  <div className="aspect-[4/3] relative overflow-hidden">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                      style={{ backgroundImage: `url('${sr.image}')` }}
+                      role="img"
+                      aria-label={`Image of ${sr.name}`}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute top-3 left-3">
+                      <Badge className="bg-black/50 backdrop-blur-sm border-white/20 text-white">
+                        Sub-region
+                      </Badge>
+                    </div>
                   </div>
-                  <Link href={`/budaya/daerah/${id}`}>
-                    <Button variant="outline" size="sm" className="shrink-0 bg-transparent">
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Glosarium
-                    </Button>
-                  </Link>
-                </div>
 
-                {/* Demographics */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="rounded-lg bg-background/50 border border-border p-3">
-                    <div className="text-xs text-muted-foreground mb-1">Populasi</div>
-                    <div className="font-semibold text-sm text-foreground">{subculture.demographics.population}</div>
-                  </div>
-                  <div className="rounded-lg bg-background/50 border border-border p-3">
-                    <div className="text-xs text-muted-foreground mb-1">Area</div>
-                    <div className="font-semibold text-sm text-foreground">{subculture.demographics.area}</div>
-                  </div>
-                  <div className="rounded-lg bg-background/50 border border-border p-3">
-                    <div className="text-xs text-muted-foreground mb-1">Kepadatan</div>
-                    <div className="font-semibold text-sm text-foreground">{subculture.demographics.density}</div>
-                  </div>
-                  <div className="rounded-lg bg-background/50 border border-border p-3">
-                    <div className="text-xs text-muted-foreground mb-1">Bahasa</div>
-                    <div className="font-semibold text-sm text-foreground">{subculture.demographics.languages[0]}</div>
-                  </div>
-                </div>
+                  <div className="p-4 flex flex-col flex-1">
+                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors mb-2">
+                      {sr.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-3">
+                      {sr.description}
+                    </p>
 
-                {/* Highlights */}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {subculture.highlights.map((highlight: string, i: number) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1 rounded-full text-xs border border-border bg-background/50 text-muted-foreground"
+                    {/* Tombol Explore style Leksikon */}
+                    <EnhancedButton
+                      size="lg"
+                      className="w-full cursor-pointer mt-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 text-white border-none"
+                      onClick={() =>
+                        (window.location.href = `/budaya/daerah/${sr.id}`)
+                      }
                     >
-                      {highlight}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Media Section */}
-              <div className="p-6 md:p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Video Section */}
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
-                        <span className="w-1 h-6 bg-primary rounded-full" />
-                        Video Dokumenter
-                      </h3>
-                      <p className="text-sm text-muted-foreground">{subculture.video.description}</p>
-                    </div>
-
-                    <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border bg-background/50">
-                      <iframe
-                        className="w-full h-full"
-                        src={`https://www.youtube.com/embed/${subculture.video.youtubeId}?rel=0&modestbranding=1`}
-                        title={subculture.video.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        loading="lazy"
-                      />
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {subculture.video.tags.map((tag: string, i: number) => (
-                        <span
-                          key={i}
-                          className="px-2 py-1 rounded-full text-xs border border-border bg-background/50 text-muted-foreground"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 3D Model Section */}
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
-                        <span className="w-1 h-6 bg-accent rounded-full" />
-                        Model 3D Interaktif
-                      </h3>
-                      {subculture.model3dArray && subculture.model3dArray.length > 0 ? (
-                        <>
-                          <p className="text-sm text-muted-foreground">{subculture.model3dArray[0].description}</p>
-
-                          <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
-                            <iframe
-                              className="w-full"
-                              style={{ height: "400px" }}
-                              src={`https://sketchfab.com/models/${subculture.model3dArray[0].sketchfabId}/embed?autospin=1&autostart=1`}
-                              title={subculture.model3dArray[0].title}
-                              allow="autoplay; fullscreen; xr-spatial-tracking"
-                              allowFullScreen
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <div className="flex flex-wrap gap-2">
-                              {subculture.model3dArray[0].tags.map((tag: string, i: number) => (
-                                <span
-                                  key={i}
-                                  className="px-2 py-1 rounded-full text-xs border border-border bg-background/50 text-muted-foreground"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                            <div className="rounded-lg border border-border bg-background/50 p-3">
-                              <p className="text-xs text-muted-foreground">
-                                <strong>Tipe Artefak:</strong> {subculture.model3dArray[0].artifactType}
-                              </p>
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <p className="text-sm text-muted-foreground">Model 3D tidak tersedia</p>
-                      )}
-                    </div>
+                      Explore
+                    </EnhancedButton>
                   </div>
                 </div>
-              </div>
-
-              {/* Footer CTA */}
-              <div className="border-t border-border bg-background/30 px-6 md:px-8 py-4 flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Pelajari lebih lanjut tentang {subculture.displayName} dan istilah budayanya
-                </p>
-                <Link href={`/budaya/daerah/${id}`}>
-                  <Button variant="ghost" size="sm" className="hover:bg-accent/20">
-                    Jelajahi Glosarium
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
-              </div>
-            </motion.section>
-          ))}
-        </div>
-
-        {/* Bottom CTA */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="mt-16 rounded-2xl border border-border bg-gradient-to-r from-primary/10 to-accent/10 p-8 md:p-12 text-center"
-        >
-          <h2 className="text-2xl font-bold text-foreground mb-4">Ingin Mempelajari Lebih Lanjut?</h2>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Jelajahi glosarium lengkap dari semua subkultur atau kembali ke peta budaya untuk melihat distribusi
-            geografis.
+              </AnimatedReveal>
+            ))}
+          </section>
+        ) : (
+          <p className="text-center text-muted-foreground mt-10">
+            Subkultur tidak ditemukan.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/budaya/daerah/-">
-              <Button className="bg-primary hover:bg-primary/90">
-                <BookOpen className="w-4 h-4 mr-2" />
-                Glosarium Lengkap
-              </Button>
-            </Link>
-            <Link href="/peta-budaya">
-              <Button variant="outline">
-                <MapPin className="w-4 h-4 mr-2" />
-                Kembali ke Peta Budaya
-              </Button>
-            </Link>
-          </div>
-        </motion.section>
+        )}
       </main>
+
+      <NewsletterSection />
+      <Footer onNavClick={handleNavClick} onCategoryClick={handleCategoryClick} />
     </div>
   )
 }

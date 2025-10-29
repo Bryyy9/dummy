@@ -18,71 +18,63 @@ const MEMBERS: Member[] = [
   { name: "Hadi Kurnia", role: "GIS Specialist" },
 ]
 
-function TickerRow({ members }: { members: Member[] }) {
-  return (
-    <div className="flex items-stretch gap-4 pr-4" aria-hidden="true">
-      {members.map((m, idx) => (
-        <div
-          key={`${m.name}-${idx}`}
-          className="shrink-0 rounded-xl border border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-md px-5 py-4 hover-lift transition-all duration-300"
-        >
-          <p className="text-sm font-bold text-foreground leading-tight mb-1.5">{m.name}</p>
-          <p className="text-xs font-medium text-accent/90 uppercase tracking-wider">{m.role}</p>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-export function TeamTickerSection() {
-  // duplicate list to ensure seamless loop
-  const loopMembers = React.useMemo(() => [...MEMBERS, ...MEMBERS], [])
-
+export default function TeamTickerSection() {
   return (
     <section
       aria-labelledby="team-ticker-heading"
-      className="relative py-16 md:py-20 bg-gradient-to-b from-muted/30 to-muted/10 rounded-3xl overflow-hidden"
+      className="relative py-20 bg-gradient-to-b from-background via-muted/20 to-background overflow-hidden"
     >
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      {/* background effect */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-amber-200/20 blur-3xl" />
       </div>
 
+      {/* Header */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 md:mb-16 text-center">
-          <h2
-            id="team-ticker-heading"
-            className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 leading-tight"
-          >
-            Team Involved
+        <div className="text-center space-y-4 mb-12">
+          <h2 id="team-ticker-heading" className="text-3xl md:text-4xl font-bold text-balance">
+            Meet the Team
+            <span className="block text-primary">The People Behind the Project</span>
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Collaborators dedicated to bringing their skills and passion to preserve the cultural heritage of East Java.
+
+          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            A diverse team of passionate individuals working together to preserve and promote East Java’s cultural heritage.
           </p>
         </div>
-
-        <div
-          className="group relative overflow-hidden rounded-2xl border border-border/30 bg-background/40 backdrop-blur-xl shadow-lg"
-          aria-label="Ticker anggota tim"
-        >
-          {/* subtle edge fades for continuity */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background via-background/50 to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background via-background/50 to-transparent z-10" />
-
-          <div className="flex gap-4 animate-[ticker_30s_linear_infinite] group-hover:[animation-play-state:paused] motion-reduce:animate-none py-6">
-            <TickerRow members={loopMembers} />
-            {/* duplicate row for seamless loop */}
-            <TickerRow members={loopMembers} />
-          </div>
-        </div>
-
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          Hover to interact • Scroll to see more team members
-        </p>
       </div>
 
+      {/* Marquee Members */}
+      <div className="group relative mt-12 w-screen -ml-[calc((100vw-100%)/2)] overflow-visible">
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
+
+        <div
+          className="marquee relative overflow-visible w-full border-y border-border/60 bg-muted/20"
+          aria-label="Scrolling team members"
+        >
+          <div className="marquee-track flex items-center gap-14 md:gap-20 py-10 will-change-transform px-12 sm:px-16 lg:px-20">
+            {Array.from({ length: 2 }).map((_, dup) =>
+              MEMBERS.map((member, i) => (
+                <div
+                  key={`${dup}-${i}`}
+                  aria-hidden={dup === 1 ? true : undefined}
+                  className={`flex-shrink-0 flex flex-col items-center rounded-xl border border-border/40
+                              bg-gradient-to-br from-muted/60 to-muted/20 shadow-sm px-6 py-4
+                              hover:-translate-y-1 hover:shadow-md transition-all duration-300`}
+                >
+                  <p className="text-sm font-semibold text-foreground">{member.name}</p>
+                  <p className="text-xs text-muted-foreground">{member.role}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Marquee Animation */}
       <style jsx>{`
-        @keyframes ticker {
+        @keyframes marquee-left {
           0% {
             transform: translateX(0);
           }
@@ -90,14 +82,13 @@ export function TeamTickerSection() {
             transform: translateX(-50%);
           }
         }
-        @media (prefers-reduced-motion: reduce) {
-          .motion-reduce\\:animate-none {
-            animation: none !important;
-          }
+        .marquee-track {
+          animation: marquee-left 30s linear infinite;
+        }
+        .group:hover .marquee-track {
+          animation-play-state: paused;
         }
       `}</style>
     </section>
   )
 }
-
-export default TeamTickerSection

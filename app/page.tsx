@@ -116,10 +116,12 @@ export default function CulturalHeritagePage() {
 
         <ContactSection />
 
-        <NewsletterSection />
+        {/* <NewsletterSection /> */}
 
         <Footer onNavClick={handleNavClick} onCategoryClick={handleCategoryClick} />
       </div>
     </div>
   )
 }
+
+

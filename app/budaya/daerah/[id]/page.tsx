@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, MapPin } from "lucide-react"
+import { MapPin } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -11,42 +11,28 @@ import { LEXICON, type LexiconEntry } from "@/data/lexicon"
 import { SUBCULTURE_PROFILES } from "@/data/subculture-profiles"
 import { getRegionHeroImage } from "@/data/region-images"
 import { searchLexiconEntries, type SearchResult } from "@/lib/search-utils"
+import { Navigation } from "@/components/layout/navigation"
+import { useNavigation } from "@/hooks/use-navigation"
+import { Footer } from "@/components/layout/footer"
+import { NewsletterSection } from "@/components/sections/newsletter-section"
 
 export default function RegionDetailPage() {
   const params = useParams()
   const regionId = params.id as string
 
+  const { handleNavClick } = useNavigation()
+
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [filteredItems, setFilteredItems] = useState<any[]>([])
-
-  const [videoIndex, setVideoIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-
-  const [autoRotate, setAutoRotate] = useState(true)
-  const [viewerKey, setViewerKey] = useState(0)
 
   const [isNavSticky, setIsNavSticky] = useState(false)
   const [activeSection, setActiveSection] = useState<string>("region-profile")
-  const navRef = useRef<HTMLElement | null>(null)
-
-  const [current3DModelIndex, setCurrent3DModelIndex] = useState(0)
 
   const lexicon: LexiconEntry[] = LEXICON[regionId] || []
 
   const heroImage = getRegionHeroImage(regionId)
 
   const profile = SUBCULTURE_PROFILES[regionId]
-  const baseVideoSrc = "/videos/subculture-sample.mp4"
-  const videos = [baseVideoSrc]
-  const posters = [heroImage]
-
-  const goPrev = () => setVideoIndex((i) => (i - 1 + videos.length) % videos.length)
-  const goNext = () => setVideoIndex((i) => (i + 1) % videos.length)
-
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -59,21 +45,11 @@ export default function RegionDetailPage() {
   }, [searchQuery, regionId])
 
   useEffect(() => {
-    const v = videoRef.current
-    if (!v) return
-    v.load()
-    if (isPlaying) {
-      const playPromise = v.play()
-      playPromise?.catch(() => setIsPlaying(false))
-    }
-  }, [videoIndex, isPlaying])
-
-  useEffect(() => {
     const handleScroll = () => {
       const headerHeight = 64
       setIsNavSticky(window.scrollY > headerHeight)
 
-      const sections = ["region-profile", "video-profile", "viewer-3d", "search-and-explore"]
+      const sections = ["region-profile", "photo-gallery", "viewer-3d", "search-and-explore"]
       for (const sectionId of sections) {
         const element = document.getElementById(sectionId)
         if (element) {
@@ -88,6 +64,24 @@ export default function RegionDetailPage() {
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // ---------- Robust scroll helper (menghitung offset manual) ----------
+  // Ubah nilai ini kalau header + nav Anda lebih tinggi/rendah.
+  const SCROLL_OFFSET = 96 // setara dengan scroll-mt-24
+  function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
+    e.preventDefault()
+    const el = document.getElementById(id)
+    if (!el) return
+    const top = el.getBoundingClientRect().top + window.pageYOffset - SCROLL_OFFSET
+    window.scrollTo({ top, behavior: "smooth" })
+    // update hash tanpa memicu jump default
+    if (history.replaceState) {
+      history.replaceState(null, "", `#${id}`)
+    } else {
+      window.location.hash = `#${id}`
+    }
+  }
+  // --------------------------------------------------------------------
 
   if (!lexicon.length) {
     return (
@@ -108,65 +102,85 @@ export default function RegionDetailPage() {
     "/subculture-gallery-3.jpg",
   ]
 
-  const goToPrev = () => setCurrentImageIndex((i) => (i - 1 + galleryImages.length) % galleryImages.length)
-  const goToNext = () => setCurrentImageIndex((i) => (i + 1) % galleryImages.length)
-
-  const create3DModels = () => {
-    if (!profile) return []
-
-    return profile.model3dArray && profile.model3dArray.length > 0
-      ? profile.model3dArray.map((model) => ({
-          id: model.sketchfabId,
-          title: model.title,
-          description: model.description,
-          artifactType: model.artifactType,
-          tags: model.tags,
-        }))
-      : []
-  }
-
-  const models3D = create3DModels()
-  const go3DPrev = () => setCurrent3DModelIndex((i) => (i - 1 + models3D.length) % models3D.length)
-  const go3DNext = () => setCurrent3DModelIndex((i) => (i + 1) % models3D.length)
+  const models3D = profile?.model3dArray && profile.model3dArray.length > 0
+    ? profile.model3dArray.map((model) => ({
+        id: model.sketchfabId,
+        title: model.title,
+        description: model.description,
+        artifactType: model.artifactType,
+        tags: model.tags,
+      }))
+    : []
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      {/* Header */}
-      <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 space-y-2">
-          <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground">
-            <ol className="flex items-center gap-2">
-              <li>
-                <Link href="/peta-budaya" className="hover:underline">
-                  Cultural Map
-                </Link>
-              </li>
-              <li aria-hidden="true">/</li>
-              <li className="text-foreground font-medium">{regionId}</li>
-            </ol>
-          </nav>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/peta-budaya">
-                <Button variant="ghost" size="sm" className="hover:bg-accent/10">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Map
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">{regionId} Glosarium Lokal</h1>
-                <p className="text-sm text-muted-foreground">Terms and definitions for this subculture.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation onNavClick={handleNavClick} />
+<section aria-label="Hero" className="relative overflow-hidden border-b border-border">
+  <div className="relative">
+    {/* Background Image */}
+    <img
+      src={heroImage || "/placeholder.svg"}
+      alt={`${regionId} cultural landscape`}
+      className="h-[65vh] md:h-[80vh] w-full object-cover"
+      crossOrigin="anonymous"
+    />
+    {/* Overlay gradient */}
+    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-      {/* In-page subnav */}
-      <nav
-        ref={navRef}
+    {/* Hero Content */}
+    <div className="absolute inset-0 flex flex-col justify-center items-start px-12 md:px-16 lg:px-24">
+      {/* Breadcrumb */}
+      <motion.nav
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-sm text-gray-200 mb-3"
+        aria-label="Breadcrumb"
+      >
+        <ol className="flex items-center space-x-2">
+          <li>
+            <Link href="/" className="hover:underline">
+              Home
+            </Link>
+          </li>
+          <li aria-hidden="true">›</li>
+          <li>
+            <Link href="/peta-budaya" className="hover:underline">
+              Culture Map
+            </Link>
+          </li>
+        </ol>
+      </motion.nav>
+
+      {/* Headline */}
+      <motion.h1
+        className="text-4xl md:text-6xl font-extrabold text-white max-w-3xl leading-tight"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.1 }}
+      >
+        Discover the Living Tapestry of {profile?.displayName || regionId}
+      </motion.h1>
+
+      {/* Subtext */}
+      <motion.p
+        className="mt-4 text-lg md:text-xl text-gray-200 max-w-2xl leading-relaxed"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+      >
+        Navigate an elegant cultural map to explore regions, traditions, artifacts, and events—curated
+        to reveal identity, history, and significance with clarity and beauty.
+      </motion.p>
+    </div>
+  </div>
+</section>
+
+      {/* MAIN: tambahkan scroll-smooth supaya anchor jump lebih halus */}
+      <main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
+         <nav
         aria-label="Halaman sub-bab"
-        className={`bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-[64px] z-40 border-b border-border transition-shadow duration-200 ${
+        className={`bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40 border-b border-border transition-shadow duration-200 ${
           isNavSticky ? "shadow-md" : ""
         }`}
       >
@@ -175,382 +189,164 @@ export default function RegionDetailPage() {
             <li>
               <a
                 href="#region-profile"
+                onClick={(e) => scrollToSection(e, "region-profile")}
                 className={`px-3 py-2 rounded-md text-sm transition-colors ${
                   activeSection === "region-profile"
                     ? "bg-primary/20 text-primary font-medium"
                     : "hover:bg-accent/20 text-foreground"
                 }`}
               >
-                Background
+                Profile Subkulture
               </a>
             </li>
             <li aria-hidden="true">/</li>
             <li>
               <a
-                href="#video-profile"
-                className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                  activeSection === "video-profile"
-                    ? "bg-primary/20 text-primary font-medium"
-                    : "hover:bg-accent/20 text-foreground"
-                }`}
-              >
-                Profile Video
-              </a>
-            </li>
-            <li>
-              <a
-                href="#viewer-3d"
-                className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                  activeSection === "viewer-3d"
-                    ? "bg-primary/20 text-primary font-medium"
-                    : "hover:bg-accent/20 text-foreground"
-                }`}
-              >
-                3D Object
-              </a>
-            </li>
-            <li>
-              <a
                 href="#search-and-explore"
+                onClick={(e) => scrollToSection(e, "search-and-explore")}
                 className={`px-3 py-2 rounded-md text-sm transition-colors ${
                   activeSection === "search-and-explore"
                     ? "bg-primary/20 text-primary font-medium"
                     : "hover:bg-accent/20 text-foreground"
                 }`}
               >
-                Search Terms
+                Kumpulan kata
               </a>
             </li>
+
           </ul>
         </div>
       </nav>
 
-      {/* Hero / CTA section with immersive image */}
-      <section aria-label="Hero" className="relative overflow-hidden border-b border-border">
-        <div className="relative">
-          <img
-            src={heroImage || "/placeholder.svg"}
-            alt={`${regionId} cultural landscape`}
-            className="h-[42vh] md:h-[52vh] w-full object-cover"
-            crossOrigin="anonymous"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="mx-auto max-w-4xl px-4 text-center">
-              <motion.h2
-                className="text-balance text-3xl md:text-5xl font-semibold drop-shadow-sm"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                Start your adventure in {regionId}
-              </motion.h2>
-              <motion.p
-                className="mt-4 text-pretty text-sm md:text-base text-muted-foreground max-w-2xl mx-auto"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
-                Explore cultural identity, historical roots, and why this region matters. Browse traditions, artifacts,
-                and events in a beautifully curated experience.
-              </motion.p>
-              <motion.div
-                className="mt-6 flex items-center justify-center gap-3"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.15 }}
-              >
-                <a href="#search-and-explore">
-                  <Button className="bg-primary hover:bg-primary/90">Start exploring</Button>
-                </a>
-                <a href="#region-profile">
-                  <Button variant="outline">About the region</Button>
-                </a>
-              </motion.div>
-            </div>
+  {/* 2️⃣ PROFIL SUBCULTURE SECTION */}
+  <section id="region-profile" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
+    {(() => {
+      const profile = SUBCULTURE_PROFILES[regionId]
+      if (!profile)
+        return (
+          <p className="text-sm text-muted-foreground">
+            Detailed profile for this subculture is not yet available.
+          </p>
+        )
+
+      const { displayName, history, highlights } = profile
+
+      return (
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-foreground">Sekilas tentang {displayName}</h2>
+          <p className="text-base leading-relaxed text-muted-foreground">{history} T Telkom Indonesia (Persero) Tbk (Telkom) adalah badan usaha milik negara (BUMN) yang bergerak di bidang layanan teknologi informasi dan komunikasi serta telekomunikasi digital di Indonesia.
+
+Pemilik mayoritas saham Telkom adalah pemerintah Republik Indonesia dengan kepemilikan sebesar 52,09 %. Sementara sisa kepemilikan saham sebesar 47,91 % dipegang oleh publik. Telkom memiliki 12 anak perusahaan atau subsidiary yang bergerak di berbagai sektor dan memberikan dampak positif baik untuk investor maupun rakyat Indonesia.
+
+Pendirian PN Telekomunikasi, sesuai PP No. 30 tanggal 6 Juli 1965, pada dasarnya ditujukan untuk membangun ekonomi nasional sesuai dengan ekonomi terpimpin dengan mengutamakan kebutuhan rakyat dan ketenteraman rakyat serta ketenangan kerja dalam perusahaan, menuju masyarakat yang adil dan makmur materiil dan spiritual. Semangat itulah yang senantiasa diemban TelkomGroup, dari produk fixed line hingga saat ini bertransformasi menjadi digital telecommunication company.
+
+Dalam menjalankan transformasi, TelkomGroup mengimplementasikan strategi bisnis dan operasional perusahaan yang berorientasi kepada pelanggan (customer-oriented). Transformasi tersebut akan membuat organisasi TelkomGroup menjadi lebih lean (ramping) dan agile (lincah) dalam beradaptasi dengan perubahan industri telekomunikasi yang berlangsung sangat cepat. Organisasi yang baru juga diharapkan dapat meningkatkan efisiensi dan efektivitas dalam menciptakan customer experience yang berkualitas.
+
+Kegiatan usaha TelkomGroup bertumbuh dan berubah seiring dengan perkembangan teknologi, informasi dan digitalisasi, namun masih dalam koridor industri telekomunikasi dan informasi. Hal ini terlihat dari lini bisnis yang terus berkembang melengkapi legacy yang sudah ada sebelumnya.</p>
+        </div>
+      )
+    })()}
+  </section>
+
+{/* 3️⃣ FOTO SUBCULTURE SECTION — Slider Fix */}
+<section id="photo-gallery" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 overflow-hidden scroll-mt-24">
+  <h2 className="text-2xl font-bold text-foreground mb-6">Serba-serbi {profile?.displayName}</h2>
+
+  {/* Carousel wrapper */}
+  {(() => {
+    const carouselRef = useRef<HTMLDivElement>(null)
+    const innerRef = useRef<HTMLDivElement>(null)
+    const [dragWidth, setDragWidth] = useState(0)
+
+    useEffect(() => {
+      if (carouselRef.current && innerRef.current) {
+        const scrollWidth = innerRef.current.scrollWidth
+        const offsetWidth = carouselRef.current.offsetWidth
+        setDragWidth(scrollWidth - offsetWidth)
+      }
+    }, [galleryImages])
+
+    return (
+      <motion.div ref={carouselRef} className="overflow-hidden cursor-grab active:cursor-grabbing">
+        <motion.div
+          ref={innerRef}
+          drag="x"
+          dragConstraints={{ right: 0, left: -dragWidth }}
+          className="flex gap-4"
+        >
+          {galleryImages.map((img, idx) => (
+            <motion.div
+              key={idx}
+              className="min-w-[300px] md:min-w-[340px] rounded-lg overflow-hidden border border-border bg-background/50 hover:scale-[1.02] transition-transform shadow-sm"
+              whileHover={{ scale: 1.03 }}
+            >
+              <img
+                src={img}
+                alt={`${profile?.displayName} foto ${idx + 1}`}
+                className="w-full h-56 object-cover"
+                crossOrigin="anonymous"
+              />
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
+    )
+  })()}
+
+  <p className="text-center text-sm text-muted-foreground mt-4">
+    Geser untuk melihat lebih banyak foto →
+  </p>
+</section>
+
+
+
+  {/* 4️⃣ 3D SUBCULTURE SECTION */}
+  <section
+    id="viewer-3d"
+    aria-label="Penampil 3D"
+    className="rounded-xl shadow-sm border border-border bg-card/60 p-6 scroll-mt-24"
+  >
+    {(() => {
+      const p = SUBCULTURE_PROFILES[regionId]
+      if (!p?.model3dArray || p.model3dArray.length === 0) {
+        return (
+          <div className="text-center py-8">
+            <p className="text-sm text-muted-foreground">
+              3D models for this subculture are not yet available.
+            </p>
+          </div>
+        )
+      }
+
+      const currentModel = models3D[0] // Show first model only
+
+      return (
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            3D Cultural Artifacts & Environments
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Jelajahi model 3D interaktif dari artefak budaya dan lingkungan suku {p.displayName}.
+          </p>
+
+          <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
+            <iframe
+              key={`model-${currentModel.id}`}
+              className="w-full"
+              style={{ height: "500px" }}
+              src={`https://sketchfab.com/models/${currentModel.id}/embed?autospin=1&autostart=1`}
+              title={`${currentModel.title}`}
+              allow="autoplay; fullscreen; xr-spatial-tracking"
+              allowFullScreen
+            />
           </div>
         </div>
-      </section>
+      )
+    })()}
+  </section>
 
-      <main className="container mx-auto px-4 py-6 space-y-8">
-        {/* Profile overview cards */}
-        <section id="region-profile" className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
-          {(() => {
-            const profile = SUBCULTURE_PROFILES[regionId]
-            if (!profile)
-              return (
-                <p className="text-sm text-muted-foreground">
-                  Detailed profile for this subculture is not yet available. Use the glossary below.
-                </p>
-              )
-
-            const { displayName, history, highlights } = profile
-
-            // Create gallery images - using hero image and placeholder variations
-
-            return (
-              <div className="space-y-6">
-                {/* Image Gallery with Recent Articles Sidebar */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Image Carousel */}
-                  <div className="lg:col-span-2">
-                    <div className="relative rounded-lg overflow-hidden border border-border bg-background/50">
-                      <div className="relative aspect-video">
-                        <img
-                          src={galleryImages[currentImageIndex] || "/placeholder.svg"}
-                          alt={`${displayName} gallery image ${currentImageIndex + 1}`}
-                          className="w-full h-full object-cover"
-                          crossOrigin="anonymous"
-                        />
-                        {/* Navigation Arrows */}
-                        <button
-                          onClick={goToPrev}
-                          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-                          aria-label="Previous image"
-                        >
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={goToNext}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-                          aria-label="Next image"
-                        >
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </button>
-                      </div>
-
-                      {/* Pagination Dots */}
-                      <div className="flex items-center justify-center gap-2 py-4 bg-background/50">
-                        {galleryImages.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setCurrentImageIndex(idx)}
-                            className={`w-2 h-2 rounded-full transition-colors ${
-                              idx === currentImageIndex ? "bg-primary" : "bg-muted-foreground/40"
-                            }`}
-                            aria-label={`Go to image ${idx + 1}`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Recent Articles Sidebar */}
-                  <aside className="rounded-lg border border-border bg-background/50 p-4">
-                    <h3 className="font-bold text-foreground mb-4">Recent Articles</h3>
-                    <ul className="space-y-3">
-                      {highlights.slice(0, 3).map((article, idx) => (
-                        <li
-                          key={idx}
-                          className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                        >
-                          {article}
-                        </li>
-                      ))}
-                    </ul>
-                  </aside>
-                </div>
-
-                {/* Descriptive Text Section */}
-                <div className="rounded-lg border border-border bg-background/50 p-6 space-y-4">
-                  <h2 className="text-2xl font-bold text-foreground">{displayName}</h2>
-                  <div className="space-y-3 text-muted-foreground">
-                    <p className="text-base leading-relaxed">{history}</p>
-                    <p className="text-base leading-relaxed">
-                      This subculture is characterized by its unique traditions, artistic expressions, and cultural
-                      practices that have been preserved and evolved over generations. The community maintains strong
-                      connections to its heritage while adapting to contemporary influences, creating a dynamic cultural
-                      landscape.
-                    </p>
-                  </div>
-
-                  {/* Key Highlights */}
-                  <div className="pt-4">
-                    <h3 className="font-semibold text-foreground mb-3">Key Cultural Elements</h3>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {highlights.map((highlight, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <span className="text-primary mt-1">•</span>
-                          <span className="text-sm text-muted-foreground">{highlight}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )
-          })()}
-        </section>
-
-        <section
-          id="video-profile"
-          aria-label="Video subkultur"
-          className="rounded-xl shadow-sm border border-border bg-card/60 p-6"
-        >
-          {(() => {
-            const p = SUBCULTURE_PROFILES[regionId]
-            if (!p?.video?.youtubeId) {
-              return (
-                <div className="text-center py-8">
-                  <p className="text-sm text-muted-foreground">
-                    Video profile for this subculture is not yet available.
-                  </p>
-                </div>
-              )
-            }
-            return (
-              <div className="space-y-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-2">Cultural Profile Video</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Watch an in-depth exploration of {p.displayName}'s cultural heritage, traditions, and contemporary
-                    expressions. This video provides visual context and authentic perspectives on the subculture.
-                  </p>
-                </div>
-
-                <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border bg-background/50">
-                  <iframe
-                    className="w-full h-full"
-                    src={`https://www.youtube.com/embed/${p.video.youtubeId}?rel=0&modestbranding=1`}
-                    title={`${p.displayName} Cultural Profile Video`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    loading="lazy"
-                  />
-                </div>
-
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                    Documentary
-                  </span>
-                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                    Cultural Heritage
-                  </span>
-                  <span className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground">
-                    {p.displayName}
-                  </span>
-                </div>
-              </div>
-            )
-          })()}
-        </section>
-
-        <section
-          id="viewer-3d"
-          aria-label="Penampil 3D"
-          className="rounded-xl shadow-sm border border-border bg-card/60 p-6"
-        >
-          {(() => {
-            const p = SUBCULTURE_PROFILES[regionId]
-            if (!p?.model3dArray || p.model3dArray.length === 0) {
-              return (
-                <div className="text-center py-8">
-                  <p className="text-sm text-muted-foreground">3D models for this subculture are not yet available.</p>
-                </div>
-              )
-            }
-
-            const currentModel = models3D[current3DModelIndex]
-
-            return (
-              <div className="space-y-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-2">3D Cultural Artifacts & Environments</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Explore interactive 3D models representing artifacts, architectural elements, or cultural landscapes
-                    of {p.displayName}. Rotate, zoom, and examine details from every angle to deepen your understanding
-                    of the material culture.
-                  </p>
-                </div>
-
-                {/* 3D Model Viewer */}
-                <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
-                  <iframe
-                    key={`model-${current3DModelIndex}`}
-                    className="w-full"
-                    style={{ height: "500px" }}
-                    src={`https://sketchfab.com/models/${currentModel.id}/embed?autospin=1&autostart=1`}
-                    title={`${currentModel.title}`}
-                    allow="autoplay; fullscreen; xr-spatial-tracking"
-                    allowFullScreen
-                  />
-
-                  {/* Navigation Arrows */}
-                  {models3D.length > 1 && (
-                    <>
-                      <button
-                        onClick={go3DPrev}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-                        aria-label="Previous 3D model"
-                      >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={go3DNext}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-                        aria-label="Next 3D model"
-                      >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {/* Pagination Dots */}
-                {models3D.length > 1 && (
-                  <div className="flex items-center justify-center gap-2">
-                    {models3D.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrent3DModelIndex(idx)}
-                        className={`w-2 h-2 rounded-full transition-colors ${
-                          idx === current3DModelIndex ? "bg-primary" : "bg-muted-foreground/40"
-                        }`}
-                        aria-label={`Go to 3D model ${idx + 1}`}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {/* Model Information */}
-                <div className="space-y-3">
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">{currentModel.title}</h3>
-                    <p className="text-sm text-muted-foreground">{currentModel.description}</p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {currentModel.tags.map((tag, idx) => (
-                      <span
-                        key={idx}
-                        className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="rounded-lg border border-border bg-background/50 p-3">
-                    <p className="text-xs text-muted-foreground">
-                      <strong>Interaction Tips:</strong> Use your mouse or touch to rotate the model. Scroll to zoom in
-                      and out. Click the fullscreen icon for an immersive viewing experience.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )
-          })()}
-        </section>
-
-        <section id="search-and-explore" className="bg-card/60 rounded-xl shadow-sm border border-border p-6">
+  {/* Bagian Search & Explore tetap */}
+        <section id="search-and-explore" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
           <div className="flex flex-col gap-4" role="search">
             <div>
               <h2 className="text-xl font-bold text-foreground mb-2">Search Lexicon</h2>
@@ -570,7 +366,7 @@ export default function RegionDetailPage() {
           </div>
         </section>
 
-        <section aria-label="Daftar istilah">
+        <section aria-label="Daftar istilah" className="scroll-mt-24">
           {(() => {
             const displayItems = searchQuery ? searchResults.map((r) => r.entry) : lexicon
 
@@ -594,17 +390,22 @@ export default function RegionDetailPage() {
                         <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{entry.definition}</p>
                       </div>
 
-                      <div className="px-4 pb-3">
+                      <div className="px-4 pb-4">
                         <Link
                           href={`/budaya/daerah/-/${termSlug}`}
                           aria-label={`Lihat rincian untuk istilah ${entry.term}`}
+                          className="block"
                         >
-                          <Button size="sm" className="w-full md:w-auto">
-                            Rincian
+                          <Button
+                            size="lg"
+                            className="w-full bg-primary text-white hover:bg-primary/90 rounded-md py-3"
+                          >
+                            Detail &nbsp;→
                           </Button>
                         </Link>
                       </div>
                     </article>
+                               
                   )
                 })}
 
@@ -625,7 +426,10 @@ export default function RegionDetailPage() {
             )
           })()}
         </section>
-      </main>
+
+</main>
+ <NewsletterSection /> 
+<Footer onNavClick={handleNavClick} />
     </div>
   )
 }

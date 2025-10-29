@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Users, BookOpen, Globe, Award, Sparkles } from "lucide-react"
 import { AnimatedReveal } from "@/components/common/animated-reveal"
 import { EnhancedButton } from "@/components/interactive/enhanced-button"
-import { TeamTickerSection } from "@/components/sections/team-ticker-section"
+import TeamTickerSection from "@/components/sections/team-ticker-section"
 
 interface AboutSectionProps {
   onNavClick: (section: string) => void
@@ -65,11 +65,11 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16 auto-rows-fr">
-          <AnimatedReveal animation="slide-up" delay={800}>
+          <AnimatedReveal animation="fade-up" delay={800}>
             <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
               <CardContent className="p-8 text-center h-full flex flex-col items-center justify-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BookOpen className="h-8 w-8 text-primary" />
+                <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BookOpen className="h-8 w-8 text-rose-700" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Complete Documentation</h3>
                 <p className="text-muted-foreground text-pretty">
@@ -80,7 +80,7 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
             </Card>
           </AnimatedReveal>
 
-          <AnimatedReveal animation="slide-up" delay={1000}>
+          <AnimatedReveal animation="fade-up" delay={1000}>
             <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
               <CardContent className="p-8 text-center h-full flex flex-col items-center justify-center">
                 <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -95,7 +95,7 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
             </Card>
           </AnimatedReveal>
 
-          <AnimatedReveal animation="slide-up" delay={1200}>
+          <AnimatedReveal animation="fade-up" delay={1200}>
             <Card className="border-0 shadow-lg hover-lift bg-gradient-to-br from-background to-muted/50 h-full">
               <CardContent className="p-8 text-center h-full flex flex-col items-center justify-center">
                 <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -174,18 +174,25 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
 
         <AnimatedReveal animation="fade-up" delay={1800}>
           <div className="text-center mt-16">
-            <EnhancedButton size="lg" effect="glow" className="text-lg px-8" onClick={() => onNavClick("eksplorasi")}>
+            <EnhancedButton
+              size="lg"
+              effect="glow"
+              className="text-lg px-8 cursor-pointer"
+              onClick={() => onNavClick("eksplorasi")}
+            >
               <Globe className="h-5 w-5 mr-2" />
               Start Cultural Exploration
             </EnhancedButton>
+
           </div>
         </AnimatedReveal>
 
-        <div className="mt-16 lg:mt-20">
-          <AnimatedReveal animation="fade-up" delay={2000}>
-            <TeamTickerSection members={members} />
-          </AnimatedReveal>
-        </div>
+
+      </div>
+      <div className="mt-16 lg:mt-20">
+        <AnimatedReveal animation="fade-up" delay={2000}>
+          <TeamTickerSection />
+        </AnimatedReveal>
       </div>
     </section>
   )

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { ParallaxBackground } from "@/components/common/parallax-background"
 import { LEXICON, type LexiconEntry } from "@/data/lexicon"
+import { Navigation } from "@/components/layout/navigation"
 
 export default function PetaBudayaPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -129,8 +130,9 @@ export default function PetaBudayaPage() {
         className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background"
         style={{ scrollBehavior: "smooth" }}
       >
+        <Navigation />
         {/* Header */}
-        <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
+        {/* <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -158,7 +160,7 @@ export default function PetaBudayaPage() {
               </div>
             </div>
           </div>
-        </header>
+        </header> */}
 
         {/* Hero Section */}
         <section aria-labelledby="hero-title" className="relative">
@@ -172,17 +174,7 @@ export default function PetaBudayaPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-background/20 to-background/90" />
             <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-end pb-8 md:pb-10">
-              <Breadcrumb className="mb-3 md:mb-4">
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink href="/">Home</BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Culture Map</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
+
               <motion.h1
                 id="hero-title"
                 initial={{ opacity: 0, y: 14 }}
@@ -207,9 +199,6 @@ export default function PetaBudayaPage() {
                 transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
                 className="mt-4 flex flex-col sm:flex-row items-start gap-3"
               >
-                <Link href="#map">
-                  <Button className="bg-primary hover:bg-primary/90">Start Exploring</Button>
-                </Link>
                 <Link href="/budaya/daerah/-">
                   <Button
                     variant="outline"
@@ -219,47 +208,23 @@ export default function PetaBudayaPage() {
                     Glosarium Budaya
                   </Button>
                 </Link>
-                <Button variant="ghost" asChild>
-                  <a href="#how-to" className="hover:underline text-gray-200">
-                    How it works
-                  </a>
-                </Button>
+                 <div className="flex items-center gap-4 max-w-md w-full">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    placeholder={searchCategory === "subculture" ? "Search regions..." : "Search cultural terms..."}
+                    value={searchQuery}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="pl-10 bg-background/50 border-border focus:ring-primary/20"
+                  />
+                </div>
+              </div>
               </motion.div>
             </div>
           </ParallaxBackground>
         </section>
 
-        {/* How it works section */}
-        <section id="how-to" aria-label="How it works" className="container mx-auto px-4 py-6">
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="rounded-xl border border-border bg-card/60 backdrop-blur-sm p-4 md:p-5"
-          >
-            <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 text-sm text-muted-foreground">
-              <li key="how-to-1" className="flex items-start gap-3">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
-                  1
-                </span>
-                Hover over any region on the map to see detailed information instantly.
-              </li>
-              <li key="how-to-2" className="flex items-start gap-3">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
-                  2
-                </span>
-                Use the search box to find specific regions and their cultural highlights.
-              </li>
-              <li key="how-to-3" className="flex items-start gap-3">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
-                  3
-                </span>
-                Click on a region to explore its full cultural glossary and traditions.
-              </li>
-            </ul>
-          </motion.div>
-        </section>
+        
 
         {/* Main content with map */}
         <div id="map" className="container mx-auto px-4 py-6">
@@ -523,6 +488,38 @@ export default function PetaBudayaPage() {
           </div>
         </div>
 
+{/* How it works section */}
+        <section id="how-to" aria-label="How it works" className="container mx-auto px-4 py-6">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="rounded-xl border border-border bg-card/60 backdrop-blur-sm p-4 md:p-5"
+          >
+            <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 text-sm text-muted-foreground">
+              <li key="how-to-1" className="flex items-start gap-3">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
+                  1
+                </span>
+                Hover over any region on the map to see detailed information instantly.
+              </li>
+              <li key="how-to-2" className="flex items-start gap-3">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
+                  2
+                </span>
+                Use the search box to find specific regions and their cultural highlights.
+              </li>
+              <li key="how-to-3" className="flex items-start gap-3">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
+                  3
+                </span>
+                Click on a region to explore its full cultural glossary and traditions.
+              </li>
+            </ul>
+          </motion.div>
+        </section>
+        
         {/* Bottom divider */}
         <section aria-hidden="true" className="container mx-auto px-4 pb-10">
           <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />

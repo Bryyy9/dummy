@@ -75,6 +75,18 @@ export const SUBCULTURE_PROFILES: Record<string, SubcultureProfile> = {
         description: "Rujak cingur dan hidangan khas pesisir Arekan",
         alt: "Hidangan tradisional rujak cingur Arekan",
       },
+            {
+        url: "/subculture-gallery-3.jpg",
+        title: "Kuliner Pesisir Arekan",
+        description: "Rujak cingur dan hidangan khas pesisir Arekan",
+        alt: "Hidangan tradisional rujak cingur Arekan",
+      },
+                  {
+        url: "/subculture-gallery-3.jpg",
+        title: "Kuliner Pesisir Arekan",
+        description: "Rujak cingur dan hidangan khas pesisir Arekan",
+        alt: "Hidangan tradisional rujak cingur Arekan",
+      },
     ],
     model3dArray: [
       {
