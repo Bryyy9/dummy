@@ -2,8 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Play, Volume2, Share2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Play } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 interface YouTubeVideo {
@@ -21,8 +20,7 @@ interface YouTubeVideosSectionProps {
 
 export function YouTubeVideosSection({ videos, subcultureName }: YouTubeVideosSectionProps) {
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(videos[0]?.youtubeId || null)
-  const [isPlaying, setIsPlaying] = useState(false)
-
+  
   const selectedVideo = videos.find((v) => v.youtubeId === selectedVideoId)
 
   const getYouTubeEmbedUrl = (youtubeId: string) => {
@@ -68,42 +66,8 @@ export function YouTubeVideosSection({ videos, subcultureName }: YouTubeVideosSe
               </Badge>
             </div>
 
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2">
-              {selectedVideo.tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 pt-4">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2 bg-transparent"
-                onClick={() => {
-                  const url = `https://www.youtube.com/watch?v=${selectedVideoId}`
-                  window.open(url, "_blank")
-                }}
-              >
-                <Play className="w-4 h-4" />
-                Watch on YouTube
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2 bg-transparent"
-                onClick={() => {
-                  const text = `Check out "${selectedVideo.title}" about ${subcultureName} culture`
-                  navigator.clipboard.writeText(`${text}\nhttps://www.youtube.com/watch?v=${selectedVideoId}`)
-                }}
-              >
-                <Share2 className="w-4 h-4" />
-                Share
-              </Button>
-            </div>
+        
+            
           </div>
         )}
       </motion.div>
@@ -122,10 +86,7 @@ export function YouTubeVideosSection({ videos, subcultureName }: YouTubeVideosSe
             {videos.map((video, index) => (
               <motion.button
                 key={video.youtubeId}
-                onClick={() => {
-                  setSelectedVideoId(video.youtubeId)
-                  setIsPlaying(true)
-                }}
+                onClick={() => setSelectedVideoId(video.youtubeId)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className={`group relative overflow-hidden rounded-xl transition-all ${
@@ -166,20 +127,6 @@ export function YouTubeVideosSection({ videos, subcultureName }: YouTubeVideosSe
           </div>
         </motion.div>
       )}
-
-      {/* Accessibility Info */}
-      <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
-        <div className="flex gap-3">
-          <Volume2 className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-muted-foreground">
-            <p className="font-medium text-foreground mb-1">Accessibility</p>
-            <p>
-              Videos are embedded from YouTube. Use keyboard shortcuts (spacebar to play/pause, arrow keys to navigate)
-              for better accessibility. Captions may be available in the video player settings.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

@@ -310,6 +310,18 @@ export default function RegionDetailPage() {
           <p className="text-center text-sm text-muted-foreground mt-4">Geser untuk melihat lebih banyak foto →</p>
         </section>
 
+             {/* 5️⃣ VIDEO SECTION */}
+        {profile?.video && (
+          <section
+            id="videos-section"
+            aria-label="Video Budaya"
+            className="rounded-xl shadow-sm border border-border bg-card/60 p-6 scroll-mt-24"
+          >
+            <h2 className="text-2xl font-bold text-foreground mb-6">Video Dokumenter {profile.displayName}</h2>
+            <YouTubeVideosSection videos={[profile.video]} subcultureName={profile.displayName} />
+          </section>
+        )}
+
         {/* 4️⃣ 3D SUBCULTURE SECTION */}
         <section
           id="viewer-3d"
@@ -351,17 +363,7 @@ export default function RegionDetailPage() {
           })()}
         </section>
 
-        {/* 5️⃣ VIDEO SECTION */}
-        {profile?.video && (
-          <section
-            id="videos-section"
-            aria-label="Video Budaya"
-            className="rounded-xl shadow-sm border border-border bg-card/60 p-6 scroll-mt-24"
-          >
-            <h2 className="text-2xl font-bold text-foreground mb-6">Video Dokumenter {profile.displayName}</h2>
-            <YouTubeVideosSection videos={[profile.video]} subcultureName={profile.displayName} />
-          </section>
-        )}
+   
 
         {/* Bagian Search & Explore tetap */}
         <section
