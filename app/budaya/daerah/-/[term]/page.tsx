@@ -137,7 +137,7 @@ export default function CulturalWordDetailPage({
           </Card>
         </section>
 
-        {/* <section
+        <section
           aria-label="Illustrative image"
           className="rounded-xl overflow-hidden border border-border bg-card/60 aspect-video"
         >
@@ -155,7 +155,7 @@ export default function CulturalWordDetailPage({
               className="w-full h-full object-cover"
             />
           )}
-        </section> */}
+        </section>
 
         <section
           aria-label="Additional information"
@@ -182,7 +182,7 @@ export default function CulturalWordDetailPage({
               </p>
             </CardContent>
           </Card>
-          {/* 
+{/*           
         <section
           aria-label="Illustrative image"
           className="rounded-xl overflow-hidden border border-border bg-card/60 aspect-video"

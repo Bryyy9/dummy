@@ -31,6 +31,8 @@ export default function RegionDetailPage() {
   const [isNavSticky, setIsNavSticky] = useState(false)
   const [activeSection, setActiveSection] = useState<string>("region-profile")
 
+  const [current3DModelIndex, setCurrent3DModelIndex] = useState(0)
+
   const lexicon: LexiconEntry[] = LEXICON[regionId] || []
 
   const heroImage = getRegionHeroImage(regionId)
@@ -51,6 +53,9 @@ export default function RegionDetailPage() {
           tags: model.tags,
         }))
       : []
+
+  const go3DPrev = () => setCurrent3DModelIndex((i) => (i - 1 + models3D.length) % models3D.length)
+  const go3DNext = () => setCurrent3DModelIndex((i) => (i + 1) % models3D.length)
 
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -310,7 +315,7 @@ export default function RegionDetailPage() {
           <p className="text-center text-sm text-muted-foreground mt-4">Geser untuk melihat lebih banyak foto →</p>
         </section>
 
-             {/* 5️⃣ VIDEO SECTION */}
+        {/* 5️⃣ VIDEO SECTION */}
         {profile?.video && (
           <section
             id="videos-section"
@@ -338,18 +343,23 @@ export default function RegionDetailPage() {
               )
             }
 
-            const currentModel = models3D[0] // Show first model only
+            const currentModel = models3D[current3DModelIndex] // Show current model based on index
 
             return (
               <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground mb-2">3D Cultural Artifacts & Environments</h2>
-                <p className="text-sm text-muted-foreground">
-                  Jelajahi model 3D interaktif dari artefak budaya dan lingkungan suku {p.displayName}.
-                </p>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">3D Cultural Artifacts & Environments</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Explore interactive 3D models representing artifacts, architectural elements, or cultural landscapes
+                    of {p.displayName}. Rotate, zoom, and examine details from every angle to deepen your understanding
+                    of the material culture.
+                  </p>
+                </div>
 
+                {/* 3D Model Viewer */}
                 <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
                   <iframe
-                    key={`model-${currentModel.id}`}
+                    key={`model-${current3DModelIndex}`}
                     className="w-full"
                     style={{ height: "500px" }}
                     src={`https://sketchfab.com/models/${currentModel.id}/embed?autospin=1&autostart=1`}
@@ -357,13 +367,77 @@ export default function RegionDetailPage() {
                     allow="autoplay; fullscreen; xr-spatial-tracking"
                     allowFullScreen
                   />
+
+                  {/* Navigation Arrows */}
+                  {models3D.length > 1 && (
+                    <>
+                      <button
+                        onClick={go3DPrev}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                        aria-label="Previous 3D model"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={go3DNext}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                        aria-label="Next 3D model"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Pagination Dots */}
+                {models3D.length > 1 && (
+                  <div className="flex items-center justify-center gap-2">
+                    {models3D.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrent3DModelIndex(idx)}
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                          idx === current3DModelIndex ? "bg-primary" : "bg-muted-foreground/40"
+                        }`}
+                        aria-label={`Go to 3D model ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Model Information */}
+                <div className="space-y-3">
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">{currentModel.title}</h3>
+                    <p className="text-sm text-muted-foreground">{currentModel.description}</p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {currentModel.tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="rounded-lg border border-border bg-background/50 p-3">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Interaction Tips:</strong> Use your mouse or touch to rotate the model. Scroll to zoom in
+                      and out. Click the fullscreen icon for an immersive viewing experience.
+                    </p>
+                  </div>
                 </div>
               </div>
             )
           })()}
         </section>
-
-   
 
         {/* Bagian Search & Explore tetap */}
         <section
@@ -469,3 +543,4 @@ export default function RegionDetailPage() {
     }
   }
 }
+  
