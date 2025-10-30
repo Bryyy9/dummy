@@ -265,4 +265,3 @@ export function HeroSection({ onNavClick }: HeroSectionProps) {
 //     </section>
 //   );
 // }
-
