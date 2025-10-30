@@ -3,8 +3,39 @@
 import { Badge } from "@/components/ui/badge"
 import { AnimatedReveal } from "@/components/common/animated-reveal"
 
-export function ShowcaseSection() {
-  const logos = [
+interface ShowcaseSectionProps {
+  collaborationAssets?: Array<{
+    contributorId: number
+    assetId: number
+    assetNote: string
+    createdAt: string
+    asset: {
+      assetId: number
+      namaFile: string
+      tipe: string
+      penjelasan: string
+      url: string
+      fileSize: string
+      hashChecksum: string
+      metadataJson: string
+      status: string
+      createdAt: string
+      updatedAt: string
+    }
+    contributor: {
+      contributorId: number
+      namaContributor: string
+      institusi: string
+      email: string
+      expertiseArea: string
+      contactInfo: string
+      registeredAt: string
+    }
+  }>
+}
+
+export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
+  const defaultLogos = [
     { src: "/partner-logo-1.png", alt: "Cultural Heritage Foundation" },
     { src: "/partner-logo-2.png", alt: "East Java Arts Council" },
     { src: "/partner-logo-abstract-geometric.png", alt: "Indonesia Culture Hub" },
@@ -12,6 +43,13 @@ export function ShowcaseSection() {
     { src: "/partner-logo-abstract-5.png", alt: "Java Traditions Archive" },
     { src: "/partner-logo-6.png", alt: "National Museum of Culture" },
   ]
+
+  const displayAssets = collaborationAssets ? collaborationAssets.map(ca => ({
+    src: ca.asset.url,
+    alt: ca.asset.namaFile,
+    contributor: ca.contributor.namaContributor,
+    description: ca.asset.penjelasan
+  })) : defaultLogos
 
   return (
     <section
@@ -63,7 +101,7 @@ export function ShowcaseSection() {
         >
           <div className="marquee-track flex items-center gap-14 md:gap-20 py-10 will-change-transform px-12 sm:px-16 lg:px-20">
             {Array.from({ length: 2 }).map((_, dup) =>
-              logos.map((logo, i) => (
+              displayAssets.map((logo, i) => (
                 <div
                   key={`${dup}-${i}`}
                   className="flex-shrink-0 flex flex-col items-center opacity-85 hover:opacity-100 transition-opacity duration-200"

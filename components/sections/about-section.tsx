@@ -9,10 +9,21 @@ import TeamTickerSection from "@/components/sections/team-ticker-section"
 
 interface AboutSectionProps {
   onNavClick: (section: string) => void
+  stats?: {
+    publishedCultures: number
+    publishedSubcultures: number
+    publishedLeksikons: number
+    totalContributors: number
+    totalAssets: number
+  }
+  team?: Array<{
+    namaContributor: string
+    expertiseArea: string
+  }>
 }
 
-export function AboutSection({ onNavClick }: AboutSectionProps) {
-  const members = [
+export function AboutSection({ onNavClick, stats, team }: AboutSectionProps) {
+  const defaultMembers = [
     { name: "Rizky Pratama", role: "Koordinator Riset" },
     { name: "Sari Wulandari", role: "Kurator Konten" },
     { name: "Bima Nugraha", role: "Pengembang Frontend" },
@@ -22,6 +33,11 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
     { name: "Galih Mahendra", role: "Analis Data" },
     { name: "Putri Larasati", role: "Relasi Komunitas" },
   ]
+
+  const displayTeam = team ? team.map(t => ({
+    name: t.namaContributor,
+    role: t.expertiseArea
+  })) : defaultMembers
   return (
     <section
       id="tentang"
@@ -147,25 +163,25 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
             <div className="grid grid-cols-2 gap-6">
               <div className="text-center p-6 bg-gradient-to-br from-rose-100 to-rose-200 rounded-lg border border-rose-200/50 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
                 <Award className="h-8 w-8 text-rose-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-rose-700">500+</div>
+                <div className="text-2xl font-bold text-rose-700">{stats?.publishedCultures || 500}+</div>
                 <div className="text-sm text-rose-600/80">Documented Cultures</div>
               </div>
 
               <div className="text-center p-6 bg-gradient-to-br from-teal-100 to-teal-200 rounded-lg border border-teal-200/50 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
                 <Users className="h-8 w-8 text-teal-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-teal-700">38</div>
-                <div className="text-sm text-teal-600/80">Regions/Cities</div>
+                <div className="text-2xl font-bold text-teal-700">{stats?.publishedSubcultures || 38}</div>
+                <div className="text-sm text-teal-600/80">Subcultures</div>
               </div>
 
               <div className="text-center p-6 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg border border-orange-200/50 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
                 <BookOpen className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-orange-700">12</div>
-                <div className="text-sm text-orange-600/80">Cultural Categories</div>
+                <div className="text-2xl font-bold text-orange-700">{stats?.publishedLeksikons || 12}</div>
+                <div className="text-sm text-orange-600/80">Leksikons</div>
               </div>
 
               <div className="text-center p-6 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg border border-purple-200/50 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
                 <Sparkles className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-purple-700">100+</div>
+                <div className="text-2xl font-bold text-purple-700">{stats?.totalContributors || 100}+</div>
                 <div className="text-sm text-purple-600/80">Contributors</div>
               </div>
             </div>
@@ -191,7 +207,7 @@ export function AboutSection({ onNavClick }: AboutSectionProps) {
       </div>
       <div className="mt-16 lg:mt-20">
         <AnimatedReveal animation="fade-up" delay={2000}>
-          <TeamTickerSection />
+          <TeamTickerSection team={team} />
         </AnimatedReveal>
       </div>
     </section>

@@ -7,14 +7,47 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/search-input"
-import { LEXICON, type LexiconEntry } from "@/data/lexicon"
-import { SUBCULTURE_PROFILES } from "@/data/subculture-profiles"
-import { getRegionHeroImage } from "@/data/region-images"
-import { searchLexiconEntries, type SearchResult } from "@/lib/search-utils"
 import { Navigation } from "@/components/layout/navigation"
 import { useNavigation } from "@/hooks/use-navigation"
 import { Footer } from "@/components/layout/footer"
 import { NewsletterSection } from "@/components/sections/newsletter-section"
+
+interface SearchResult {
+  term: string
+  definition: string
+  category: string
+  region: string
+  slug: string
+}
+
+interface SubcultureData {
+  subcultureId: number
+  profile: {
+    displayName: string
+    history: string
+    highlights: any[]
+  }
+  galleryImages: Array<{ url: string }>
+  model3dArray: Array<{
+    sketchfabId: string
+    title: string
+    description: string
+    artifactType: string
+    tags: any[]
+  }>
+  lexicon: Array<{
+    term: string
+    definition: string
+    category: string
+    slug: string
+  }>
+  heroImage: string | null
+  culture: {
+    name: string
+    province: string
+    region: string
+  }
+}
 
 export default function RegionDetailPage() {
   const params = useParams()
@@ -24,24 +57,65 @@ export default function RegionDetailPage() {
 
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [subcultureData, setSubcultureData] = useState<SubcultureData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const [isNavSticky, setIsNavSticky] = useState(false)
   const [activeSection, setActiveSection] = useState<string>("region-profile")
 
-  const lexicon: LexiconEntry[] = LEXICON[regionId] || []
-
-  const heroImage = getRegionHeroImage(regionId)
-
-  const profile = SUBCULTURE_PROFILES[regionId]
+  // Carousel state and refs
+  const carouselRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
+  const [dragWidth, setDragWidth] = useState(0)
 
   useEffect(() => {
-    if (searchQuery.trim()) {
-      const currentLexicon = LEXICON[regionId] || []
-      const results = searchLexiconEntries(currentLexicon, searchQuery)
-      setSearchResults(results)
-    } else {
-      setSearchResults([])
+    const fetchSubcultureData = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(`http://localhost:8000/api/v1/public/subcultures/${regionId}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch subculture data')
+        }
+        const result = await response.json()
+        if (result.success) {
+          setSubcultureData(result.data)
+        } else {
+          throw new Error(result.message || 'Failed to fetch data')
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
     }
+
+    if (regionId) {
+      fetchSubcultureData()
+    }
+  }, [regionId])
+
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (searchQuery.trim()) {
+        try {
+          const response = await fetch(`http://localhost:8000/api/v1/public/subcultures/${regionId}?search=${encodeURIComponent(searchQuery.trim())}`)
+          if (response.ok) {
+            const result = await response.json()
+            if (result.success) {
+              setSearchResults(result.data.searchResults || [])
+            }
+          }
+        } catch (err) {
+          console.error('Search failed:', err)
+        }
+      } else {
+        setSearchResults([])
+      }
+    }
+
+    const debounceTimer = setTimeout(fetchSearchResults, 300)
+    return () => clearTimeout(debounceTimer)
   }, [searchQuery, regionId])
 
   useEffect(() => {
@@ -83,11 +157,24 @@ export default function RegionDetailPage() {
   }
   // --------------------------------------------------------------------
 
-  if (!lexicon.length) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Region Not Found</h1>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading subculture details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !subcultureData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-4">
+            {error || 'Subculture Not Found'}
+          </h1>
           <Link href="/peta-budaya">
             <Button variant="outline">Back to Map</Button>
           </Link>
@@ -96,14 +183,12 @@ export default function RegionDetailPage() {
     )
   }
 
-  const galleryImages = profile?.galleryImages?.map((img) => img.url) || [
-    heroImage || "/subculture-gallery-1.jpg",
-    "/subculture-gallery-2.jpg",
-    "/subculture-gallery-3.jpg",
-  ]
+  const galleryImages = subcultureData.galleryImages.length > 0
+    ? subcultureData.galleryImages.map((img) => img.url)
+    : ["/subculture-gallery-1.jpg", "/subculture-gallery-2.jpg", "/subculture-gallery-3.jpg"]
 
-  const models3D = profile?.model3dArray && profile.model3dArray.length > 0
-    ? profile.model3dArray.map((model) => ({
+  const models3D = subcultureData.model3dArray && subcultureData.model3dArray.length > 0
+    ? subcultureData.model3dArray.map((model) => ({
         id: model.sketchfabId,
         title: model.title,
         description: model.description,
@@ -119,7 +204,7 @@ export default function RegionDetailPage() {
   <div className="relative">
     {/* Background Image */}
     <img
-      src={heroImage || "/placeholder.svg"}
+      src={subcultureData.heroImage || "/placeholder.svg"}
       alt={`${regionId} cultural landscape`}
       className="h-[65vh] md:h-[80vh] w-full object-cover"
       crossOrigin="anonymous"
@@ -159,7 +244,7 @@ export default function RegionDetailPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.1 }}
       >
-        Discover the Living Tapestry of {profile?.displayName || regionId}
+        Discover the Living Tapestry of {subcultureData.profile?.displayName || regionId}
       </motion.h1>
 
       {/* Subtext */}
@@ -221,7 +306,7 @@ export default function RegionDetailPage() {
   {/* 2️⃣ PROFIL SUBCULTURE SECTION */}
   <section id="region-profile" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
     {(() => {
-      const profile = SUBCULTURE_PROFILES[regionId]
+      const profile = subcultureData.profile
       if (!profile)
         return (
           <p className="text-sm text-muted-foreground">
@@ -234,68 +319,31 @@ export default function RegionDetailPage() {
       return (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-foreground">Sekilas tentang {displayName}</h2>
-          <p className="text-base leading-relaxed text-muted-foreground">{history} T Telkom Indonesia (Persero) Tbk (Telkom) adalah badan usaha milik negara (BUMN) yang bergerak di bidang layanan teknologi informasi dan komunikasi serta telekomunikasi digital di Indonesia.
-
-Pemilik mayoritas saham Telkom adalah pemerintah Republik Indonesia dengan kepemilikan sebesar 52,09 %. Sementara sisa kepemilikan saham sebesar 47,91 % dipegang oleh publik. Telkom memiliki 12 anak perusahaan atau subsidiary yang bergerak di berbagai sektor dan memberikan dampak positif baik untuk investor maupun rakyat Indonesia.
-
-Pendirian PN Telekomunikasi, sesuai PP No. 30 tanggal 6 Juli 1965, pada dasarnya ditujukan untuk membangun ekonomi nasional sesuai dengan ekonomi terpimpin dengan mengutamakan kebutuhan rakyat dan ketenteraman rakyat serta ketenangan kerja dalam perusahaan, menuju masyarakat yang adil dan makmur materiil dan spiritual. Semangat itulah yang senantiasa diemban TelkomGroup, dari produk fixed line hingga saat ini bertransformasi menjadi digital telecommunication company.
-
-Dalam menjalankan transformasi, TelkomGroup mengimplementasikan strategi bisnis dan operasional perusahaan yang berorientasi kepada pelanggan (customer-oriented). Transformasi tersebut akan membuat organisasi TelkomGroup menjadi lebih lean (ramping) dan agile (lincah) dalam beradaptasi dengan perubahan industri telekomunikasi yang berlangsung sangat cepat. Organisasi yang baru juga diharapkan dapat meningkatkan efisiensi dan efektivitas dalam menciptakan customer experience yang berkualitas.
-
-Kegiatan usaha TelkomGroup bertumbuh dan berubah seiring dengan perkembangan teknologi, informasi dan digitalisasi, namun masih dalam koridor industri telekomunikasi dan informasi. Hal ini terlihat dari lini bisnis yang terus berkembang melengkapi legacy yang sudah ada sebelumnya.</p>
+          <p className="text-base leading-relaxed text-muted-foreground">{history}</p>
         </div>
       )
     })()}
   </section>
 
 {/* 3️⃣ FOTO SUBCULTURE SECTION — Slider Fix */}
-<section id="photo-gallery" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 overflow-hidden scroll-mt-24">
-  <h2 className="text-2xl font-bold text-foreground mb-6">Serba-serbi {profile?.displayName}</h2>
+<section id="photo-gallery" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
+  <h2 className="text-2xl font-bold text-foreground mb-6">Serba-serbi {subcultureData.profile?.displayName}</h2>
 
-  {/* Carousel wrapper */}
-  {(() => {
-    const carouselRef = useRef<HTMLDivElement>(null)
-    const innerRef = useRef<HTMLDivElement>(null)
-    const [dragWidth, setDragWidth] = useState(0)
-
-    useEffect(() => {
-      if (carouselRef.current && innerRef.current) {
-        const scrollWidth = innerRef.current.scrollWidth
-        const offsetWidth = carouselRef.current.offsetWidth
-        setDragWidth(scrollWidth - offsetWidth)
-      }
-    }, [galleryImages])
-
-    return (
-      <motion.div ref={carouselRef} className="overflow-hidden cursor-grab active:cursor-grabbing">
-        <motion.div
-          ref={innerRef}
-          drag="x"
-          dragConstraints={{ right: 0, left: -dragWidth }}
-          className="flex gap-4"
-        >
-          {galleryImages.map((img, idx) => (
-            <motion.div
-              key={idx}
-              className="min-w-[300px] md:min-w-[340px] rounded-lg overflow-hidden border border-border bg-background/50 hover:scale-[1.02] transition-transform shadow-sm"
-              whileHover={{ scale: 1.03 }}
-            >
-              <img
-                src={img}
-                alt={`${profile?.displayName} foto ${idx + 1}`}
-                className="w-full h-56 object-cover"
-                crossOrigin="anonymous"
-              />
-            </motion.div>
-          ))}
-        </motion.div>
-      </motion.div>
-    )
-  })()}
-
-  <p className="text-center text-sm text-muted-foreground mt-4">
-    Geser untuk melihat lebih banyak foto →
-  </p>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {galleryImages.map((img, idx) => (
+      <div
+        key={idx}
+        className="rounded-lg overflow-hidden border border-border bg-background/50 hover:scale-[1.02] transition-transform shadow-sm"
+      >
+        <img
+          src={img}
+          alt={`${subcultureData.profile?.displayName} foto ${idx + 1}`}
+          className="w-full h-56 object-cover"
+          crossOrigin="anonymous"
+        />
+      </div>
+    ))}
+  </div>
 </section>
 
 
@@ -307,8 +355,8 @@ Kegiatan usaha TelkomGroup bertumbuh dan berubah seiring dengan perkembangan tek
     className="rounded-xl shadow-sm border border-border bg-card/60 p-6 scroll-mt-24"
   >
     {(() => {
-      const p = SUBCULTURE_PROFILES[regionId]
-      if (!p?.model3dArray || p.model3dArray.length === 0) {
+      const p = subcultureData.profile
+      if (!subcultureData?.model3dArray || subcultureData.model3dArray.length === 0) {
         return (
           <div className="text-center py-8">
             <p className="text-sm text-muted-foreground">
@@ -368,7 +416,7 @@ Kegiatan usaha TelkomGroup bertumbuh dan berubah seiring dengan perkembangan tek
 
         <section aria-label="Daftar istilah" className="scroll-mt-24">
           {(() => {
-            const displayItems = searchQuery ? searchResults.map((r) => r.entry) : lexicon
+            const displayItems = searchQuery ? searchResults : subcultureData.lexicon
 
             return (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

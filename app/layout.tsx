@@ -17,6 +17,13 @@ export const metadata: Metadata = {
   description:
     "Explore the priceless cultural heritage of East Java through traditional arts, crafts, and preservation efforts",
   generator: "v0.app",
+  icons: {
+    icon: [
+      // { url: "/Logo.png", sizes: "any" },
+      { url: "/logo-ubc-2.png", sizes: "32x32", type: "image/png" },
+    ],
+    shortcut: "/Logo.png",
+  },
 }
 
 export default function RootLayout({
