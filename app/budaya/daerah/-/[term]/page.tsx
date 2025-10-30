@@ -68,58 +68,67 @@ export default function CulturalWordDetailPage({
   )}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-40">
-        {/* container switched to flex-col so Back button sits above the original header content */}
-        <div className="container mx-auto px-4 py-4 flex flex-col gap-4 relative">
-          {/* Back button placed in its own row above header content */}
-          <div className="flex items-center">
-            <Link href="/budaya/daerah/-" aria-label="Back to glossary list">
-              <Button variant="ghost" className="px-2 py-1 gap-2 inline-flex items-center">
-                <ArrowLeft className="w-5 h-5" />
-                <span className="text-sm">Back</span>
-              </Button>
-            </Link>
-          </div>
+   <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+  <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-40">
+    {/* container switched to flex-col so Back button sits above the original header content */}
+    <div className="container mx-auto px-4 py-4 flex flex-col gap-4 relative">
+      {/* Back button - CHANGED: Now navigates to subculture page */}
+      <div className="flex items-center justify-between">
+        <Link href={`/budaya/daerah/${regionId}`} aria-label={`Back to ${regionId} glossary`}>
+          <Button variant="ghost" className="px-2 py-1 gap-2 inline-flex items-center">
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm">Back to {regionId}</span>
+          </Button>
+        </Link>
 
-          {/* Original header content kept in the next row (unchanged positions relative to each other) */}
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-foreground text-balance">
-                    {entry!.term}
-                  </h1>
-                  <PronunciationButton
-                    audioFile={entry!.audioFile}
-                    term={entry!.term}
-                    size="md"
-                    variant="ghost"
-                  />
-                </div>
-                <Badge
-                  variant="outline"
-                  className="text-xs font-mono bg-muted/50 text-muted-foreground border-border/50"
-                >
-                  {entry!.termCode}
-                </Badge>
-              </div>
-              {entry!.transliterasi && (
-                <p className="text-sm text-muted-foreground font-mono">
-                  Transliteration:{" "}
-                  <span className="text-foreground">{entry!.transliterasi}</span>
-                </p>
-              )}
-              <p className="text-sm text-muted-foreground">
-                Subculture: {entry!.regionKey}
-              </p>
+        {/* All Glossaries button on the right */}
+        <Link href="/budaya/daerah/-" aria-label="View all glossaries">
+          <Button variant="outline" className="px-3 py-2 gap-2 inline-flex items-center hover:bg-primary/10">
+            {/* <BookOpen className="w-4 h-4" /> */}
+            <span className="text-sm hidden sm:inline">All Glossaries</span>
+            <span className="text-sm sm:hidden">All</span>
+          </Button>
+        </Link>
+      </div>
+
+      {/* Original header content kept in the next row (unchanged positions relative to each other) */}
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-foreground text-balance">
+                {entry!.term}
+              </h1>
+              <PronunciationButton
+                audioFile={entry!.audioFile}
+                term={entry!.term}
+                size="md"
+                variant="ghost"
+              />
             </div>
-
-            {/* keep right-side empty/placeholder to preserve previous spacing if needed */}
-            <div aria-hidden className="w-10" />
+            <Badge
+              variant="outline"
+              className="text-xs font-mono bg-muted/50 text-muted-foreground border-border/50"
+            >
+              {entry!.termCode}
+            </Badge>
           </div>
+          {entry!.transliterasi && (
+            <p className="text-sm text-muted-foreground font-mono">
+              Transliteration:{" "}
+              <span className="text-foreground">{entry!.transliterasi}</span>
+            </p>
+          )}
+          <p className="text-sm text-muted-foreground">
+            Subculture: {entry!.regionKey}
+          </p>
         </div>
-      </header>
+
+        {/* keep right-side empty/placeholder to preserve previous spacing if needed */}
+        <div aria-hidden className="w-10" />
+      </div>
+    </div>
+  </header>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
 
@@ -271,7 +280,7 @@ export default function CulturalWordDetailPage({
                 alt="No image available"
                 className="w-full h-full object-cover"
               />
-            )}
+            )}han
           </section>
 
 

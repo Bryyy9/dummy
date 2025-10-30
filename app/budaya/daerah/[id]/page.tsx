@@ -18,6 +18,7 @@ import { useNavigation } from "@/hooks/use-navigation"
 import { Footer } from "@/components/layout/footer"
 import { NewsletterSection } from "@/components/sections/newsletter-section"
 import { YouTubeVideosSection } from "@/components/cultural/youtube-videos-section"
+import { Navbar } from "@/components/layout/navigation/navbar"
 
 export default function RegionDetailPage() {
   const params = useParams()
@@ -116,8 +117,10 @@ export default function RegionDetailPage() {
   ]
 
   return (
+    
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <Navigation onNavClick={handleNavClick} />
+     
+       <Navbar/>
       <section aria-label="Hero" className="relative overflow-hidden border-b border-border">
         <div className="relative">
           {/* Background Image */}
@@ -543,4 +546,3 @@ export default function RegionDetailPage() {
     }
   }
 }
-  
