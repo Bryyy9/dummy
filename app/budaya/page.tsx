@@ -1,19 +1,55 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Search, ArrowLeft } from "lucide-react"
 import { AnimatedReveal } from "@/components/common/animated-reveal"
 import { EnhancedButton } from "@/components/interactive/enhanced-button"
-import { SUBCULTURE_PROFILES } from "@/data/subculture-profiles"
 import { NewsletterSection } from "@/components/sections/newsletter-section"
 import { Footer } from "@/components//layout/footer"
 import { useNavigation } from "@/hooks/use-navigation"
 import { Input } from "@/components/ui/input"
 
+interface SubcultureData {
+  id: string
+  name: string
+  description: string
+  image: string | null
+  culture: {
+    name: string
+    province: string
+  }
+}
+
 export default function SubculturesGalleryPage() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [subcultures, setSubcultures] = useState<SubcultureData[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const { handleNavClick, handleCategoryNavigation } = useNavigation()
+
+  useEffect(() => {
+    const fetchSubcultures = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/v1/public/subcultures')
+        if (!response.ok) {
+          throw new Error('Failed to fetch subcultures')
+        }
+        const result = await response.json()
+        if (result.success) {
+          setSubcultures(result.data)
+        } else {
+          throw new Error(result.message || 'Failed to fetch data')
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSubcultures()
+  }, [])
 
   const handleCategoryClick = (category: string) => {
     handleCategoryNavigation(category)
@@ -24,15 +60,8 @@ export default function SubculturesGalleryPage() {
     setSearchQuery(value)
   }
 
-  const subRegions = Object.entries(SUBCULTURE_PROFILES).map(([id, sub]) => ({
-    id,
-    name: sub.displayName,
-    description: sub.history,
-    image: sub.thumbnail || "/placeholder.jpg",
-  }))
-
-  const filteredSubRegions = subRegions.filter((sr) =>
-    sr.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredSubcultures = subcultures.filter((sc) =>
+    sc.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   return (
@@ -88,11 +117,30 @@ export default function SubculturesGalleryPage() {
 
       {/* === CONTENT === */}
       <main className="container mx-auto px-4 pb-16">
-        {filteredSubRegions.length > 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading subcultures...</p>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <p className="text-red-500 mb-4">Error: {error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        ) : filteredSubcultures.length > 0 ? (
           <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr">
-            {filteredSubRegions.map((sr, index) => (
+            {filteredSubcultures.map((sc, index) => (
               <AnimatedReveal
-                key={sr.id}
+                key={sc.id}
                 animation="scale-up"
                 delay={200 + index * 100}
               >
@@ -101,24 +149,24 @@ export default function SubculturesGalleryPage() {
                   <div className="aspect-[4/3] relative overflow-hidden">
                     <div
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-                      style={{ backgroundImage: `url('${sr.image}')` }}
+                      style={{ backgroundImage: `url('${sc.image || "/placeholder.jpg"}')` }}
                       role="img"
-                      aria-label={`Image of ${sr.name}`}
+                      aria-label={`Image of ${sc.name}`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute top-3 left-3">
                       <Badge className="bg-black/50 backdrop-blur-sm border-white/20 text-white">
-                        Sub-region
+                        {sc.culture?.province || "Sub-region"}
                       </Badge>
                     </div>
                   </div>
 
                   <div className="p-4 flex flex-col flex-1">
                     <h3 className="font-bold text-lg group-hover:text-primary transition-colors mb-2">
-                      {sr.name}
+                      {sc.name}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-3">
-                      {sr.description}
+                      {sc.description}
                     </p>
 
                     {/* Tombol Explore style Leksikon */}
@@ -126,7 +174,7 @@ export default function SubculturesGalleryPage() {
                       size="lg"
                       className="w-full cursor-pointer mt-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 text-white border-none"
                       onClick={() =>
-                        (window.location.href = `/budaya/daerah/${sr.id}`)
+                        (window.location.href = `/budaya/daerah/${sc.id}`)
                       }
                     >
                       Explore

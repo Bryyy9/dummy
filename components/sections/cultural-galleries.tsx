@@ -8,13 +8,45 @@ import { EnhancedButton } from "@/components/interactive/enhanced-button"
 interface CulturalGalleriesProps {
   onNavClick: (section: string) => void
   subcultures?: Array<{
-    id: number
-    slug: string
-    name: string
-    description: string
-    culture: string
-    province: string
-    heroImage: string | null
+    // Support both API formats
+    subcultureId?: number
+    id?: string
+    namaSubculture?: string
+    name?: string
+    penjelasan?: string
+    description?: string
+    cultureId?: number
+    culture?: {
+      namaBudaya?: string
+      name?: string
+      provinsi?: string
+      province?: string
+      kotaDaerah?: string
+    }
+    status?: string
+    statusKonservasi?: string
+    createdAt?: string
+    updatedAt?: string
+    image?: string | null
+    subcultureAssets?: Array<{
+      subcultureId: number
+      assetId: number
+      assetRole: string
+      createdAt: string
+      asset: {
+        assetId: number
+        namaFile: string
+        tipe: string
+        penjelasan: string
+        url: string
+        fileSize: string
+        hashChecksum: string
+        metadataJson: string
+        status: string
+        createdAt: string
+        updatedAt: string
+      }
+    }>
   }>
 }
 
@@ -54,13 +86,31 @@ export function CulturalGalleries({ onNavClick, subcultures }: CulturalGalleries
     },
   ]
 
-  const displaySubcultures = subcultures ? subcultures.map(sc => ({
-    id: sc.id.toString(),
-    name: sc.name,
-    description: sc.description,
-    image: sc.heroImage || "/sub-daerah-pandalungan.jpg",
-    slug: sc.slug,
-  })) : defaultSubRegions
+  const displaySubcultures = subcultures ? subcultures.map(sc => {
+    // Handle both API formats: landing page (complex) vs subcultures gallery (simple)
+    const isSimpleFormat = sc.id && sc.name && sc.description !== undefined
+
+    if (isSimpleFormat) {
+      // Simple format from subcultures gallery API
+      return {
+        id: sc.id!,
+        name: sc.name!,
+        description: sc.description!,
+        image: sc.image || "/sub-daerah-pandalungan.jpg",
+        slug: sc.name!.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+      }
+    } else {
+      // Complex format from landing page API
+      const thumbnailAsset = sc.subcultureAssets?.find(asset => asset.assetRole === "thumbnail")?.asset
+      return {
+        id: sc.subcultureId!.toString(),
+        name: sc.namaSubculture!,
+        description: sc.penjelasan!,
+        image: thumbnailAsset?.url || "/sub-daerah-pandalungan.jpg",
+        slug: sc.namaSubculture!.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+      }
+    }
+  }) : defaultSubRegions
 
   return (
     <section className="py-20 bg-muted/30 relative">

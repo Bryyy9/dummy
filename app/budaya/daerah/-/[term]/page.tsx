@@ -1,10 +1,8 @@
 "use client"
 
-import { use } from "react";
-import type { Metadata } from "next";
+import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LEXICON, type LexiconEntry } from "@/data/lexicon";
 import { SUBCULTURE_PROFILES } from "@/data/subculture-profiles";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +12,29 @@ import { Navigation } from "@/components/layout/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Footer } from "@/components/layout/footer";
 import { useNavigation } from "@/hooks/use-navigation";
+
+interface LexiconEntry {
+  term: string
+  definition: string
+  regionKey: string
+  subculture: {
+    name: string
+    province: string
+  }
+  domain: string
+  contributor: string
+  details: {
+    ipa: string
+    transliteration: string
+    etymology: string
+    culturalMeaning: string
+    commonMeaning: string
+    translation: string
+    variants: string
+    translationVariants: string
+    otherDescription: string
+  }
+}
 
 // Same slugify as listing for consistent matching
 function slugify(input: string) {
@@ -26,17 +47,6 @@ function slugify(input: string) {
     .replace(/\s+/g, "-");
 }
 
-type EntryWithRegion = LexiconEntry & { regionKey: string };
-
-function findEntryBySlug(slug: string): EntryWithRegion | null {
-  for (const [regionKey, entries] of Object.entries(LEXICON)) {
-    for (const e of entries) {
-      if (slugify(e.term) === slug) return { ...e, regionKey };
-    }
-  }
-  return null;
-}
-
 export default function CulturalWordDetailPage({
   params,
 }: {
@@ -44,8 +54,52 @@ export default function CulturalWordDetailPage({
 }) {
   const { handleNavClick } = useNavigation();
   const resolvedParams = use(params);
-  const entry = findEntryBySlug(resolvedParams.term);
-  if (!entry) {
+  const [entry, setEntry] = useState<LexiconEntry | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchEntry = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/v1/public/lexicons');
+        if (!response.ok) {
+          throw new Error('Failed to fetch lexicons');
+        }
+        const result = await response.json();
+        if (result.success) {
+          const foundEntry = result.data.find((item: LexiconEntry) =>
+            slugify(item.term) === resolvedParams.term
+          );
+          if (foundEntry) {
+            setEntry(foundEntry);
+          } else {
+            notFound();
+          }
+        } else {
+          throw new Error(result.message || 'Failed to fetch data');
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEntry();
+  }, [resolvedParams.term]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Memuat detail istilah...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !entry) {
     notFound();
   }
 
@@ -62,9 +116,9 @@ export default function CulturalWordDetailPage({
       }))
     : [];
 
-  const heroAlt = `Illustration for the term ${entry!.term}`;
+  const heroAlt = `Illustration for the term ${entry.term}`;
   const heroSrc = `/placeholder.svg?height=360&width=640&query=${encodeURIComponent(
-    `illustration photo ${entry!.term} cultural term`
+    `illustration photo ${entry.term} cultural term`
   )}`;
 
   return (
@@ -100,8 +154,8 @@ export default function CulturalWordDetailPage({
                 {entry!.term}
               </h1>
               <PronunciationButton
-                audioFile={entry!.audioFile}
-                term={entry!.term}
+                audioFile={undefined}
+                term={entry.term}
                 size="md"
                 variant="ghost"
               />
@@ -110,17 +164,20 @@ export default function CulturalWordDetailPage({
               variant="outline"
               className="text-xs font-mono bg-muted/50 text-muted-foreground border-border/50"
             >
-              {entry!.termCode}
+              {entry.domain}
             </Badge>
           </div>
-          {entry!.transliterasi && (
+          {entry.details.transliteration && (
             <p className="text-sm text-muted-foreground font-mono">
               Transliteration:{" "}
-              <span className="text-foreground">{entry!.transliterasi}</span>
+              <span className="text-foreground">{entry.details.transliteration}</span>
             </p>
           )}
           <p className="text-sm text-muted-foreground">
-            Subculture: {entry!.regionKey}
+            Subculture: {entry.subculture.name} ({entry.subculture.province})
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Contributor: {entry.contributor}
           </p>
         </div>
 
@@ -150,20 +207,11 @@ export default function CulturalWordDetailPage({
           aria-label="Illustrative image"
           className="rounded-xl overflow-hidden border border-border bg-card/60 aspect-video"
         >
-          {entry?.imageId ? (
-            <iframe
-              src={`https://drive.google.com/file/d/${entry.imageId}/preview`}
-              className="pointer-events-none w-full h-full object-cover"
-              allow="autoplay"
-              scrolling="no"
-            ></iframe>
-          ) : (
-            <img
-              src="/placeholder.svg"
-              alt="No image available"
-              className="w-full h-full object-cover"
-            />
-          )}
+          <img
+            src={heroSrc}
+            alt={heroAlt}
+            className="w-full h-full object-cover"
+          />
         </section>
 
         <section
@@ -176,7 +224,7 @@ export default function CulturalWordDetailPage({
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {entry!.variants}
+                {entry.details.variants || "—"}
               </p>
             </CardContent>
           </Card>
@@ -187,7 +235,7 @@ export default function CulturalWordDetailPage({
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {entry!.reference || "—"}
+                {entry.details.commonMeaning || "—"}
               </p>
             </CardContent>
           </Card>
@@ -247,40 +295,22 @@ export default function CulturalWordDetailPage({
             aria-label="Illustrative image"
             className="rounded-xl overflow-hidden border border-border bg-card/60 aspect-video"
           >
-            {entry?.imageId ? (
-              <iframe
-                src={`https://drive.google.com/file/d/${entry.imageId}/preview`}
-                className="pointer-events-none w-full h-full object-cover"
-                allow="autoplay"
-                scrolling="no"
-              ></iframe>
-            ) : (
-              <img
-                src="/placeholder.svg"
-                alt="No image available"
-                className="w-full h-full object-cover"
-              />
-            )}
+            <img
+              src={heroSrc}
+              alt={heroAlt}
+              className="w-full h-full object-cover"
+            />
           </section>
 
                     <section
             aria-label="Illustrative image"
             className="rounded-xl overflow-hidden border border-border bg-card/60 aspect-video"
           >
-            {entry?.imageId ? (
-              <iframe
-                src={`https://drive.google.com/file/d/${entry.imageId}/preview`}
-                className="pointer-events-none w-full h-full object-cover"
-                allow="autoplay"
-                scrolling="no"
-              ></iframe>
-            ) : (
-              <img
-                src="/placeholder.svg"
-                alt="No image available"
-                className="w-full h-full object-cover"
-              />
-            )}han
+            <img
+              src={heroSrc}
+              alt={heroAlt}
+              className="w-full h-full object-cover"
+            />
           </section>
 
 
@@ -336,20 +366,9 @@ export default function CulturalWordDetailPage({
               <CardTitle className="text-foreground">Information Availability</CardTitle>
             </CardHeader>
             <CardContent>
-              {entry?.availability ? (
-                <a
-                  href={entry.availability}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 underline hover:text-blue-600"
-                >
-                  {entry.availability}
-                </a>
-              ) : (
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  —
-                </p>
-              )}
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Available through cultural database
+              </p>
             </CardContent>
           </Card>
         </section>
