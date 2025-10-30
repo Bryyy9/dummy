@@ -1,8 +1,10 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
-import { MapPin } from "lucide-react"
+import { MapPin, Play } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -11,6 +13,8 @@ import { Navigation } from "@/components/layout/navigation"
 import { useNavigation } from "@/hooks/use-navigation"
 import { Footer } from "@/components/layout/footer"
 import { NewsletterSection } from "@/components/sections/newsletter-section"
+import { YouTubeVideosSection } from "@/components/cultural/youtube-videos-section"
+import { Navbar } from "@/components/layout/navigation/navbar"
 
 interface SearchResult {
   term: string
@@ -64,10 +68,9 @@ export default function RegionDetailPage() {
   const [isNavSticky, setIsNavSticky] = useState(false)
   const [activeSection, setActiveSection] = useState<string>("region-profile")
 
-  // Carousel state and refs
-  const carouselRef = useRef<HTMLDivElement>(null)
-  const innerRef = useRef<HTMLDivElement>(null)
-  const [dragWidth, setDragWidth] = useState(0)
+  const [current3DModelIndex, setCurrent3DModelIndex] = useState(0)
+
+  const lexicon: LexiconEntry[] = LEXICON[regionId] || []
 
   useEffect(() => {
     const fetchSubcultureData = async () => {
@@ -94,6 +97,24 @@ export default function RegionDetailPage() {
       fetchSubcultureData()
     }
   }, [regionId])
+
+  const carouselRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
+  const [dragWidth, setDragWidth] = useState(0)
+
+  const models3D =
+    profile?.model3dArray && profile.model3dArray.length > 0
+      ? profile.model3dArray.map((model) => ({
+          id: model.sketchfabId,
+          title: model.title,
+          description: model.description,
+          artifactType: model.artifactType,
+          tags: model.tags,
+        }))
+      : []
+
+  const go3DPrev = () => setCurrent3DModelIndex((i) => (i - 1 + models3D.length) % models3D.length)
+  const go3DNext = () => setCurrent3DModelIndex((i) => (i + 1) % models3D.length)
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -123,7 +144,7 @@ export default function RegionDetailPage() {
       const headerHeight = 64
       setIsNavSticky(window.scrollY > headerHeight)
 
-      const sections = ["region-profile", "photo-gallery", "viewer-3d", "search-and-explore"]
+      const sections = ["region-profile", "photo-gallery", "viewer-3d", "videos-section", "search-and-explore"]
       for (const sectionId of sections) {
         const element = document.getElementById(sectionId)
         if (element) {
@@ -139,23 +160,13 @@ export default function RegionDetailPage() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  // ---------- Robust scroll helper (menghitung offset manual) ----------
-  // Ubah nilai ini kalau header + nav Anda lebih tinggi/rendah.
-  const SCROLL_OFFSET = 96 // setara dengan scroll-mt-24
-  function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
-    e.preventDefault()
-    const el = document.getElementById(id)
-    if (!el) return
-    const top = el.getBoundingClientRect().top + window.pageYOffset - SCROLL_OFFSET
-    window.scrollTo({ top, behavior: "smooth" })
-    // update hash tanpa memicu jump default
-    if (history.replaceState) {
-      history.replaceState(null, "", `#${id}`)
-    } else {
-      window.location.hash = `#${id}`
+  useEffect(() => {
+    if (carouselRef.current && innerRef.current) {
+      const scrollWidth = innerRef.current.scrollWidth
+      const offsetWidth = carouselRef.current.offsetWidth
+      setDragWidth(scrollWidth - offsetWidth)
     }
-  }
-  // --------------------------------------------------------------------
+  }, [profile])
 
   if (loading) {
     return (
@@ -198,6 +209,7 @@ export default function RegionDetailPage() {
     : []
 
   return (
+    
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       <Navigation onNavClick={handleNavClick} />
 <section aria-label="Hero" className="relative overflow-hidden border-b border-border">
@@ -263,45 +275,87 @@ export default function RegionDetailPage() {
 
       {/* MAIN: tambahkan scroll-smooth supaya anchor jump lebih halus */}
       <main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
-         <nav
-        aria-label="Halaman sub-bab"
-        className={`bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40 border-b border-border transition-shadow duration-200 ${
-          isNavSticky ? "shadow-md" : ""
-        }`}
-      >
-        <div className="container mx-auto px-4">
-          <ul className="flex gap-2 overflow-x-auto py-2 no-scrollbar">
-            <li>
-              <a
-                href="#region-profile"
-                onClick={(e) => scrollToSection(e, "region-profile")}
-                className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                  activeSection === "region-profile"
-                    ? "bg-primary/20 text-primary font-medium"
-                    : "hover:bg-accent/20 text-foreground"
-                }`}
-              >
-                Profile Subkulture
-              </a>
-            </li>
-            <li aria-hidden="true">/</li>
-            <li>
-              <a
-                href="#search-and-explore"
-                onClick={(e) => scrollToSection(e, "search-and-explore")}
-                className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                  activeSection === "search-and-explore"
-                    ? "bg-primary/20 text-primary font-medium"
-                    : "hover:bg-accent/20 text-foreground"
-                }`}
-              >
-                Kumpulan kata
-              </a>
-            </li>
-
-          </ul>
-        </div>
-      </nav>
+        <nav
+          aria-label="Halaman sub-bab"
+          className={`bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40 border-b border-border transition-shadow duration-200 ${
+            isNavSticky ? "shadow-md" : ""
+          }`}
+        >
+          <div className="container mx-auto px-4">
+            <ul className="flex gap-2 overflow-x-auto py-2 no-scrollbar">
+              <li>
+                <a
+                  href="#region-profile"
+                  onClick={(e) => scrollToSection(e, "region-profile")}
+                  className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                    activeSection === "region-profile"
+                      ? "bg-primary/20 text-primary font-medium"
+                      : "hover:bg-accent/20 text-foreground"
+                  }`}
+                >
+                  Profile Subkulture
+                </a>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li>
+                <a
+                  href="#photo-gallery"
+                  onClick={(e) => scrollToSection(e, "photo-gallery")}
+                  className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                    activeSection === "photo-gallery"
+                      ? "bg-primary/20 text-primary font-medium"
+                      : "hover:bg-accent/20 text-foreground"
+                  }`}
+                >
+                  Galeri Foto
+                </a>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li>
+                <a
+                  href="#viewer-3d"
+                  onClick={(e) => scrollToSection(e, "viewer-3d")}
+                  className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                    activeSection === "viewer-3d"
+                      ? "bg-primary/20 text-primary font-medium"
+                      : "hover:bg-accent/20 text-foreground"
+                  }`}
+                >
+                  Model 3D
+                </a>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li>
+                <a
+                  href="#videos-section"
+                  onClick={(e) => scrollToSection(e, "videos-section")}
+                  className={`px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-1 ${
+                    activeSection === "videos-section"
+                      ? "bg-primary/20 text-primary font-medium"
+                      : "hover:bg-accent/20 text-foreground"
+                  }`}
+                >
+                  <Play className="w-4 h-4" />
+                  Video
+                </a>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li>
+                <a
+                  href="#search-and-explore"
+                  onClick={(e) => scrollToSection(e, "search-and-explore")}
+                  className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                    activeSection === "search-and-explore"
+                      ? "bg-primary/20 text-primary font-medium"
+                      : "hover:bg-accent/20 text-foreground"
+                  }`}
+                >
+                  Kumpulan kata
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
 
   {/* 2️⃣ PROFIL SUBCULTURE SECTION */}
   <section id="region-profile" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
@@ -314,7 +368,7 @@ export default function RegionDetailPage() {
           </p>
         )
 
-      const { displayName, history, highlights } = profile
+            const { displayName, history, highlights } = profile
 
       return (
         <div className="space-y-6">
@@ -366,35 +420,41 @@ export default function RegionDetailPage() {
         )
       }
 
-      const currentModel = models3D[0] // Show first model only
+                {/* Model Information */}
+                <div className="space-y-3">
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">{currentModel.title}</h3>
+                    <p className="text-sm text-muted-foreground">{currentModel.description}</p>
+                  </div>
 
-      return (
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-foreground mb-2">
-            3D Cultural Artifacts & Environments
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Jelajahi model 3D interaktif dari artefak budaya dan lingkungan suku {p.displayName}.
-          </p>
+                  <div className="flex flex-wrap gap-2">
+                    {currentModel.tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
 
-          <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
-            <iframe
-              key={`model-${currentModel.id}`}
-              className="w-full"
-              style={{ height: "500px" }}
-              src={`https://sketchfab.com/models/${currentModel.id}/embed?autospin=1&autostart=1`}
-              title={`${currentModel.title}`}
-              allow="autoplay; fullscreen; xr-spatial-tracking"
-              allowFullScreen
-            />
-          </div>
-        </div>
-      )
-    })()}
-  </section>
+                  <div className="rounded-lg border border-border bg-background/50 p-3">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Interaction Tips:</strong> Use your mouse or touch to rotate the model. Scroll to zoom in
+                      and out. Click the fullscreen icon for an immersive viewing experience.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
+        </section>
 
-  {/* Bagian Search & Explore tetap */}
-        <section id="search-and-explore" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
+        {/* Bagian Search & Explore tetap */}
+        <section
+          id="search-and-explore"
+          className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24"
+        >
           <div className="flex flex-col gap-4" role="search">
             <div>
               <h2 className="text-xl font-bold text-foreground mb-2">Search Lexicon</h2>
@@ -453,7 +513,6 @@ export default function RegionDetailPage() {
                         </Link>
                       </div>
                     </article>
-                               
                   )
                 })}
 
@@ -474,10 +533,24 @@ export default function RegionDetailPage() {
             )
           })()}
         </section>
+      </main>
 
-</main>
- <NewsletterSection /> 
-<Footer onNavClick={handleNavClick} />
+      <NewsletterSection />
+      <Footer onNavClick={handleNavClick} />
     </div>
   )
+
+  function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
+    e.preventDefault()
+    const el = document.getElementById(id)
+    if (!el) return
+    const SCROLL_OFFSET = 96
+    const top = el.getBoundingClientRect().top + window.pageYOffset - SCROLL_OFFSET
+    window.scrollTo({ top, behavior: "smooth" })
+    if (history.replaceState) {
+      history.replaceState(null, "", `#${id}`)
+    } else {
+      window.location.hash = `#${id}`
+    }
+  }
 }

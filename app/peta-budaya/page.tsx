@@ -11,17 +11,10 @@ import Link from "next/link"
 import { AdvancedPopupMap, REGIONS, type Region } from "@/components/cultural/advanced-popup-map"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import { ParallaxBackground } from "@/components/common/parallax-background"
 import { LEXICON, type LexiconEntry } from "@/data/lexicon"
 import { Navigation } from "@/components/layout/navigation"
+import { Navbar } from "@/components/layout/navigation/navbar"
 
 export default function PetaBudayaPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -130,7 +123,7 @@ export default function PetaBudayaPage() {
         className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background"
         style={{ scrollBehavior: "smooth" }}
       >
-        <Navigation />
+        <Navbar/>
         {/* Header */}
         {/* <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
