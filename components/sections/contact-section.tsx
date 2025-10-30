@@ -70,25 +70,23 @@ export function ContactSection() {
                 <h3 className="text-2xl font-bold mb-6">Informasi Kontak</h3>
 
                 <div className="space-y-6">
-                  <div className="flex items-start space-x-4">
+                  {/* <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Mail className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">Email</h4>
-                      <p className="text-muted-foreground">info@budayajatim.id</p>
-                      <p className="text-muted-foreground">kolaborasi@budayajatim.id</p>
+                         <h4 className="font-semibold mb-1">Phone</h4>
+                      <p className="text-muted-foreground">+62 31 1234 5678</p>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Phone className="h-6 w-6 text-emerald-600" />
+                      <Mail className="h-6 w-6 text-emerald-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">Phone</h4>
-                      <p className="text-muted-foreground">+62 31 1234 5678</p>
-                      <p className="text-muted-foreground">+62 812 3456 7890</p>
+                      <h4 className="font-semibold mb-1">Email</h4>
+                      <p className="text-muted-foreground">bcp@ub.ac.id</p>
                     </div>
                   </div>
 
@@ -99,9 +97,9 @@ export function ContactSection() {
                     <div>
                       <h4 className="font-semibold mb-1">Address</h4>
                       <p className="text-muted-foreground">
-                        Jl. Budaya Nusantara No. 123
+                         Fakultas Ilmu Budaya, Universitas Brawijaya
                         <br />
-                        Surabaya, Jawa Timur 60123
+                        Jalan Veteran, Malang. Jawa Timur 65145  
                         <br />
                         Indonesia
                       </p>

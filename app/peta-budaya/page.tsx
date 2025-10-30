@@ -167,7 +167,28 @@ export default function PetaBudayaPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-background/20 to-background/90" />
             <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-end pb-8 md:pb-10">
-
+              {/* Breadcrumb */}
+              <motion.nav
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-sm text-gray-200 mb-3"
+                aria-label="Breadcrumb"
+              >
+                <ol className="flex items-center space-x-2">
+                  <li>
+                    <Link href="/" className="hover:underline">
+                      Home
+                    </Link>
+                  </li>
+                  <li aria-hidden="true">›</li>
+                  <li>
+                    <Link href="/daerah/id" className="hover:underline">
+                      Subcultural Regions
+                    </Link>
+                  </li>
+                </ol>
+              </motion.nav>
               <motion.h1
                 id="hero-title"
                 initial={{ opacity: 0, y: 14 }}
@@ -201,23 +222,23 @@ export default function PetaBudayaPage() {
                     Glosarium Budaya
                   </Button>
                 </Link>
-                 <div className="flex items-center gap-4 max-w-md w-full">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input
-                    placeholder={searchCategory === "subculture" ? "Search regions..." : "Search cultural terms..."}
-                    value={searchQuery}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    className="pl-10 bg-background/50 border-border focus:ring-primary/20"
-                  />
+                <div className="flex items-center gap-4 max-w-md w-full">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      placeholder={searchCategory === "subculture" ? "Search regions..." : "Search cultural terms..."}
+                      value={searchQuery}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      className="pl-10 bg-background/50 border-border focus:ring-primary/20"
+                    />
+                  </div>
                 </div>
-              </div>
               </motion.div>
             </div>
           </ParallaxBackground>
         </section>
 
-        
+
 
         {/* Main content with map */}
         <div id="map" className="container mx-auto px-4 py-6">
@@ -233,31 +254,28 @@ export default function PetaBudayaPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleCategoryChange("all")}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        searchCategory === "all"
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${searchCategory === "all"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
+                        }`}
                     >
                       All
                     </button>
                     <button
                       onClick={() => handleCategoryChange("subculture")}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        searchCategory === "subculture"
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${searchCategory === "subculture"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
+                        }`}
                     >
                       Subculture
                     </button>
                     <button
                       onClick={() => handleCategoryChange("lexicon")}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        searchCategory === "lexicon"
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${searchCategory === "lexicon"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
+                        }`}
                     >
                       Lexicon
                     </button>
@@ -286,9 +304,8 @@ export default function PetaBudayaPage() {
                               key={`search-all-${isRegion ? "region" : "lexicon"}-${idx}`}
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
-                              className={`rounded-lg border border-border bg-card/60 p-4 ${
-                                isRegion ? "cursor-pointer hover:bg-card/80 transition-colors" : ""
-                              }`}
+                              className={`rounded-lg border border-border bg-card/60 p-4 ${isRegion ? "cursor-pointer hover:bg-card/80 transition-colors" : ""
+                                }`}
                               onClick={() => isRegion && handleRegionClick((item as Region).id)}
                             >
                               <div className="flex items-start justify-between">
@@ -481,7 +498,7 @@ export default function PetaBudayaPage() {
           </div>
         </div>
 
-{/* How it works section */}
+        {/* How it works section */}
         <section id="how-to" aria-label="How it works" className="container mx-auto px-4 py-6">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -512,7 +529,7 @@ export default function PetaBudayaPage() {
             </ul>
           </motion.div>
         </section>
-        
+
         {/* Bottom divider */}
         <section aria-hidden="true" className="container mx-auto px-4 pb-10">
           <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />

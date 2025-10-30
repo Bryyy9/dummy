@@ -7,7 +7,14 @@ type Member = {
   role: string
 }
 
-const MEMBERS: Member[] = [
+interface TeamTickerSectionProps {
+  team?: Array<{
+    namaContributor: string
+    expertiseArea: string
+  }>
+}
+
+const DEFAULT_MEMBERS: Member[] = [
   { name: "Ayu Prameswari", role: "Research Lead" },
   { name: "Bagus Santosa", role: "Data Engineer" },
   { name: "Citra Wulandari", role: "UX Researcher" },
@@ -18,7 +25,11 @@ const MEMBERS: Member[] = [
   { name: "Hadi Kurnia", role: "GIS Specialist" },
 ]
 
-export default function TeamTickerSection() {
+export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
+  const members = team ? team.map(t => ({
+    name: t.namaContributor,
+    role: t.expertiseArea
+  })) : DEFAULT_MEMBERS
   return (
     <section
       aria-labelledby="team-ticker-heading"
@@ -55,7 +66,7 @@ export default function TeamTickerSection() {
         >
           <div className="marquee-track flex items-center gap-14 md:gap-20 py-10 will-change-transform px-12 sm:px-16 lg:px-20">
             {Array.from({ length: 2 }).map((_, dup) =>
-              MEMBERS.map((member, i) => (
+              members.map((member, i) => (
                 <div
                   key={`${dup}-${i}`}
                   aria-hidden={dup === 1 ? true : undefined}

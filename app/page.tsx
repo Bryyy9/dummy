@@ -10,9 +10,91 @@ import { Footer } from "@/components/layout/footer"
 import { useNavigation } from "@/hooks/use-navigation"
 import { ShowcaseSection } from "@/components/sections/showcase-section"
 import { NewsletterSection } from "@/components/sections/newsletter-section"
+import { useState, useEffect } from "react"
+
+interface LandingData {
+  heroSection: {
+    cultureName: string
+    assets: any[]
+  }
+  subcultureSection: Array<{
+    id: number
+    slug: string
+    name: string
+    description: string
+    culture: string
+    province: string
+    heroImage: string | null
+  }>
+  collaborationAssets: Array<{
+    contributorId: number
+    assetId: number
+    assetNote: string
+    createdAt: string
+    asset: {
+      assetId: number
+      namaFile: string
+      tipe: string
+      penjelasan: string
+      url: string
+      fileSize: string
+      hashChecksum: string
+      metadataJson: string
+      status: string
+      createdAt: string
+      updatedAt: string
+    }
+    contributor: {
+      contributorId: number
+      namaContributor: string
+      institusi: string
+      email: string
+      expertiseArea: string
+      contactInfo: string
+      registeredAt: string
+    }
+  }>
+  visiMisiSection: {
+    publishedCultures: number
+    publishedSubcultures: number
+    publishedLeksikons: number
+    totalContributors: number
+    totalAssets: number
+  }
+  teamScientis: Array<{
+    namaContributor: string
+    expertiseArea: string
+  }>
+}
 
 export default function CulturalHeritagePage() {
   const { handleNavClick, handleCategoryNavigation } = useNavigation()
+  const [landingData, setLandingData] = useState<LandingData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchLandingData = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/v1/public/landing')
+        if (!response.ok) {
+          throw new Error('Failed to fetch landing data')
+        }
+        const result = await response.json()
+        if (result.success) {
+          setLandingData(result.data)
+        } else {
+          throw new Error(result.message || 'Failed to fetch data')
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchLandingData()
+  }, [])
 
   const handleCategoryClick = (category: string) => {
     handleCategoryNavigation(category)
@@ -104,21 +186,55 @@ export default function CulturalHeritagePage() {
       <div className="relative z-10">
         <Navigation onNavClick={handleNavClick} />
 
-        <HeroSection onNavClick={handleNavClick} />
+        {loading ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading cultural heritage...</p>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <p className="text-red-500 mb-4">Error: {error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        ) : landingData ? (
+          <>
+            <HeroSection 
+              onNavClick={handleNavClick} 
+              cultureName={landingData.heroSection.cultureName}
+              assets={landingData.heroSection.assets}
+            />
 
-        <CulturalGalleries onNavClick={handleNavClick} />
+            <CulturalGalleries 
+              onNavClick={handleNavClick} 
+              subcultures={landingData.subcultureSection} 
+            />
 
-        <ShowcaseSection />
+            <ShowcaseSection collaborationAssets={landingData.collaborationAssets} />
 
-        <GlobeSection />
+            <GlobeSection />
 
-        <AboutSection onNavClick={handleNavClick} />
+            <AboutSection 
+              onNavClick={handleNavClick} 
+              stats={landingData.visiMisiSection}
+              team={landingData.teamScientis}
+            />
 
-        <ContactSection />
+            <ContactSection />
 
-        {/* <NewsletterSection /> */}
+            {/* <NewsletterSection /> */}
 
-        <Footer onNavClick={handleNavClick} onCategoryClick={handleCategoryClick} />
+            <Footer onNavClick={handleNavClick} onCategoryClick={handleCategoryClick} />
+          </>
+        ) : null}
       </div>
     </div>
   )
