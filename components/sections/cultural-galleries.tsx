@@ -110,7 +110,7 @@ export function CulturalGalleries({ onNavClick, subcultures }: CulturalGalleries
         slug: sc.namaSubculture!.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
       }
     }
-  }) : defaultSubRegions
+  }) .slice(0, 4) : defaultSubRegions
 
   return (
     <section className="py-20 bg-muted/30 relative">

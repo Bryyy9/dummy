@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Globe, Home, Camera, Mail, Menu, X } from "lucide-react"
+import { Globe, Home, Camera, Mail, Menu, X, Map } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 interface NavigationProps {
   onNavClick: (section: string) => void
@@ -16,6 +16,22 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeNav, setActiveNav] = useState("beranda")
   const router = useRouter()
+  const pathname = usePathname()
+
+  // Cek apakah sedang di halaman peta-budaya
+  const isPetaBudaya = pathname === "/peta-budaya"
+  
+  // Cek apakah sedang di halaman subculture (budaya/daerah/[id])
+  const isSubculture = pathname.startsWith("/budaya/daerah/") && pathname !== "/budaya/daerah/-"
+
+  useEffect(() => {
+    // Update active nav based on current path
+    if (isPetaBudaya) {
+      setActiveNav("peta-budaya")
+    } else if (isSubculture) {
+      setActiveNav("subculture")
+    }
+  }, [isPetaBudaya, isSubculture])
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 
@@ -23,18 +39,40 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
     setActiveNav(section)
     if (section === "peta-budaya") {
       router.push("/peta-budaya")
+    } else if (section === "beranda" && (isPetaBudaya || isSubculture)) {
+      // Jika di peta-budaya atau subculture dan klik home, navigasi ke halaman utama
+      router.push("/")
     } else {
       onNavClick(section)
     }
     setIsMenuOpen(false)
   }
 
-  const navItems = [
+  // Nav items untuk halaman normal
+  const normalNavItems = [
     { id: "beranda", label: "Home", icon: Home },
     { id: "eksplorasi", label: "Explore", icon: Camera },
     { id: "tentang", label: "About", icon: Globe },
     { id: "kontak", label: "Contact", icon: Mail },
   ]
+
+  // Nav items untuk halaman peta-budaya (hanya Home)
+  const petaBudayaNavItems = [
+    { id: "beranda", label: "Home", icon: Home },
+  ]
+
+  // Nav items untuk halaman subculture (Home dan Peta Budaya)
+  const subcultureNavItems = [
+    { id: "beranda", label: "Home", icon: Home },
+    { id: "peta-budaya", label: "Subculture Map", icon: Map },
+  ]
+
+  // Pilih nav items berdasarkan halaman
+  const navItems = isSubculture 
+    ? subcultureNavItems 
+    : isPetaBudaya 
+    ? petaBudayaNavItems 
+    : normalNavItems
 
   return (
     <nav
@@ -59,7 +97,13 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
                 height={60}
                 className="object-contain cursor-pointer rounded-lg"
                 priority
-                onClick={() => handleNavClick("beranda")}
+                onClick={() => {
+                  if (isPetaBudaya || isSubculture) {
+                    router.push("/")
+                  } else {
+                    handleNavClick("beranda")
+                  }
+                }}
               />
             </div>
           </div>
@@ -83,23 +127,64 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
             ))}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleMenu}
-              aria-label="Toggle menu"
-              className="text-gray-200 hover:bg-white/10"
-            >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-          </div>
+          {/* Mobile Menu Button - untuk halaman normal */}
+          {!isPetaBudaya && !isSubculture && (
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleMenu}
+                aria-label="Toggle menu"
+                className="text-gray-200 hover:bg-white/10"
+              >
+                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile - Jika di peta-budaya, tampilkan tombol Home langsung */}
+          {isPetaBudaya && (
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/")}
+                className="text-gray-200 hover:bg-white/10"
+              >
+                <Home className="h-5 w-5 mr-2" />
+                Home
+              </Button>
+            </div>
+          )}
+
+          {/* Mobile - Jika di subculture, tampilkan tombol Home dan Map */}
+          {isSubculture && (
+            <div className="md:hidden flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/peta-budaya")}
+                className="text-gray-200 hover:bg-white/10"
+              >
+                <Map className="h-5 w-5 mr-1" />
+                Map
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/")}
+                className="text-gray-200 hover:bg-white/10"
+              >
+                <Home className="h-5 w-5 mr-1" />
+                Home
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
+      {/* Mobile Menu - hanya tampil jika bukan di peta-budaya atau subculture */}
+      {!isPetaBudaya && !isSubculture && isMenuOpen && (
         <div className="md:hidden border-t border-white/10 bg-[rgba(31,31,31,0.7)] backdrop-blur-2xl">
           <div className="px-4 py-4 space-y-2">
             {navItems.map((item) => (
