@@ -61,7 +61,7 @@ export default function CulturalWordDetailPage({
   useEffect(() => {
     const fetchEntry = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/v1/public/lexicons');
+        const response = await fetch('https://be-corpora.vercel.app/api/v1/public/lexicons');
         if (!response.ok) {
           throw new Error('Failed to fetch lexicons');
         }

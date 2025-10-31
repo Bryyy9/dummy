@@ -1,2 +1,2 @@
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1/public/landing";
+  process.env.NEXT_PUBLIC_API_URL || "https://be-corpora.vercel.app/api/v1/public/";

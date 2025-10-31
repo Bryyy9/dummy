@@ -73,7 +73,7 @@ export default function RegionDetailPage() {
     const fetchSubcultureData = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`http://localhost:8000/api/v1/public/subcultures/${regionId}`)
+        const response = await fetch(`https://be-corpora.vercel.app/api/v1/public/subcultures/${regionId}`)
         if (!response.ok) {
           throw new Error('Failed to fetch subculture data')
         }
@@ -106,7 +106,7 @@ export default function RegionDetailPage() {
     const fetchSearchResults = async () => {
       if (searchQuery.trim()) {
         try {
-          const response = await fetch(`http://localhost:8000/api/v1/public/subcultures/${regionId}?search=${encodeURIComponent(searchQuery.trim())}`)
+          const response = await fetch(`https://be-corpora.vercel.app/api/v1/public/subcultures/${regionId}?search=${encodeURIComponent(searchQuery.trim())}`)
           if (response.ok) {
             const result = await response.json()
             if (result.success) {
