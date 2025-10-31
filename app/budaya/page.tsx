@@ -10,7 +10,7 @@ import { Footer } from "@/components//layout/footer"
 import { useNavigation } from "@/hooks/use-navigation"
 import { Input } from "@/components/ui/input"
 
-interface SubcultureData {
+interface CultureData {
   id: string
   name: string
   description: string
@@ -23,7 +23,7 @@ interface SubcultureData {
 
 export default function SubculturesGalleryPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [subcultures, setSubcultures] = useState<SubcultureData[]>([])
+  const [subcultures, setSubcultures] = useState<CultureData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { handleNavClick, handleCategoryNavigation } = useNavigation()

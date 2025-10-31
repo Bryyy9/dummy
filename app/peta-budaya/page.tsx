@@ -152,6 +152,7 @@ export default function PetaBudayaPage() {
   }
 
   const handleRegionClick = (regionId: string) => {
+    console.log('Region clicked:', regionId)
     router.push(`/budaya/daerah/${regionId}`)
   }
 
