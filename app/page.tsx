@@ -17,14 +17,34 @@ interface LandingData {
     cultureName: string
     assets: any[]
   }
-  subcultureSection: Array<{
-    id: number
-    slug: string
-    name: string
-    description: string
-    culture: string
-    province: string
-    heroImage: string | null
+  subcultures: Array<{
+    subcultureId: number
+    namaSubculture: string
+    penjelasan: string
+    cultureId: number
+    status: string
+    statusKonservasi: string
+    createdAt: string
+    updatedAt: string
+    subcultureAssets?: Array<{
+      subcultureId: number
+      assetId: number
+      assetRole: string
+      createdAt: string
+      asset: {
+        assetId: number
+        namaFile: string
+        tipe: string
+        penjelasan: string
+        url: string
+        fileSize: string
+        hashChecksum: string
+        metadataJson: string
+        status: string
+        createdAt: string
+        updatedAt: string
+      }
+    }>
   }>
   collaborationAssets: Array<{
     contributorId: number
@@ -215,7 +235,7 @@ export default function CulturalHeritagePage() {
 
             <CulturalGalleries 
               onNavClick={handleNavClick} 
-              subcultures={landingData.subcultureSection} 
+              subcultures={landingData.subcultures} 
             />
 
             <ShowcaseSection collaborationAssets={landingData.collaborationAssets} />
@@ -239,3 +259,5 @@ export default function CulturalHeritagePage() {
     </div>
   )
 }
+
+

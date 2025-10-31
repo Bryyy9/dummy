@@ -40,13 +40,7 @@ export function HeroSection({ onNavClick, cultureName = "East Java", assets }: H
               </Badge>
             </AnimatedReveal>
 
-            {/* <AnimatedReveal animation="fade-up" delay={400}>
-              <h1 className="text-6xl font-bold text-white drop-shadow-md">Discover the Spirit of {cultureName}</h1>
-              <p className="text-gray-300 text-lg leading-relaxed max-w-lg mt-4">
-                Experience the harmony of nature and heritage — from sacred temples to volcanic
-                horizons. {cultureName} invites you to a journey filled with beauty, tradition, and adventure.</p>
-            </AnimatedReveal> */}
-                <AnimatedReveal animation="fade-up" delay={400}>
+            <AnimatedReveal animation="fade-up" delay={400}>
               <h1 className="text-6xl font-bold text-white drop-shadow-md">Discover the Spirit of {cultureName}</h1>
               <p className="text-gray-300 text-lg leading-relaxed max-w-lg mt-4">
                 Experience the harmony of nature and heritage — from sacred temples to volcanic
