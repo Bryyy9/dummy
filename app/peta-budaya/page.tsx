@@ -31,10 +31,50 @@ export default function PetaBudayaPage() {
     }
   }, [searchCategory])
 
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query)
-    if (query.trim()) {
-      if (searchCategory === "subculture") {
+
+    if (!query.trim()) {
+      setShowSearchResults(false)
+      setSearchResults([])
+      setLexiconRegionMap({})
+      setSelectedRegion(null)
+      return
+    }
+
+    // Try global search endpoint first. If it fails, fallback to local search (REGIONS / LEXICON).
+    try {
+      const url = `http://localhost:8000/api/v1/search/global?q=${encodeURIComponent(query)}&category=${encodeURIComponent(
+        searchCategory,
+      )}`
+      const res = await fetch(url)
+      if (!res.ok) throw new Error('Global search request failed')
+      const json = await res.json()
+
+      if (json && json.success && json.data) {
+        const results = json.data.results || []
+        setSearchResults(results)
+        setLexiconRegionMap(json.data.lexiconRegionMap || {})
+        setShowSearchResults(true)
+
+        // Select the first region result if present
+        const firstRegion = results.find((r: any) => r.type === 'region' || r.type === 'region')
+        if (firstRegion && (firstRegion as any).id) {
+          setSelectedRegion((firstRegion as any).id)
+        } else {
+          setSelectedRegion(null)
+        }
+
+        return
+      }
+
+      // If API returned unexpected payload, fall back
+      throw new Error(json?.message || 'Invalid search response')
+    } catch (err) {
+      // Fallback to local search logic (existing behavior)
+      console.warn('Global search failed, falling back to local search:', err)
+
+      if (searchCategory === 'subculture') {
         const results = REGIONS.filter(
           (region) =>
             region.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -42,10 +82,8 @@ export default function PetaBudayaPage() {
         )
         setSearchResults(results as Region[])
         setShowSearchResults(true)
-        if (results.length > 0) {
-          setSelectedRegion((results[0] as Region).id)
-        }
-      } else if (searchCategory === "lexicon") {
+        if (results.length > 0) setSelectedRegion((results[0] as Region).id)
+      } else if (searchCategory === 'lexicon') {
         const results: LexiconEntry[] = []
         const regionMap: Record<string, string> = {}
         const lowerQuery = query.toLowerCase()
@@ -55,16 +93,20 @@ export default function PetaBudayaPage() {
           const regionName = region?.name || regionKey
 
           for (const entry of entries) {
-            if (entry.term.toLowerCase().includes(lowerQuery) || entry.definition.toLowerCase().includes(lowerQuery)) {
+            if (
+              entry.term.toLowerCase().includes(lowerQuery) ||
+              entry.definition.toLowerCase().includes(lowerQuery)
+            ) {
               results.push(entry)
               regionMap[entry.termCode] = regionName
             }
           }
         }
+
         setSearchResults(results)
         setLexiconRegionMap(regionMap)
         setShowSearchResults(true)
-      } else if (searchCategory === "all") {
+      } else {
         const regionResults = REGIONS.filter(
           (region) =>
             region.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -79,7 +121,10 @@ export default function PetaBudayaPage() {
           const regionName = region?.name || regionKey
 
           for (const entry of entries) {
-            if (entry.term.toLowerCase().includes(lowerQuery) || entry.definition.toLowerCase().includes(lowerQuery)) {
+            if (
+              entry.term.toLowerCase().includes(lowerQuery) ||
+              entry.definition.toLowerCase().includes(lowerQuery)
+            ) {
               lexiconResults.push(entry)
               regionMap[entry.termCode] = regionName
             }
@@ -90,15 +135,8 @@ export default function PetaBudayaPage() {
         setSearchResults(combinedResults)
         setLexiconRegionMap(regionMap)
         setShowSearchResults(true)
-        if (regionResults.length > 0) {
-          setSelectedRegion((regionResults[0] as Region).id)
-        }
+        if (regionResults.length > 0) setSelectedRegion((regionResults[0] as Region).id)
       }
-    } else {
-      setShowSearchResults(false)
-      setSearchResults([])
-      setLexiconRegionMap({})
-      setSelectedRegion(null)
     }
   }
 
