@@ -54,7 +54,7 @@ export default function AllCulturalWordsPage() {
   useEffect(() => {
     const fetchLexicons = async () => {
       try {
-        const response = await fetch('https://be-corpora.vercel.appapi/v1/public/lexicons')
+        const response = await fetch('https://be-corpora.vercel.app/api/v1/public/lexicons')
         if (!response.ok) {
           throw new Error('Failed to fetch lexicons')
         }
