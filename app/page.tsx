@@ -94,18 +94,41 @@ export default function CulturalHeritagePage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchLandingData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/v1/public/landing')
-        if (!response.ok) {
+        // Fetch landing and subcultures in parallel. We prefer the /subcultures
+        // endpoint for populating the galleries section (so landing page
+        // uses the same list as /budaya page).
+        const [landingRes, subculturesRes] = await Promise.all([
+          fetch('https://be-corpora.vercel.app/api/v1/public/landing'),
+          fetch('https://be-corpora.vercel.app/api/v1/public/subcultures'),
+        ])
+
+        if (!landingRes.ok) {
           throw new Error('Failed to fetch landing data')
         }
-        const result = await response.json()
-        if (result.success) {
-          setLandingData(result.data)
-        } else {
-          throw new Error(result.message || 'Failed to fetch data')
+        if (!subculturesRes.ok) {
+          // we'll still try to use landing data if subcultures endpoint fails
+          // but surface a warning via the error state
+          throw new Error('Failed to fetch subcultures data')
         }
+
+        const landingJson = await landingRes.json()
+        const subculturesJson = await subculturesRes.json()
+
+        if (!landingJson.success) {
+          throw new Error(landingJson.message || 'Failed to fetch landing data')
+        }
+
+        // Base landing data
+        const mergedData = { ...landingJson.data }
+
+        // If subcultures API returns success, override/attach subcultures
+        if (subculturesJson && subculturesJson.success) {
+          mergedData.subcultures = subculturesJson.data
+        }
+
+        setLandingData(mergedData)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
@@ -113,7 +136,7 @@ export default function CulturalHeritagePage() {
       }
     }
 
-    fetchLandingData()
+    fetchData()
   }, [])
 
   const handleCategoryClick = (category: string) => {

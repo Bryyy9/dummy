@@ -107,8 +107,12 @@ export function ContactSection() {
                   </div>
                 </div>
               </div>
+            </div>
+          </AnimatedReveal>
 
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-primary/5 to-primary/10">
+          {/* Contact Form */}
+          <AnimatedReveal animation="slide-left" delay={1000}>
+                       <Card className="border-0 shadow-lg bg-gradient-to-br from-primary/5 to-primary/10">
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-3 mb-4">
                     <Users className="h-6 w-6 text-primary" />
@@ -130,52 +134,6 @@ export function ContactSection() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          </AnimatedReveal>
-
-          {/* Contact Form */}
-          <AnimatedReveal animation="slide-left" delay={1000}>
-            <Card className="border-0 shadow-lg">
-              <CardContent className="p-8">
-                <h3 className="text-2xl font-bold mb-6">Send Message</h3>
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium mb-2">
-                        Full Name
-                      </label>
-                      <Input id="name" placeholder="Enter full name" required />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium mb-2">
-                        Email
-                      </label>
-                      <Input id="email" type="email" placeholder="name@email.com" required />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="subject" className="block text-sm font-medium mb-2">
-                      Subject
-                    </label>
-                    <Input id="subject" placeholder="Message subject" required />
-                  </div>
-
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium mb-2">
-                      Message
-                    </label>
-                    <Textarea id="message" placeholder="Write your message here..." rows={6} required />
-                  </div>
-
-                  <EnhancedButton type="submit" size="lg" effect="glow" className="w-full">
-                    <Send className="h-5 w-5 mr-2" />
-                    Send Message
-                  </EnhancedButton>
-                </form>
-              </CardContent>
-            </Card>
           </AnimatedReveal>
         </div>
       </div>

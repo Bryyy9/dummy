@@ -31,7 +31,7 @@ export default function SubculturesGalleryPage() {
   useEffect(() => {
     const fetchSubcultures = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/v1/public/subcultures')
+        const response = await fetch('https://be-corpora.vercel.app/api/v1/public/subcultures')
         if (!response.ok) {
           throw new Error('Failed to fetch subcultures')
         }
@@ -191,7 +191,7 @@ export default function SubculturesGalleryPage() {
         )}
       </main>
 
-      <NewsletterSection />
+      {/* <NewsletterSection /> */}
       <Footer onNavClick={handleNavClick} onCategoryClick={handleCategoryClick} />
     </div>
   )
