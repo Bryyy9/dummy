@@ -51,6 +51,9 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
     description: ca.asset.penjelasan
   })) : defaultLogos
 
+  // Duplikasi logo sebanyak 4 kali untuk memastikan tidak ada gap
+  const repeatedLogos = Array(4).fill(displayAssets).flat()
+
   return (
     <section
       aria-labelledby="showcase-heading"
@@ -91,54 +94,59 @@ export function ShowcaseSection({ collaborationAssets }: ShowcaseSectionProps) {
       </div>
 
       {/* Scrolling Logos */}
-      <div className="group relative mt-12 w-screen -ml-[calc((100vw-100%)/2)] overflow-visible">
+      <div className="group relative mt-12 w-screen -ml-[calc((100vw-100%)/2)] overflow-hidden">
         <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
 
         <div
-          className="marquee relative overflow-visible w-full border-y border-border/60 bg-muted/20"
+          className="marquee relative overflow-hidden w-full border-y border-border/60 bg-muted/20"
           aria-label="Scrolling partner logos"
         >
-          <div className="marquee-track flex items-center gap-14 md:gap-20 py-10 will-change-transform px-12 sm:px-16 lg:px-20">
-            {Array.from({ length: 2 }).map((_, dup) =>
-              displayAssets.map((logo, i) => (
-                <div
-                  key={`${dup}-${i}`}
-                  className="flex-shrink-0 flex flex-col items-center opacity-85 hover:opacity-100 transition-opacity duration-200"
-                  aria-hidden={dup === 1 ? true : undefined}
-                >
-                  <img
-                    src={logo.src || "/placeholder.svg"}
-                    alt={logo.alt}
-                    height={64}
-                    width={160}
-                    className="h-16 w-[160px] object-contain"
-                  />
-                  <p className="mt-2 text-sm text-muted-foreground font-medium text-center max-w-[160px]">
-                    {logo.alt}
-                  </p>
-                </div>
-              )),
-            )}
+          <div className="marquee-track flex items-center gap-14 md:gap-20 py-10 will-change-transform">
+            {repeatedLogos.map((logo, index) => (
+              <div
+                key={`logo-${index}`}
+                className="flex-shrink-0 flex flex-col items-center opacity-85 hover:opacity-100 transition-opacity duration-200"
+              >
+                <img
+                  src={logo.src || "/placeholder.svg"}
+                  alt={logo.alt}
+                  height={64}
+                  width={160}
+                  className="h-16 w-[160px] object-contain"
+                />
+                <p className="mt-2 text-sm text-muted-foreground font-medium text-center max-w-[160px]">
+                  {logo.alt}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Marquee animation */}
       <style jsx>{`
-        @keyframes marquee-left {
+        @keyframes marquee-scroll {
           0% {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-50%);
+            transform: translateX(-25%);
           }
         }
+        
         .marquee-track {
-          animation: marquee-left 30s linear infinite;
+          animation: marquee-scroll 40s linear infinite;
         }
+        
         .group:hover .marquee-track {
           animation-play-state: paused;
+        }
+
+        /* Ensure smooth looping */
+        .marquee-track {
+          display: flex;
+          width: fit-content;
         }
       `}</style>
     </section>
