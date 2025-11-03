@@ -1,6 +1,8 @@
+// components/sections/team-ticker-section.tsx
 "use client"
 
 import * as React from "react"
+import { cn } from "@/lib/utils"
 
 type Member = {
   name: string
@@ -30,6 +32,10 @@ export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
     name: t.namaContributor,
     role: t.expertiseArea
   })) : DEFAULT_MEMBERS
+
+  // Duplikasi array 4 kali untuk memastikan tidak ada gap
+  const repeatedMembers = Array(4).fill(members).flat()
+
   return (
     <section
       aria-labelledby="team-ticker-heading"
@@ -50,52 +56,60 @@ export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
           </h2>
 
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            A diverse team of passionate individuals working together to preserve and promote East Java’s cultural heritage.
+            A diverse team of passionate individuals working together to preserve and promote East Java's cultural heritage.
           </p>
         </div>
       </div>
 
       {/* Marquee Members */}
-      <div className="group relative mt-12 w-screen -ml-[calc((100vw-100%)/2)] overflow-visible">
+      <div className="group relative mt-12 w-screen -ml-[calc((100vw-100%)/2)] overflow-hidden">
+        {/* Gradient overlays untuk smooth fade */}
         <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
 
         <div
-          className="marquee relative overflow-visible w-full border-y border-border/60 bg-muted/20"
+          className="marquee relative overflow-hidden w-full border-y border-border/60 bg-muted/20"
           aria-label="Scrolling team members"
         >
-          <div className="marquee-track flex items-center gap-14 md:gap-20 py-10 will-change-transform px-12 sm:px-16 lg:px-20">
-            {Array.from({ length: 2 }).map((_, dup) =>
-              members.map((member, i) => (
-                <div
-                  key={`${dup}-${i}`}
-                  aria-hidden={dup === 1 ? true : undefined}
-                  className={`flex-shrink-0 flex flex-col items-center rounded-xl border border-border/40
-                              bg-gradient-to-br from-muted/60 to-muted/20 shadow-sm px-6 py-4
-                              hover:-translate-y-1 hover:shadow-md transition-all duration-300`}
-                >
-                  <p className="text-sm font-semibold text-foreground">{member.name}</p>
-                  <p className="text-xs text-muted-foreground">{member.role}</p>
-                </div>
-              ))
-            )}
+          <div className="marquee-track flex items-center gap-14 md:gap-20 py-10 will-change-transform">
+            {repeatedMembers.map((member, i) => (
+              <div
+                key={`member-${i}`}
+                className={cn(
+                  "flex-shrink-0 flex flex-col items-center rounded-xl border border-border/40",
+                  "bg-gradient-to-br from-muted/60 to-muted/20 shadow-sm px-6 py-4",
+                  "hover:-translate-y-1 hover:shadow-md transition-all duration-300"
+                )}
+              >
+                <p className="text-sm font-semibold text-foreground whitespace-nowrap">
+                  {member.name}
+                </p>
+                <p className="text-xs text-muted-foreground whitespace-nowrap">
+                  {member.role}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Marquee Animation */}
       <style jsx>{`
-        @keyframes marquee-left {
+        @keyframes marquee-scroll {
           0% {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-50%);
+            transform: translateX(-25%);
           }
         }
+        
         .marquee-track {
-          animation: marquee-left 30s linear infinite;
+          animation: marquee-scroll 40s linear infinite;
+          display: flex;
+          width: fit-content;
         }
+        
         .group:hover .marquee-track {
           animation-play-state: paused;
         }

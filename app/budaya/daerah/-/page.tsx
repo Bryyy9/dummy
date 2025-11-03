@@ -350,7 +350,7 @@ export default function AllCulturalWordsPage() {
                           <div className="flex justify-between items-center mt-auto">
                             <Link href={`/budaya/daerah/-/${termSlug}`} className="flex-1 mr-2">
                               <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 text-white w-full cursor-pointer">
-                                Lihat Detail
+                                 Detail
                               </Button>
                             </Link>
                             <Link href={`/budaya/daerah/${entry.regionKey}`}>
@@ -358,7 +358,7 @@ export default function AllCulturalWordsPage() {
                                 variant="outline"
                                 className="border border-border hover:bg-background/60 cursor-pointer"
                               >
-                                Glosarium
+                                Subculture
                               </Button>
                             </Link>
                           </div>

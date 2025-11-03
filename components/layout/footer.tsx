@@ -40,9 +40,9 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
 
   const resources = [
     { label: "Documentation", href: "#" },
-    { label: "Research", href: "#" },
-    { label: "Gallery", href: "#" },
-    { label: "Events", href: "#" },
+    { label: "Research Team", href: "research" },
+    { label: "Gallery", href: "gallery" },
+   
   ];
 
   return (

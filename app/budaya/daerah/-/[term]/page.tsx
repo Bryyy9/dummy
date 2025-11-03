@@ -369,7 +369,7 @@ export default function CulturalWordDetailPage({
 
             <Link href="/budaya/daerah/-" aria-label="View all glossaries">
               <Button variant="outline" className="px-3 py-2 gap-2 inline-flex items-center hover:bg-primary/10">
-                <span className="text-sm hidden sm:inline">All Glossaries</span>
+                <span className="text-sm hidden sm:inline">Lexicons Glossarium</span>
                 <span className="text-sm sm:hidden">All</span>
               </Button>
             </Link>
@@ -704,11 +704,11 @@ export default function CulturalWordDetailPage({
 
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Common Meaning</CardTitle>
+              <CardTitle className="text-foreground">Reference</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {entry.details.commonMeaning || "—"}
+                {entry.details.culturalMeaning || "—"}
               </p>
             </CardContent>
           </Card>
