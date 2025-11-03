@@ -191,8 +191,7 @@ export default function PetaBudayaPage() {
             if (element) element.scrollIntoView({ behavior: "smooth" });
           }}
         />
-        // app/peta-budaya/page.tsx // Cari bagian Hero Section dan ubah
-        struktur search bar
+
         {/* Hero Section */}
         <section aria-labelledby="hero-title" className="relative">
           <ParallaxBackground className="relative h-[320px] md:h-[420px] overflow-hidden">
@@ -246,41 +245,45 @@ export default function PetaBudayaPage() {
                 significance with clarity and beauty.
               </motion.p>
 
-              {/* UBAH BAGIAN INI - Button dan Search Bar dalam layout yang berbeda */}
+              {/* LAYOUT BARU - Button dan Search Bar Sejajar */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-                className="mt-4 space-y-3"
+                className="mt-4"
               >
-                {/* Button Row */}
-                <div>
-                  <Link href="/budaya/daerah/-">
-                    <Button
-                      variant="outline"
-                      className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
-                    >
-                      Lexicons Glosarium
-                    </Button>
-                  </Link>
-                </div>
-
-                {/* Search Bar Row - Full Width */}
-                <AnimatedReveal animation="fade-up" delay={150}>
-                  <div className="relative w-full">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      placeholder="Cari istilah budaya..."
-                      value={searchQuery}
-                      onChange={(e) => handleSearch(e.target.value)}
-                      className="w-full pl-10 bg-background/50 border-border focus:ring-primary/20"
-                    />
+                {/* Container untuk Button dan Search - Sejajar */}
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                  {/* Button Lexicons Glosarium */}
+                  <div className="flex-shrink-0">
+                    <Link href="/budaya/daerah/-?from=/peta-budaya">
+                      <Button
+                        variant="outline"
+                        className="w-full sm:w-auto bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 cursor-pointer whitespace-nowrap"
+                      >
+                        Lexicons Glosarium
+                      </Button>
+                    </Link>
                   </div>
-                </AnimatedReveal>
+
+                  {/* Search Bar - Flex Grow */}
+                  <AnimatedReveal animation="fade-up" delay={150} className="flex-1">
+                    <div className="relative w-full">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        placeholder="Cari istilah budaya..."
+                        value={searchQuery}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className="w-full pl-10 bg-background/50 border-border focus:ring-primary/20"
+                      />
+                    </div>
+                  </AnimatedReveal>
+                </div>
               </motion.div>
             </div>
           </ParallaxBackground>
         </section>
+
         {/* Main content with map */}
         <div id="map" className="container mx-auto px-4 py-6">
           <div className="w-full">
@@ -586,6 +589,7 @@ export default function PetaBudayaPage() {
             </AnimatePresence>
           </div>
         </div>
+
         {/* How it works section */}
         <section
           id="how-to"
@@ -624,6 +628,7 @@ export default function PetaBudayaPage() {
             </ul>
           </motion.div>
         </section>
+
         {/* Bottom divider */}
         <section aria-hidden="true" className="container mx-auto px-4 pb-10">
           <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />

@@ -1,44 +1,49 @@
 // components/layout/footer.tsx
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import Link from "next/link"
-import { Facebook, Instagram, Twitter, Heart } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import Image from "next/image"
+import Link from "next/link";
+import { Facebook, Instagram, Twitter, Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface FooterProps {
-  onNavClick: (section: string) => void
-  onCategoryClick?: (category: string) => void
+  onNavClick: (section: string) => void;
+  onCategoryClick?: (category: string) => void;
 }
 
 export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
   const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Handle newsletter subscription
-    console.log("Newsletter subscription")
-  }
+    console.log("Newsletter subscription");
+  };
 
   const quickLinks = [
     { label: "Home", section: "beranda" },
     { label: "About", section: "tentang" },
     { label: "Exploration", section: "eksplorasi" },
     { label: "Contact", section: "kontak" },
-  ]
+  ];
 
+  // components/layout/footer.tsx
   const culturalLinks = [
     { label: "Cultural Map", href: "/peta-budaya" },
     { label: "Sub-regions", href: "/budaya" },
-    { label: "Cultural Glossary", href: "/budaya/daerah/-" },
-  ]
+    {
+      label: "Cultural Glossary",
+      href: "/budaya/daerah/-?from=/",
+      prefetch: true,
+    },
+  ];
 
   const resources = [
     { label: "Documentation", href: "#" },
     { label: "Research", href: "#" },
     { label: "Gallery", href: "#" },
     { label: "Events", href: "#" },
-  ]
+  ];
 
   return (
     <footer className="bg-gradient-to-br from-muted/50 via-background to-muted/30 border-t border-border">
@@ -57,22 +62,49 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
               />
             </div>
             <p className="text-sm text-muted-foreground text-pretty">
-              A digital platform dedicated to preserving and introducing the cultural wealth of East Java to present and
-              future generations.
+              A digital platform dedicated to preserving and introducing the
+              cultural wealth of East Java to present and future generations.
             </p>
             <div className="flex space-x-3">
-              <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
-                <a href="https://facebook.com/universitasbrawijaya" target="_blank" rel="noopener noreferrer">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-primary/10"
+                asChild
+              >
+                <a
+                  href="https://facebook.com/universitasbrawijaya"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Facebook className="h-4 w-4" />
                 </a>
               </Button>
-              <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
-                <a href="https://instagram.com/universitasbrawijaya" target="_blank" rel="noopener noreferrer">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-primary/10"
+                asChild
+              >
+                <a
+                  href="https://instagram.com/universitasbrawijaya"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Instagram className="h-4 w-4" />
                 </a>
               </Button>
-              <Button variant="ghost" size="icon" className="hover:bg-primary/10" asChild>
-                <a href="https://twitter.com/universitasub" target="_blank" rel="noopener noreferrer">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-primary/10"
+                asChild
+              >
+                <a
+                  href="https://twitter.com/universitasub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Twitter className="h-4 w-4" />
                 </a>
               </Button>
@@ -98,11 +130,16 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
 
           {/* Cultural Content */}
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Cultural Content</h3>
+            <h3 className="font-semibold text-foreground mb-4">
+              Cultural Content
+            </h3>
             <ul className="space-y-2">
               {culturalLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <Link
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
                     {link.label}
                   </Link>
                 </li>
@@ -116,7 +153,10 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
             <ul className="space-y-2">
               {resources.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <a
+                    href={link.href}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
                     {link.label}
                   </a>
                 </li>
@@ -136,13 +176,22 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
               <span className="hidden md:inline">by Universitas Brawijaya</span>
             </div>
             <div className="flex space-x-6 text-sm">
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+              <a
+                href="#"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
                 Privacy Policy
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+              <a
+                href="#"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
                 Terms of Service
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+              <a
+                href="#"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
                 Sitemap
               </a>
             </div>
@@ -150,5 +199,5 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
         </div>
       </div>
     </footer>
-  )
+  );
 }

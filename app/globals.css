@@ -307,3 +307,37 @@ html {
     scroll-behavior: auto;
   }
 }
+
+/* Cursor pointer untuk semua elemen interaktif */
+button,
+a,
+select,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+[role="button"],
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* Cursor not-allowed untuk disabled elements */
+button:disabled,
+button[disabled],
+select:disabled,
+input:disabled,
+.cursor-not-allowed {
+  cursor: not-allowed !important;
+}
+
+/* Cursor default untuk non-interactive elements */
+button:disabled:hover,
+button[disabled]:hover {
+  cursor: not-allowed !important;
+}
+
+/* Hover effects untuk button */
+button:not(:disabled):hover,
+a:hover,
+select:hover:not(:disabled) {
+  cursor: pointer !important;
+}

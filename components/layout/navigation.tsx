@@ -1,78 +1,90 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Globe, Home, Camera, Mail, Menu, X, Map } from "lucide-react"
-import { cn } from "@/lib/utils"
-import Image from "next/image"
-import { useRouter, usePathname } from "next/navigation"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Globe,
+  Home,
+  Camera,
+  Mail,
+  Menu,
+  X,
+  Map,
+  BookOpen,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { useRouter, usePathname } from "next/navigation";
 
 interface NavigationProps {
-  onNavClick: (section: string) => void
-  className?: string
+  onNavClick: (section: string) => void;
+  className?: string;
 }
 
 export function Navigation({ onNavClick, className }: NavigationProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [activeNav, setActiveNav] = useState("beranda")
-  const router = useRouter()
-  const pathname = usePathname()
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeNav, setActiveNav] = useState("beranda");
+  const router = useRouter();
+  const pathname = usePathname();
 
   // Cek apakah sedang di halaman peta-budaya
-  const isPetaBudaya = pathname === "/peta-budaya"
-  
+  const isPetaBudaya = pathname === "/peta-budaya";
+
   // Cek apakah sedang di halaman subculture (budaya/daerah/[id])
-  const isSubculture = pathname.startsWith("/budaya/daerah/") && pathname !== "/budaya/daerah/-"
+  const isSubculture =
+    pathname.startsWith("/budaya/daerah/") && pathname !== "/budaya/daerah/-";
 
   useEffect(() => {
     // Update active nav based on current path
     if (isPetaBudaya) {
-      setActiveNav("peta-budaya")
+      setActiveNav("peta-budaya");
     } else if (isSubculture) {
-      setActiveNav("subculture")
+      setActiveNav("subculture");
     }
-  }, [isPetaBudaya, isSubculture])
+  }, [isPetaBudaya, isSubculture]);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
+  // components/layout/navigation.tsx
   const handleNavClick = (section: string) => {
-    setActiveNav(section)
+    setActiveNav(section);
     if (section === "peta-budaya") {
-      router.push("/peta-budaya")
+      router.push("/peta-budaya");
+    } else if (section === "lexicons") {
+      // Pass current path as referrer
+      const currentPath = window.location.pathname;
+      router.push(`/budaya/daerah/-?from=${encodeURIComponent(currentPath)}`);
     } else if (section === "beranda" && (isPetaBudaya || isSubculture)) {
-      // Jika di peta-budaya atau subculture dan klik home, navigasi ke halaman utama
-      router.push("/")
+      router.push("/");
     } else {
-      onNavClick(section)
+      onNavClick(section);
     }
-    setIsMenuOpen(false)
-  }
-
+    setIsMenuOpen(false);
+  };
   // Nav items untuk halaman normal
   const normalNavItems = [
     { id: "beranda", label: "Home", icon: Home },
     { id: "eksplorasi", label: "Explore", icon: Camera },
     { id: "tentang", label: "About", icon: Globe },
     { id: "kontak", label: "Contact", icon: Mail },
-  ]
+  ];
 
   // Nav items untuk halaman peta-budaya (hanya Home)
-  const petaBudayaNavItems = [
-    { id: "beranda", label: "Home", icon: Home },
-  ]
+  const petaBudayaNavItems = [{ id: "beranda", label: "Home", icon: Home }];
 
-  // Nav items untuk halaman subculture (Home dan Peta Budaya)
+  // Nav items untuk halaman subculture (Home, Peta Budaya, dan Lexicons)
   const subcultureNavItems = [
     { id: "beranda", label: "Home", icon: Home },
     { id: "peta-budaya", label: "Subculture Map", icon: Map },
-  ]
+    { id: "lexicons", label: "Lexicons Glosarium", icon: BookOpen },
+  ];
 
   // Pilih nav items berdasarkan halaman
-  const navItems = isSubculture 
-    ? subcultureNavItems 
-    : isPetaBudaya 
-    ? petaBudayaNavItems 
-    : normalNavItems
+  const navItems = isSubculture
+    ? subcultureNavItems
+    : isPetaBudaya
+    ? petaBudayaNavItems
+    : normalNavItems;
 
   return (
     <nav
@@ -82,7 +94,7 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
         "bg-[rgba(31,31,31,0.4)] backdrop-blur-2xl backdrop-saturate-150",
         "supports-[backdrop-filter]:bg-[rgba(31,31,31,0.4)] supports-[backdrop-filter]:backdrop-blur-2xl",
         "hover:shadow-lg hover:shadow-gray-500/10",
-        className,
+        className
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -99,9 +111,9 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
                 priority
                 onClick={() => {
                   if (isPetaBudaya || isSubculture) {
-                    router.push("/")
+                    router.push("/");
                   } else {
-                    handleNavClick("beranda")
+                    handleNavClick("beranda");
                   }
                 }}
               />
@@ -137,7 +149,11 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
                 aria-label="Toggle menu"
                 className="text-gray-200 hover:bg-white/10"
               >
-                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {isMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
               </Button>
             </div>
           )}
@@ -157,9 +173,18 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
             </div>
           )}
 
-          {/* Mobile - Jika di subculture, tampilkan tombol Home dan Map */}
+          {/* Mobile - Jika di subculture, tampilkan tombol Home, Map, dan Lexicons */}
           {isSubculture && (
             <div className="md:hidden flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/budaya/daerah/-")}
+                className="text-gray-200 hover:bg-white/10"
+              >
+                <BookOpen className="h-5 w-5 mr-1" />
+                Lexicons
+              </Button>
               <Button
                 variant="ghost"
                 size="sm"
@@ -204,5 +229,5 @@ export function Navigation({ onNavClick, className }: NavigationProps) {
         </div>
       )}
     </nav>
-  )
+  );
 }
