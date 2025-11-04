@@ -3,6 +3,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { Users } from "lucide-react"
 
 type Member = {
   name: string
@@ -28,20 +29,23 @@ const DEFAULT_MEMBERS: Member[] = [
 ]
 
 export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
-  const members = team ? team.map(t => ({
-    name: t.namaContributor,
-    role: t.expertiseArea
-  })) : DEFAULT_MEMBERS
+  const members = team
+    ? team.map((t) => ({
+        name: t.namaContributor,
+        role: t.expertiseArea,
+      }))
+    : DEFAULT_MEMBERS
 
-  // Duplikasi array 4 kali untuk memastikan tidak ada gap
-  const repeatedMembers = Array(4).fill(members).flat()
+  // 🔧 Duplikasi array minimal 8 kali untuk memastikan marquee penuh
+  const minRepetitions = Math.max(8, Math.ceil(40 / members.length))
+  const repeatedMembers = Array(minRepetitions).fill(members).flat()
 
   return (
     <section
       aria-labelledby="team-ticker-heading"
       className="relative py-20 bg-gradient-to-b from-background via-muted/20 to-background overflow-hidden"
     >
-      {/* background effect */}
+      {/* Background Effects */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-amber-200/20 blur-3xl" />
@@ -50,13 +54,25 @@ export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
       {/* Header */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center space-y-4 mb-12">
-          <h2 id="team-ticker-heading" className="text-3xl md:text-4xl font-bold text-balance">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Users className="w-6 h-6 text-primary" />
+            </div>
+          </div>
+
+          <h2
+            id="team-ticker-heading"
+            className="text-3xl md:text-4xl font-bold text-balance"
+          >
             Meet the Team
-            <span className="block text-primary">The People Behind the Project</span>
+            <span className="block text-primary">
+              The People Behind the Project
+            </span>
           </h2>
 
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            A diverse team of passionate individuals working together to preserve and promote East Java's cultural heritage.
+            A diverse team of passionate individuals working together to
+            preserve and promote East Java's cultural heritage.
           </p>
         </div>
       </div>
@@ -71,26 +87,34 @@ export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
           className="marquee relative overflow-hidden w-full border-y border-border/60 bg-muted/20"
           aria-label="Scrolling team members"
         >
-          <div className="marquee-track flex items-center gap-14 md:gap-20 py-10 will-change-transform">
+          <div className="marquee-track flex items-center gap-8 md:gap-12 py-10">
             {repeatedMembers.map((member, i) => (
               <div
                 key={`member-${i}`}
                 className={cn(
                   "flex-shrink-0 flex flex-col items-center rounded-xl border border-border/40",
-                  "bg-gradient-to-br from-muted/60 to-muted/20 shadow-sm px-6 py-4",
+                  "bg-gradient-to-br from-muted/60 to-muted/20 shadow-sm px-6 py-3",
                   "hover:-translate-y-1 hover:shadow-md transition-all duration-300"
                 )}
               >
-                <p className="text-sm font-semibold text-foreground whitespace-nowrap">
+                <p className="text-sm font-semibold text-foreground whitespace-nowrap text-center">
                   {member.name}
                 </p>
-                <p className="text-xs text-muted-foreground whitespace-nowrap">
+                <p className="text-xs text-muted-foreground whitespace-nowrap text-center mt-1">
                   {member.role}
                 </p>
               </div>
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Info Text */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        <p className="text-center text-sm text-muted-foreground">
+          Hover over the ticker to pause • Total {members.length} team member
+          {members.length !== 1 ? "s" : ""}
+        </p>
       </div>
 
       {/* Marquee Animation */}
@@ -100,18 +124,35 @@ export default function TeamTickerSection({ team }: TeamTickerSectionProps) {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-25%);
+            transform: translateX(-${100 / minRepetitions}%);
           }
         }
-        
+
         .marquee-track {
-          animation: marquee-scroll 40s linear infinite;
+          animation: marquee-scroll 60s linear infinite;
           display: flex;
           width: fit-content;
         }
-        
+
         .group:hover .marquee-track {
           animation-play-state: paused;
+        }
+
+        .marquee {
+          -webkit-mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 10%,
+            black 90%,
+            transparent
+          );
+          mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 10%,
+            black 90%,
+            transparent
+          );
         }
       `}</style>
     </section>
