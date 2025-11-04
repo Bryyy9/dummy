@@ -1,16 +1,54 @@
 // app/budaya/daerah/-/page.tsx
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { use, useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, MapPin, Search, ChevronLeft, ChevronRight, Home, Loader2, AlertCircle } from "lucide-react"
-import { AnimatedReveal } from "@/components/common/animated-reveal"
+import { Navigation } from "@/components/layout/navigation"
+import {
+  ArrowLeft,
+  Volume2,
+  VolumeX,
+  Loader2,
+  Image as ImageIcon,
+  Maximize2,
+  AlertCircle,
+  Play,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+} from "lucide-react"
+import { Footer } from "@/components/layout/footer"
+import { useNavigation } from "@/hooks/use-navigation"
+import { motion, AnimatePresence } from "framer-motion"
+import { YouTubeSection } from "@/components/sections/youtube-section"
+import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
-import { motion } from "framer-motion"
+import { useRouter, useSearchParams } from "next/navigation"
+
+interface LexiconAsset {
+  leksikonId: number
+  assetId: number
+  assetRole: string
+  createdAt: string
+  asset: {
+    assetId: number
+    namaFile: string
+    tipe: string
+    penjelasan: string
+    url: string
+    fileSize: string
+    hashChecksum: string
+    metadataJson: string
+    status: string
+    createdAt: string
+    updatedAt: string
+  }
+}
 
 interface LexiconEntry {
   term: string
@@ -22,26 +60,30 @@ interface LexiconEntry {
   }
   domain: string
   contributor: string
-  details?: {
-    ipa?: string
-    transliteration?: string
-    etymology?: string
-    culturalMeaning?: string
-    commonMeaning?: string
-    translation?: string
-    variants?: string
-    translationVariants?: string
-    otherDescription?: string
+  details: {
+    ipa: string
+    transliteration: string
+    etymology: string
+    culturalMeaning: string
+    commonMeaning: string
+    translation: string
+    variants: string
+    translationVariants: string
+    otherDescription: string
   }
+  audioFile?: string
+  leksikonAssets?: LexiconAsset[]
 }
 
-// Safe slugify function with validation
-function slugify(input: string | undefined | null): string {
-  if (!input || typeof input !== 'string') {
-    console.warn('Invalid input to slugify:', input)
-    return 'unknown'
-  }
-  
+interface YouTubeVideo {
+  videoId: string
+  title: string
+  description: string
+  thumbnail: string
+  duration?: string
+}
+
+function slugify(input: string) {
   return input
     .toLowerCase()
     .normalize("NFD")
@@ -49,19 +91,20 @@ function slugify(input: string | undefined | null): string {
     .replace(/[^a-z0-9\s-]/g, "")
     .trim()
     .replace(/\s+/g, "-")
-    .replace(/^-+|-+$/g, "") || 'unknown'
 }
 
 export default function AllCulturalWordsPage() {
+  const { handleNavClick } = useNavigation()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
   const [region, setRegion] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [allLexicons, setAllLexicons] = useState<LexiconEntry[]>([])
-  const [searchResults, setSearchResults] = useState<LexiconEntry[]>([])
+  const [filteredLexicons, setFilteredLexicons] = useState<LexiconEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isSearching, setIsSearching] = useState(false)
-  const router = useRouter()
-  const searchParams = useSearchParams()
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
@@ -118,7 +161,7 @@ export default function AllCulturalWordsPage() {
             item.term.trim() !== ''
           )
           setAllLexicons(validLexicons)
-          setSearchResults(validLexicons)
+          setFilteredLexicons(validLexicons)
         } else {
           throw new Error('Invalid data format')
         }
@@ -126,7 +169,7 @@ export default function AllCulturalWordsPage() {
         console.error('Fetch error:', err)
         setError(err instanceof Error ? err.message : 'Failed to load lexicons')
         setAllLexicons([])
-        setSearchResults([])
+        setFilteredLexicons([])
       } finally {
         setLoading(false)
       }
@@ -135,84 +178,70 @@ export default function AllCulturalWordsPage() {
     fetchAllLexicons()
   }, [])
 
-  // Search using advanced API with debounce
+  // Search and filter logic
   useEffect(() => {
-    const searchLexicons = async () => {
-      const trimmedQuery = searchQuery.trim()
-      
-      // If empty, show all lexicons
-      if (!trimmedQuery) {
-        setSearchResults(allLexicons)
-        setIsSearching(false)
-        return
-      }
-
-      try {
-        setIsSearching(true)
-        setError(null)
-        
-        // Use the advanced search endpoint
-        const response = await fetch(
-          `https://be-corpora.vercel.app/api/v1/search/advanced?kata=${encodeURIComponent(trimmedQuery)}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
-        
-        if (!response.ok) {
-          throw new Error(`Search failed with status: ${response.status}`)
-        }
-        
-        const result = await response.json()
-        
-        if (result.success) {
-          // Validate search results
-          const validResults = Array.isArray(result.data) 
-            ? result.data.filter((item: any) => 
-                item && 
-                typeof item.term === 'string' && 
-                item.term.trim() !== ''
-              )
-            : []
-          setSearchResults(validResults)
-        } else {
-          throw new Error(result.message || 'Search failed')
-        }
-      } catch (err) {
-        console.error('Search error:', err)
-        setError(err instanceof Error ? err.message : 'Search failed')
-        // On search error, show all lexicons
-        setSearchResults(allLexicons)
-      } finally {
-        setIsSearching(false)
-      }
-    }
-
+    setIsSearching(true)
+    
     // Debounce search
     const timeoutId = setTimeout(() => {
-      searchLexicons()
-    }, 500)
+      let results = [...allLexicons]
+
+      // Filter by region
+      if (region !== "all") {
+        results = results.filter((entry) => entry.regionKey === region)
+      }
+
+      // Filter by search query
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase().trim()
+        
+        results = results.filter((entry) => {
+          // Search in term
+          const termMatch = entry.term.toLowerCase().includes(query)
+          
+          // Search in definition
+          const definitionMatch = entry.definition.toLowerCase().includes(query)
+          
+          // Search in transliteration
+          const transliterationMatch = entry.details?.transliteration?.toLowerCase().includes(query)
+          
+          // Search in IPA
+          const ipaMatch = entry.details?.ipa?.toLowerCase().includes(query)
+          
+          // Search in domain
+          const domainMatch = entry.domain?.toLowerCase().includes(query)
+          
+          // Search in subculture name
+          const subcultureMatch = entry.subculture?.name?.toLowerCase().includes(query)
+          
+          // Search in common meaning
+          const commonMeaningMatch = entry.details?.commonMeaning?.toLowerCase().includes(query)
+          
+          // Search in cultural meaning
+          const culturalMeaningMatch = entry.details?.culturalMeaning?.toLowerCase().includes(query)
+
+          return (
+            termMatch ||
+            definitionMatch ||
+            transliterationMatch ||
+            ipaMatch ||
+            domainMatch ||
+            subcultureMatch ||
+            commonMeaningMatch ||
+            culturalMeaningMatch
+          )
+        })
+      }
+
+      setFilteredLexicons(results)
+      setIsSearching(false)
+    }, 300)
 
     return () => clearTimeout(timeoutId)
-  }, [searchQuery, allLexicons])
+  }, [searchQuery, region, allLexicons])
 
   // Get unique regions
-  const regions = useMemo(() => {
-    const uniqueRegions = [...new Set(allLexicons.map(entry => entry.regionKey).filter(Boolean))]
-    return uniqueRegions.sort()
-  }, [allLexicons])
-
-  // Filter by region
-  const filteredEntries = useMemo(() => {
-    return searchResults.filter((entry) => {
-      if (!entry || !entry.term) return false
-      const matchRegion = region === "all" || entry.regionKey === region
-      return matchRegion
-    })
-  }, [searchResults, region])
+  const regions = Array.from(new Set(allLexicons.map(entry => entry.regionKey).filter(Boolean))).sort()
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -220,10 +249,10 @@ export default function AllCulturalWordsPage() {
   }, [region, searchQuery])
 
   // Calculate pagination
-  const totalPages = Math.ceil(filteredEntries.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(filteredLexicons.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const endIndex = startIndex + ITEMS_PER_PAGE
-  const paginatedEntries = filteredEntries.slice(startIndex, endIndex)
+  const paginatedEntries = filteredLexicons.slice(startIndex, endIndex)
 
   const goToPage = (page: number) => {
     setCurrentPage(page)
@@ -329,20 +358,18 @@ export default function AllCulturalWordsPage() {
             </select>
           </div>
 
-          <AnimatedReveal animation="fade-up" delay={150}>
-            <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Cari istilah budaya..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10 bg-background/50 border-border focus:ring-primary/20"
-              />
-              {isSearching && (
-                <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin text-primary" />
-              )}
-            </div>
-          </AnimatedReveal>
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="Cari istilah budaya..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-10 bg-background/50 border-border focus:ring-primary/20"
+            />
+            {isSearching && (
+              <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin text-primary" />
+            )}
+          </div>
         </div>
 
         {/* Results info */}
@@ -355,7 +382,7 @@ export default function AllCulturalWordsPage() {
               </span>
             ) : (
               <>
-                Menampilkan {filteredEntries.length} hasil
+                Menampilkan {filteredLexicons.length} hasil
                 {searchQuery && ` untuk "${searchQuery}"`}
                 {region !== "all" && ` di ${region}`}
               </>
@@ -391,10 +418,9 @@ export default function AllCulturalWordsPage() {
         ) : (
           <>
             {/* Cards Grid */}
-            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {paginatedEntries.length > 0 ? (
-                paginatedEntries.map((entry, idx) => {
-                  // Safe data extraction
+            {paginatedEntries.length > 0 ? (
+              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr mb-8">
+                {paginatedEntries.map((entry, index) => {
                   const term = entry.term || 'Unknown'
                   const definition = entry.definition || 'No definition available'
                   const subcultureName = entry.subculture?.name || 'Unknown'
@@ -406,10 +432,10 @@ export default function AllCulturalWordsPage() {
                   
                   return (
                     <motion.div
-                      key={`${termSlug}-${idx}`}
+                      key={`${termSlug}-${index}`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: idx * 0.05 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
                     >
                       <Card className="bg-card/40 border border-border backdrop-blur-sm rounded-2xl p-4 transition-all hover:shadow-lg hover:border-primary/40 h-full flex flex-col">
                         <CardHeader className="pb-2 flex items-center justify-between">
@@ -427,8 +453,7 @@ export default function AllCulturalWordsPage() {
                           </p>
 
                           <div className="flex items-center text-xs text-muted-foreground mb-2">
-                            <MapPin className="w-3 h-3 mr-1 text-primary" />
-                            Subkultur: {subcultureName} ({province})
+                            <span className="font-medium">Subkultur:</span> {subcultureName} ({province})
                           </div>
 
                           <div className="flex items-center text-xs text-muted-foreground mb-2">
@@ -458,46 +483,76 @@ export default function AllCulturalWordsPage() {
                       </Card>
                     </motion.div>
                   )
-                })
-              ) : (
-                <div className="col-span-full text-center py-16">
-                  <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Search className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <p className="text-muted-foreground mb-2">
-                    {searchQuery ? 'Tidak ada hasil ditemukan' : 'Tidak ada leksikon tersedia'}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {searchQuery ? 'Coba kata kunci atau filter yang berbeda' : 'Gunakan pencarian untuk menemukan leksikon'}
-                  </p>
+                })}
+              </section>
+            ) : (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search className="w-8 h-8 text-muted-foreground" />
                 </div>
-              )}
-            </section>
+                <p className="text-muted-foreground mb-2">Tidak ada hasil ditemukan</p>
+                <p className="text-sm text-muted-foreground">
+                  {searchQuery 
+                    ? `Tidak ada leksikon yang cocok dengan "${searchQuery}"` 
+                    : 'Coba kata kunci atau filter yang berbeda'}
+                </p>
+                {(searchQuery || region !== "all") && (
+                  <Button 
+                    onClick={() => {
+                      setSearchQuery("")
+                      setRegion("all")
+                    }}
+                    variant="outline"
+                    className="mt-4 cursor-pointer"
+                  >
+                    Reset Filter
+                  </Button>
+                )}
+              </div>
+            )}
 
             {/* Pagination */}
-            {filteredEntries.length > 0 && totalPages > 1 && (
+            {filteredLexicons.length > 0 && totalPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-sm rounded-xl border border-border">
-                <div className="text-sm text-muted-foreground">
-                  Menampilkan {startIndex + 1}-{Math.min(endIndex, filteredEntries.length)} dari {filteredEntries.length} entri
+                {/* Info */}
+                <div className="text-sm text-muted-foreground order-2 sm:order-1">
+                  Menampilkan <span className="font-medium text-foreground">{startIndex + 1}</span>-
+                  <span className="font-medium text-foreground">{Math.min(endIndex, filteredLexicons.length)}</span> dari{' '}
+                  <span className="font-medium text-foreground">{filteredLexicons.length}</span> leksikon
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* Pagination Controls */}
+                <div className="flex items-center gap-2 order-1 sm:order-2">
+                  {/* Previous Button */}
                   <Button
                     onClick={goToPreviousPage}
                     disabled={currentPage === 1}
                     variant="outline"
                     size="sm"
-                    className={`cursor-pointer ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/10'}`}
+                    className={`cursor-pointer transition-all ${
+                      currentPage === 1
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'hover:bg-primary/10'
+                    }`}
                   >
                     <ChevronLeft className="w-4 h-4" />
                     <span className="hidden sm:inline ml-1">Sebelumnya</span>
                   </Button>
 
+                  {/* Page Numbers */}
                   <div className="flex items-center gap-1">
                     {getPageNumbers().map((pageNum, idx) => {
                       if (pageNum === '...') {
-                        return <span key={`ellipsis-${idx}`} className="px-3 py-2 text-muted-foreground">...</span>
+                        return (
+                          <span
+                            key={`ellipsis-${idx}`}
+                            className="px-3 py-2 text-muted-foreground"
+                          >
+                            ...
+                          </span>
+                        )
                       }
+
                       const page = pageNum as number
                       return (
                         <Button
@@ -505,8 +560,10 @@ export default function AllCulturalWordsPage() {
                           onClick={() => goToPage(page)}
                           variant={currentPage === page ? "default" : "outline"}
                           size="sm"
-                          className={`min-w-[40px] cursor-pointer ${
-                            currentPage === page ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10'
+                          className={`min-w-[40px] cursor-pointer transition-all ${
+                            currentPage === page
+                              ? 'bg-primary text-primary-foreground font-semibold'
+                              : 'hover:bg-primary/10'
                           }`}
                         >
                           {page}
@@ -515,19 +572,25 @@ export default function AllCulturalWordsPage() {
                     })}
                   </div>
 
+                  {/* Next Button */}
                   <Button
                     onClick={goToNextPage}
                     disabled={currentPage === totalPages}
                     variant="outline"
                     size="sm"
-                    className={`cursor-pointer ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/10'}`}
+                    className={`cursor-pointer transition-all ${
+                      currentPage === totalPages
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'hover:bg-primary/10'
+                    }`}
                   >
                     <span className="hidden sm:inline mr-1">Selanjutnya</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
 
-                <div className="sm:hidden text-sm text-muted-foreground">
+                {/* Mobile: Page Info */}
+                <div className="sm:hidden text-sm text-muted-foreground order-3">
                   Halaman {currentPage} dari {totalPages}
                 </div>
               </div>
