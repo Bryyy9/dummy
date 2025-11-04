@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { useNavigation } from "@/hooks/use-navigation";
 import { Footer } from "@/components/layout/footer";
 import { Model3DSection, type Model3D } from "@/components/sections/model-3d-section";
 import { YouTubeSection, type YouTubeVideo } from "@/components/sections/youtube-section";
+import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
 
 interface SearchResult {
   term: string;
@@ -41,13 +42,6 @@ interface SubcultureData {
     artifactType: string;
     tags: any[];
   }>;
-  youtubeVideos: Array<{
-    videoId: string;
-    title: string;
-    description: string;
-    thumbnail: string;
-    duration?: string;
-  }>;
   lexicon: Array<{
     term: string;
     definition: string;
@@ -55,12 +49,28 @@ interface SubcultureData {
     slug: string;
   }>;
   heroImage: string | null;
+  videoUrl?: string; // Added this field
   culture: {
     name: string;
     province: string;
     region: string;
   };
 }
+
+interface ApiErrorResponse {
+  success: false;
+  message: string;
+  error?: string;
+  statusCode?: number;
+}
+
+interface ApiSuccessResponse {
+  success: true;
+  data: SubcultureData;
+  message?: string;
+}
+
+type ApiResponse = ApiSuccessResponse | ApiErrorResponse;
 
 export default function RegionDetailPage() {
   const params = useParams();
@@ -73,6 +83,10 @@ export default function RegionDetailPage() {
   const [subcultureData, setSubcultureData] = useState<SubcultureData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<{
+    statusCode?: number;
+    technicalError?: string;
+  } | null>(null);
 
   const [isNavSticky, setIsNavSticky] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("region-profile");
@@ -92,20 +106,55 @@ export default function RegionDetailPage() {
     const fetchSubcultureData = async () => {
       try {
         setLoading(true);
+        setError(null);
+        setErrorDetails(null);
+
         const response = await fetch(
           `https://be-corpora.vercel.app/api/v1/public/subcultures/${regionId}`
         );
+
+        const result: ApiResponse = await response.json();
+
+        if (!result.success) {
+          const errorResponse = result as ApiErrorResponse;
+          setError(errorResponse.message || "Failed to fetch subculture data");
+          setErrorDetails({
+            statusCode: errorResponse.statusCode || response.status,
+            technicalError: errorResponse.error,
+          });
+          setSubcultureData(null);
+          return;
+        }
+
         if (!response.ok) {
-          throw new Error("Failed to fetch subculture data");
+          setError(result.message || `HTTP Error: ${response.status} ${response.statusText}`);
+          setErrorDetails({
+            statusCode: response.status,
+          });
+          setSubcultureData(null);
+          return;
         }
-        const result = await response.json();
-        if (result.success) {
-          setSubcultureData(result.data);
-        } else {
-          throw new Error(result.message || "Failed to fetch data");
-        }
+
+        const successResponse = result as ApiSuccessResponse;
+        setSubcultureData(successResponse.data);
+        setError(null);
+        setErrorDetails(null);
+
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        console.error("Fetch error:", err);
+        
+        if (err instanceof TypeError && err.message.includes("fetch")) {
+          setError("Network error: Unable to connect to the server. Please check your internet connection.");
+        } else if (err instanceof SyntaxError) {
+          setError("Data parsing error: Received invalid response from server.");
+        } else {
+          setError(err instanceof Error ? err.message : "An unexpected error occurred");
+        }
+        
+        setErrorDetails({
+          technicalError: err instanceof Error ? err.toString() : "Unknown error",
+        });
+        setSubcultureData(null);
       } finally {
         setLoading(false);
       }
@@ -116,7 +165,14 @@ export default function RegionDetailPage() {
     }
   }, [regionId]);
 
-  // Gallery images with safety checks
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    setErrorDetails(null);
+    window.location.reload();
+  };
+
+  // Gallery images with safety checks and proper structure
   const galleryImages = useMemo(() => {
     if (subcultureData?.galleryImages && subcultureData.galleryImages.length > 0) {
       return subcultureData.galleryImages.map((img, idx) => ({
@@ -146,14 +202,12 @@ export default function RegionDetailPage() {
     ];
   }, [subcultureData]);
 
-  // Safety check for currentGalleryIndex
   useEffect(() => {
     if (currentGalleryIndex >= galleryImages.length) {
       setCurrentGalleryIndex(0);
     }
   }, [galleryImages.length, currentGalleryIndex]);
 
-  // Auto-play functions with safety checks
   const startAutoPlay = useCallback(() => {
     if (autoPlayRef.current) {
       clearInterval(autoPlayRef.current);
@@ -191,7 +245,6 @@ export default function RegionDetailPage() {
     };
   }, [isGalleryAutoPlaying, startAutoPlay, stopAutoPlay]);
 
-  // Gallery navigation functions with safety checks
   const goToPreviousImage = () => {
     setIsGalleryAutoPlaying(false);
     stopAutoPlay();
@@ -235,18 +288,25 @@ export default function RegionDetailPage() {
     return [];
   }, [subcultureData]);
 
-  // Transform youtubeVideos to YouTubeVideo format
+  // Transform videoUrl to YouTubeVideo format
   const youtubeVideos: YouTubeVideo[] = useMemo(() => {
-    if (subcultureData?.youtubeVideos && subcultureData.youtubeVideos.length > 0) {
-      return subcultureData.youtubeVideos.map((video) => ({
-        videoId: video.videoId,
-        title: video.title,
-        description: video.description,
-        thumbnail: video.thumbnail,
-        duration: video.duration,
-      }));
+    const videos: YouTubeVideo[] = [];
+    
+    // Add video from videoUrl field
+    if (subcultureData?.videoUrl) {
+      const videoId = extractYouTubeId(subcultureData.videoUrl);
+      if (videoId) {
+        videos.push({
+          videoId: videoId,
+          title: `${subcultureData.profile?.displayName} - Cultural Documentation`,
+          description: subcultureData.profile?.history || "Explore the cultural heritage and traditions",
+          thumbnail: getYouTubeThumbnail(videoId, "maxres"),
+          duration: "",
+        });
+      }
     }
-    return [];
+    
+    return videos;
   }, [subcultureData]);
 
   // Search functionality
@@ -264,15 +324,11 @@ export default function RegionDetailPage() {
         const filtered = lexicon.filter((entry: any) => {
           const term = (entry.term || "").toString().toLowerCase();
           const def = (entry.definition || "").toString().toLowerCase();
-          const trans = (entry.transliterasi || "").toString().toLowerCase();
-          const code = (entry.termCode || "").toString().toLowerCase();
           const category = (entry.category || "").toString().toLowerCase();
 
           return (
             term.includes(q) ||
             def.includes(q) ||
-            trans.includes(q) ||
-            code.includes(q) ||
             category.includes(q)
           );
         });
@@ -328,7 +384,6 @@ export default function RegionDetailPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Pagination logic
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
@@ -394,7 +449,6 @@ export default function RegionDetailPage() {
     return pages;
   };
 
-  // Helper function for scrolling to sections
   function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
     e.preventDefault();
     const el = document.getElementById(id);
@@ -409,10 +463,9 @@ export default function RegionDetailPage() {
     }
   }
 
-  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading subculture details...</p>
@@ -421,23 +474,97 @@ export default function RegionDetailPage() {
     );
   }
 
-  // Error state
-  if (error || !subcultureData) {
+  if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">
-            {error || "Subculture Not Found"}
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background p-4">
+        <div className="max-w-md w-full">
+          <div className="bg-card/60 backdrop-blur-sm border border-border rounded-2xl shadow-xl p-8">
+            <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="w-8 h-8 text-destructive" />
+            </div>
+
+            <h1 className="text-2xl font-bold text-center text-foreground mb-3">
+              Unable to Load Subculture
+            </h1>
+
+            <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4 mb-4">
+              <p className="text-sm text-destructive font-medium text-center">
+                {error}
+              </p>
+            </div>
+
+            {errorDetails && (
+              <details className="mb-6">
+                <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors mb-2">
+                  Technical Details
+                </summary>
+                <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+                  {errorDetails.statusCode && (
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-medium">Status Code:</span> {errorDetails.statusCode}
+                    </p>
+                  )}
+                  {errorDetails.technicalError && (
+                    <p className="text-xs text-muted-foreground break-all">
+                      <span className="font-medium">Error:</span> {errorDetails.technicalError}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium">Region ID:</span> {regionId}
+                  </p>
+                </div>
+              </details>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                onClick={handleRetry}
+                className="flex-1 gap-2 cursor-pointer"
+                variant="default"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Try Again
+              </Button>
+              <Link href="/peta-budaya" className="flex-1">
+                <Button variant="outline" className="w-full cursor-pointer">
+                  Back to Map
+                </Button>
+              </Link>
+            </div>
+
+            <p className="text-xs text-muted-foreground text-center mt-6">
+              If the problem persists, please contact support or try again later.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!subcultureData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <MapPin className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground mb-3">
+            Subculture Not Found
           </h1>
+          <p className="text-muted-foreground mb-6">
+            The subculture "{regionId}" could not be found in our database.
+          </p>
           <Link href="/peta-budaya">
-            <Button variant="outline">Back to Map</Button>
+            <Button variant="outline" className="cursor-pointer">
+              <MapPin className="w-4 h-4 mr-2" />
+              Back to Culture Map
+            </Button>
           </Link>
         </div>
       </div>
     );
   }
 
-  // Safe access to current gallery image
   const currentGalleryImage = galleryImages[currentGalleryIndex] || galleryImages[0] || {
     url: "/placeholder.svg",
     description: "Gallery Image",
