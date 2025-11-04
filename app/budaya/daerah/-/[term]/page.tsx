@@ -1,40 +1,79 @@
-"use client"
+"use client";
 
 import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SUBCULTURE_PROFILES } from "@/data/subculture-profiles";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Navigation } from "@/components/layout/navigation";
-import { ArrowLeft, Volume2, VolumeX, Loader2, Image as ImageIcon, Maximize2, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Volume2,
+  VolumeX,
+  Loader2,
+  Image as ImageIcon,
+  Maximize2,
+  AlertCircle,
+  Play,
+} from "lucide-react";
 import { Footer } from "@/components/layout/footer";
 import { useNavigation } from "@/hooks/use-navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { YouTubeSection } from "@/components/sections/youtube-section";
+import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
+
+interface LexiconAsset {
+  leksikonId: number;
+  assetId: number;
+  assetRole: string;
+  createdAt: string;
+  asset: {
+    assetId: number;
+    namaFile: string;
+    tipe: string;
+    penjelasan: string;
+    url: string;
+    fileSize: string;
+    hashChecksum: string;
+    metadataJson: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
 
 interface LexiconEntry {
-  term: string
-  definition: string
-  regionKey: string
+  term: string;
+  definition: string;
+  regionKey: string;
   subculture: {
-    name: string
-    province: string
-  }
-  domain: string
-  contributor: string
+    name: string;
+    province: string;
+  };
+  domain: string;
+  contributor: string;
   details: {
-    ipa: string
-    transliteration: string
-    etymology: string
-    culturalMeaning: string
-    commonMeaning: string
-    translation: string
-    variants: string
-    translationVariants: string
-    otherDescription: string
-  }
-  audioFile?: string
+    ipa: string;
+    transliteration: string;
+    etymology: string;
+    culturalMeaning: string;
+    commonMeaning: string;
+    translation: string;
+    variants: string;
+    translationVariants: string;
+    otherDescription: string;
+  };
+  audioFile?: string;
+  leksikonAssets?: LexiconAsset[];
+}
+
+interface YouTubeVideo {
+  videoId: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  duration?: string;
 }
 
 function slugify(input: string) {
@@ -57,49 +96,121 @@ export default function CulturalWordDetailPage({
   const [entry, setEntry] = useState<LexiconEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Audio states
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
-  const [audioInstance, setAudioInstance] = useState<HTMLAudioElement | null>(null);
+  const [audioInstance, setAudioInstance] = useState<HTMLAudioElement | null>(
+    null
+  );
   const [hasAudioFile, setHasAudioFile] = useState(false);
 
   // Image gallery states
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
+  // YouTube videos state
+  const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
+  const [videosLoading, setVideosLoading] = useState(false);
+
   useEffect(() => {
     const fetchEntry = async () => {
       try {
-        const response = await fetch('https://be-corpora.vercel.app/api/v1/public/lexicons');
+        setLoading(true);
+        setVideosLoading(true);
+
+        // Fetch dari endpoint lexicons
+        const response = await fetch(
+          "https://be-corpora.vercel.app/api/v1/public/lexicons"
+        );
+
         if (!response.ok) {
-          throw new Error('Failed to fetch lexicons');
+          throw new Error("Failed to fetch lexicons");
         }
+
         const result = await response.json();
+
         if (result.success) {
-          const foundEntry = result.data.find((item: LexiconEntry) =>
-            slugify(item.term) === resolvedParams.term
+          const foundEntry = result.data.find(
+            (item: any) => slugify(item.term) === resolvedParams.term
           );
+
           if (foundEntry) {
             setEntry(foundEntry);
-            // Check if audio file exists and is valid
-            if (foundEntry.audioFile && foundEntry.audioFile.trim() !== '') {
+
+            // Check audio file
+            if (foundEntry.audioFile && foundEntry.audioFile.trim() !== "") {
               setHasAudioFile(true);
-              console.log('Audio file found:', foundEntry.audioFile);
+              console.log("Audio file found:", foundEntry.audioFile);
             } else {
-              console.log('No audio file available for this term');
+              console.log("No audio file available for this term");
+            }
+
+            // Transform leksikonAssets ke format YouTubeVideo
+            if (
+              foundEntry.leksikonAssets &&
+              Array.isArray(foundEntry.leksikonAssets)
+            ) {
+              console.log("Raw leksikonAssets:", foundEntry.leksikonAssets);
+
+              const videos: YouTubeVideo[] = foundEntry.leksikonAssets
+                .filter((asset: LexiconAsset) => {
+                  const isVideo = asset.asset.tipe === "VIDEO";
+                  console.log(
+                    "Asset type:",
+                    asset.asset.tipe,
+                    "Is video:",
+                    isVideo
+                  );
+                  return isVideo;
+                })
+                .map((asset: LexiconAsset): YouTubeVideo | null => {
+                  const videoId = extractYouTubeId(asset.asset.url);
+                  console.log(
+                    "Extracting video ID from:",
+                    asset.asset.url,
+                    "Result:",
+                    videoId
+                  );
+
+                  if (videoId) {
+                    const video: YouTubeVideo = {
+                      videoId: videoId,
+                      title: asset.asset.namaFile || "Video",
+                      description: asset.asset.penjelasan || "",
+                      thumbnail: getYouTubeThumbnail(videoId, "maxres"),
+                      duration: "",
+                    };
+                    console.log("Created video object:", video);
+                    return video;
+                  }
+                  return null;
+                })
+                .filter(
+                  (video: YouTubeVideo | null): video is YouTubeVideo =>
+                    video !== null
+                );
+
+              console.log("Transformed videos:", videos);
+              setYoutubeVideos(videos);
+            } else {
+              console.log("No leksikonAssets found or not an array");
+              setYoutubeVideos([]);
             }
           } else {
+            console.error("Entry not found for term:", resolvedParams.term);
             notFound();
           }
         } else {
-          throw new Error(result.message || 'Failed to fetch data');
+          throw new Error(result.message || "Failed to fetch data");
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error("Fetch error:", err);
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
+        setVideosLoading(false);
       }
     };
 
@@ -111,28 +222,26 @@ export default function CulturalWordDetailPage({
     return () => {
       if (audioInstance) {
         audioInstance.pause();
-        audioInstance.src = '';
+        audioInstance.src = "";
         audioInstance.load();
       }
     };
   }, [audioInstance]);
 
-  // ===== IMPROVED AUDIO HANDLER =====
+  // Audio handler
   const handlePlayAudio = async () => {
-    console.log('Play audio clicked');
-    console.log('Entry:', entry);
-    console.log('Audio file:', entry?.audioFile);
+    console.log("Play audio clicked");
+    console.log("Entry:", entry);
+    console.log("Audio file:", entry?.audioFile);
 
-    // Check if audio file exists
-    if (!entry?.audioFile || entry.audioFile.trim() === '') {
-      setAudioError('Audio file not available for this term');
-      console.error('No audio file available');
+    if (!entry?.audioFile || entry.audioFile.trim() === "") {
+      setAudioError("Audio file not available for this term");
+      console.error("No audio file available");
       return;
     }
 
-    // If already playing, stop it
     if (isPlaying && audioInstance) {
-      console.log('Stopping current playback');
+      console.log("Stopping current playback");
       audioInstance.pause();
       audioInstance.currentTime = 0;
       setIsPlaying(false);
@@ -142,167 +251,140 @@ export default function CulturalWordDetailPage({
     try {
       setAudioError(null);
       setAudioLoading(true);
-      console.log('Creating audio instance with URL:', entry.audioFile);
+      console.log("Creating audio instance with URL:", entry.audioFile);
 
-      // Clean up previous instance
       if (audioInstance) {
         audioInstance.pause();
-        audioInstance.src = '';
+        audioInstance.src = "";
         audioInstance.load();
       }
 
-      // Create new audio instance
       const audio = new Audio();
-      
-      // Set up event listeners BEFORE setting src
+
       audio.onloadstart = () => {
-        console.log('Audio loading started');
+        console.log("Audio loading started");
         setAudioLoading(true);
       };
 
       audio.oncanplay = () => {
-        console.log('Audio can play');
+        console.log("Audio can play");
         setAudioLoading(false);
       };
 
       audio.oncanplaythrough = () => {
-        console.log('Audio can play through');
+        console.log("Audio can play through");
         setAudioLoading(false);
       };
 
       audio.onplay = () => {
-        console.log('Audio playing');
+        console.log("Audio playing");
         setIsPlaying(true);
         setAudioLoading(false);
       };
 
       audio.onended = () => {
-        console.log('Audio ended');
+        console.log("Audio ended");
         setIsPlaying(false);
         setAudioLoading(false);
       };
 
       audio.onpause = () => {
-        console.log('Audio paused');
+        console.log("Audio paused");
         setIsPlaying(false);
       };
 
       audio.onerror = (e) => {
-        console.error('Audio error:', e);
-        console.error('Audio error details:', {
+        console.error("Audio error:", e);
+        console.error("Audio error details:", {
           error: audio.error,
           code: audio.error?.code,
           message: audio.error?.message,
-          src: audio.src
+          src: audio.src,
         });
-        
-        let errorMessage = 'Failed to load audio file';
+
+        let errorMessage = "Failed to load audio file";
         if (audio.error) {
           switch (audio.error.code) {
             case MediaError.MEDIA_ERR_ABORTED:
-              errorMessage = 'Audio loading was aborted';
+              errorMessage = "Audio loading was aborted";
               break;
             case MediaError.MEDIA_ERR_NETWORK:
-              errorMessage = 'Network error while loading audio';
+              errorMessage = "Network error while loading audio";
               break;
             case MediaError.MEDIA_ERR_DECODE:
-              errorMessage = 'Audio file format not supported';
+              errorMessage = "Audio file format not supported";
               break;
             case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-              errorMessage = 'Audio source not supported';
+              errorMessage = "Audio source not supported";
               break;
           }
         }
-        
+
         setAudioError(errorMessage);
         setIsPlaying(false);
         setAudioLoading(false);
       };
 
-      // Set the source
       audio.src = entry.audioFile;
       audio.load();
-      
+
       setAudioInstance(audio);
 
-      // Try to play
       const playPromise = audio.play();
-      
+
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
-            console.log('Audio playback started successfully');
+            console.log("Audio playback started successfully");
           })
           .catch((err) => {
-            console.error('Play promise rejected:', err);
-            setAudioError('Failed to play audio: ' + err.message);
+            console.error("Play promise rejected:", err);
+            setAudioError("Failed to play audio: " + err.message);
             setIsPlaying(false);
             setAudioLoading(false);
           });
       }
-
     } catch (err) {
-      console.error('Audio playback error:', err);
-      setAudioError('Failed to play audio: ' + (err instanceof Error ? err.message : 'Unknown error'));
+      console.error("Audio playback error:", err);
+      setAudioError(
+        "Failed to play audio: " +
+          (err instanceof Error ? err.message : "Unknown error")
+      );
       setIsPlaying(false);
       setAudioLoading(false);
     }
   };
 
-  // Test audio URL accessibility
-  const testAudioUrl = async () => {
-    if (!entry?.audioFile) return;
-    
-    try {
-      const response = await fetch(entry.audioFile, { method: 'HEAD' });
-      console.log('Audio URL test:', {
-        url: entry.audioFile,
-        status: response.status,
-        contentType: response.headers.get('content-type'),
-        accessible: response.ok
-      });
-    } catch (err) {
-      console.error('Audio URL not accessible:', err);
-    }
-  };
-
-  // Test URL when entry changes
-  useEffect(() => {
-    if (entry?.audioFile) {
-      testAudioUrl();
-    }
-  }, [entry?.audioFile]);
-
   // Image gallery functions
   const galleryImages = [
     {
       url: `/placeholder.svg?height=600&width=800&query=${encodeURIComponent(
-        `${entry?.term || 'cultural term'} illustration 1`
+        `${entry?.term || "cultural term"} illustration 1`
       )}`,
-      alt: `${entry?.term || 'Cultural term'} - Main illustration`,
-      caption: `Visual representation of ${entry?.term || 'the term'}`
+      alt: `${entry?.term || "Cultural term"} - Main illustration`,
+      caption: `Visual representation of ${entry?.term || "the term"}`,
     },
     {
       url: `/placeholder.svg?height=600&width=800&query=${encodeURIComponent(
-        `${entry?.term || 'cultural term'} context 1`
+        `${entry?.term || "cultural term"} context 1`
       )}`,
-      alt: `${entry?.term || 'Cultural term'} - Context view 1`,
-      caption: `${entry?.term || 'Term'} in traditional context`
+      alt: `${entry?.term || "Cultural term"} - Context view 1`,
+      caption: `${entry?.term || "Term"} in traditional context`,
     },
     {
       url: `/placeholder.svg?height=600&width=800&query=${encodeURIComponent(
-        `${entry?.term || 'cultural term'} context 2`
+        `${entry?.term || "cultural term"} context 2`
       )}`,
-      alt: `${entry?.term || 'Cultural term'} - Context view 2`,
-      caption: `Cultural significance of ${entry?.term || 'the term'}`
+      alt: `${entry?.term || "Cultural term"} - Context view 2`,
+      caption: `Cultural significance of ${entry?.term || "the term"}`,
     },
     {
       url: `/placeholder.svg?height=600&width=800&query=${encodeURIComponent(
-        `${entry?.term || 'cultural term'} detail`
+        `${entry?.term || "cultural term"} detail`
       )}`,
-      alt: `${entry?.term || 'Cultural term'} - Detail view`,
-      caption: `Detailed view of ${entry?.term || 'the term'}`
-    }
+      alt: `${entry?.term || "Cultural term"} - Detail view`,
+      caption: `Detailed view of ${entry?.term || "the term"}`,
+    },
   ];
 
   const openLightbox = (index: number) => {
@@ -315,15 +397,13 @@ export default function CulturalWordDetailPage({
   };
 
   const goToPreviousImage = () => {
-    setSelectedImageIndex((prev) => 
+    setSelectedImageIndex((prev) =>
       prev === 0 ? galleryImages.length - 1 : prev - 1
     );
   };
 
   const goToNextImage = () => {
-    setSelectedImageIndex((prev) => 
-      (prev + 1) % galleryImages.length
-    );
+    setSelectedImageIndex((prev) => (prev + 1) % galleryImages.length);
   };
 
   if (loading) {
@@ -342,17 +422,6 @@ export default function CulturalWordDetailPage({
   }
 
   const regionId = entry.regionKey;
-  const profile = SUBCULTURE_PROFILES[regionId];
-
-  const models3D = profile?.model3dArray && profile.model3dArray.length > 0
-    ? profile.model3dArray.map((model) => ({
-        id: model.sketchfabId,
-        title: model.title,
-        description: model.description,
-        artifactType: model.artifactType,
-        tags: model.tags,
-      }))
-    : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
@@ -360,16 +429,27 @@ export default function CulturalWordDetailPage({
         <div className="container mx-auto px-4 py-4 flex flex-col gap-4 relative">
           {/* Back button */}
           <div className="flex items-center justify-between">
-            <Link href={`/budaya/daerah/${regionId}`} aria-label={`Back to ${regionId} glossary`}>
-              <Button variant="ghost" className="px-2 py-1 gap-2 inline-flex items-center">
+            <Link
+              href={`/budaya/daerah/${regionId}`}
+              aria-label={`Back to ${regionId} glossary`}
+            >
+              <Button
+                variant="ghost"
+                className="px-2 py-1 gap-2 inline-flex items-center"
+              >
                 <ArrowLeft className="w-5 h-5" />
                 <span className="text-sm">Back to {regionId}</span>
               </Button>
             </Link>
 
             <Link href="/budaya/daerah/-" aria-label="View all glossaries">
-              <Button variant="outline" className="px-3 py-2 gap-2 inline-flex items-center hover:bg-primary/10">
-                <span className="text-sm hidden sm:inline">Lexicons Glossarium</span>
+              <Button
+                variant="outline"
+                className="px-3 py-2 gap-2 inline-flex items-center hover:bg-primary/10"
+              >
+                <span className="text-sm hidden sm:inline">
+                  Lexicons Glossarium
+                </span>
                 <span className="text-sm sm:hidden">All</span>
               </Button>
             </Link>
@@ -383,8 +463,8 @@ export default function CulturalWordDetailPage({
                   <h1 className="text-2xl font-bold text-foreground text-balance">
                     {entry.term}
                   </h1>
-                  
-                  {/* ===== IMPROVED AUDIO BUTTON ===== */}
+
+                  {/* Audio Button */}
                   <div className="relative">
                     <Button
                       onClick={handlePlayAudio}
@@ -392,18 +472,20 @@ export default function CulturalWordDetailPage({
                       variant="ghost"
                       size="sm"
                       className={`h-9 w-9 p-0 transition-all ${
-                        hasAudioFile 
-                          ? 'hover:bg-primary/10 cursor-pointer' 
-                          : 'opacity-50 cursor-not-allowed'
+                        hasAudioFile
+                          ? "hover:bg-primary/10 cursor-pointer"
+                          : "opacity-50 cursor-not-allowed"
                       }`}
                       title={
-                        !hasAudioFile 
-                          ? 'Audio not available' 
-                          : isPlaying 
-                          ? 'Stop pronunciation' 
-                          : 'Play pronunciation'
+                        !hasAudioFile
+                          ? "Audio not available"
+                          : isPlaying
+                          ? "Stop pronunciation"
+                          : "Play pronunciation"
                       }
-                      aria-label={`${isPlaying ? 'Stop' : 'Play'} pronunciation for ${entry.term}`}
+                      aria-label={`${
+                        isPlaying ? "Stop" : "Play"
+                      } pronunciation for ${entry.term}`}
                     >
                       {audioLoading ? (
                         <Loader2 className="w-5 h-5 animate-spin text-primary" />
@@ -422,7 +504,6 @@ export default function CulturalWordDetailPage({
                       )}
                     </Button>
 
-                    {/* Audio Status Tooltip */}
                     {!hasAudioFile && (
                       <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 whitespace-nowrap bg-muted/90 backdrop-blur-sm text-xs text-muted-foreground px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                         No audio available
@@ -430,7 +511,7 @@ export default function CulturalWordDetailPage({
                     )}
                   </div>
                 </div>
-                
+
                 <Badge
                   variant="outline"
                   className="text-xs font-mono bg-muted/50 text-muted-foreground border-border/50"
@@ -438,39 +519,45 @@ export default function CulturalWordDetailPage({
                   {entry.domain}
                 </Badge>
               </div>
-              
+
               {entry.details.transliteration && (
                 <p className="text-sm text-muted-foreground font-mono">
                   Transliteration:{" "}
-                  <span className="text-foreground">{entry.details.transliteration}</span>
+                  <span className="text-foreground">
+                    {entry.details.transliteration}
+                  </span>
                 </p>
               )}
-              
-              {/* ===== IMPROVED ERROR DISPLAY ===== */}
+
               {audioError && (
                 <div className="mt-2 flex items-center gap-2 bg-destructive/10 border border-destructive/20 rounded-md px-3 py-2">
                   <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
-                  <p className="text-xs text-destructive">
-                    {audioError}
-                  </p>
+                  <p className="text-xs text-destructive">{audioError}</p>
                 </div>
               )}
-              
-              {/* ===== IMPROVED PLAYING INDICATOR ===== */}
+
               {isPlaying && !audioError && (
                 <div className="mt-2 flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-md px-3 py-2">
                   <div className="flex gap-1">
-                    <div className="w-1 h-3 bg-primary rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
-                    <div className="w-1 h-3 bg-primary rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-                    <div className="w-1 h-3 bg-primary rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                    <div
+                      className="w-1 h-3 bg-primary rounded-full animate-pulse"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <div
+                      className="w-1 h-3 bg-primary rounded-full animate-pulse"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <div
+                      className="w-1 h-3 bg-primary rounded-full animate-pulse"
+                      style={{ animationDelay: "300ms" }}
+                    />
                   </div>
                   <p className="text-xs text-primary font-medium">
                     Playing pronunciation...
                   </p>
                 </div>
               )}
-              
-              {/* ===== AUDIO INFO ===== */}
+
               {hasAudioFile && !isPlaying && !audioError && (
                 <div className="mt-2 flex items-center gap-2">
                   <div className="h-1 w-1 rounded-full bg-emerald-500" />
@@ -479,9 +566,10 @@ export default function CulturalWordDetailPage({
                   </p>
                 </div>
               )}
-              
+
               <p className="text-sm text-muted-foreground mt-1">
-                Subculture: {entry.subculture.name} ({entry.subculture.province})
+                Subculture: {entry.subculture.name} ({entry.subculture.province}
+                )
               </p>
               <p className="text-sm text-muted-foreground">
                 Contributor: {entry.contributor}
@@ -493,8 +581,8 @@ export default function CulturalWordDetailPage({
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        {/* Profile-like layout */}
+      <main className="container mx-auto px-4 py-6 space-y-6 scroll-smooth">
+        {/* Definition */}
         <section aria-label="Term summary" className="grid grid-cols-1 gap-4">
           <Card className="bg-card/60 border-border">
             <CardHeader>
@@ -509,11 +597,7 @@ export default function CulturalWordDetailPage({
         </section>
 
         {/* Image Gallery Section */}
-        <section 
-          aria-label="Visual Gallery"
-          className="space-y-4"
-        >
-          {/* Section Header */}
+        <section aria-label="Visual Gallery" className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
@@ -536,7 +620,7 @@ export default function CulturalWordDetailPage({
             transition={{ duration: 0.5 }}
             className="relative group"
           >
-            <div 
+            <div
               className="rounded-xl overflow-hidden border border-border bg-card/60 aspect-video cursor-pointer"
               onClick={() => openLightbox(selectedImageIndex)}
             >
@@ -546,9 +630,9 @@ export default function CulturalWordDetailPage({
                   alt={galleryImages[selectedImageIndex].alt}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                
+
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                
+
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="bg-black/50 backdrop-blur-sm rounded-full p-3">
                     <Maximize2 className="w-6 h-6 text-white" />
@@ -589,7 +673,7 @@ export default function CulturalWordDetailPage({
                     alt={image.alt}
                     className="w-full h-full object-cover"
                   />
-                  
+
                   {idx !== selectedImageIndex && (
                     <div className="absolute inset-0 bg-black/20 hover:bg-black/0 transition-colors duration-300" />
                   )}
@@ -597,8 +681,16 @@ export default function CulturalWordDetailPage({
                   {idx === selectedImageIndex && (
                     <div className="absolute inset-0 bg-primary/10">
                       <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        <svg
+                          className="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                       </div>
                     </div>
@@ -630,8 +722,18 @@ export default function CulturalWordDetailPage({
                 className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition-colors z-10"
                 aria-label="Close lightbox"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
 
@@ -643,8 +745,18 @@ export default function CulturalWordDetailPage({
                 className="absolute left-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors z-10"
                 aria-label="Previous image"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
                 </svg>
               </button>
 
@@ -656,8 +768,18 @@ export default function CulturalWordDetailPage({
                 className="absolute right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors z-10"
                 aria-label="Next image"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </button>
 
@@ -673,7 +795,7 @@ export default function CulturalWordDetailPage({
                   alt={galleryImages[selectedImageIndex].alt}
                   className="w-full h-auto rounded-lg"
                 />
-                
+
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-lg">
                   <p className="text-white text-lg font-medium">
                     {galleryImages[selectedImageIndex].caption}
@@ -687,6 +809,50 @@ export default function CulturalWordDetailPage({
           )}
         </AnimatePresence>
 
+        {/* YouTube Videos Section */}
+        <section
+          id="youtube-videos"
+          aria-label="Cultural Videos"
+          className="scroll-mt-24"
+        >
+          {videosLoading ? (
+            <div className="bg-card/60 rounded-xl shadow-sm border border-border p-12">
+              <div className="flex flex-col items-center justify-center">
+                <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+                <p className="text-muted-foreground">Loading videos...</p>
+              </div>
+            </div>
+          ) : youtubeVideos && youtubeVideos.length > 0 ? (
+            <YouTubeSection
+              videos={youtubeVideos}
+              title="Video Dokumentasi Budaya"
+              description={`Tonton video dokumentasi terkait istilah "${entry.term}" dan budaya ${entry.subculture.name}.`}
+              subcultureName={entry.subculture.name}
+              autoPlay={false}
+              showThumbnails={true}
+              columns={3}
+            />
+          ) : (
+            <Card className="bg-card/60 border-border">
+              <CardContent className="p-12">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Play className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    No Videos Available
+                  </h3>
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                    Video dokumentasi untuk istilah "{entry.term}" belum
+                    tersedia saat ini.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </section>
+
+        {/* Additional Information */}
         <section
           aria-label="Additional information"
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
@@ -714,55 +880,13 @@ export default function CulturalWordDetailPage({
           </Card>
         </section>
 
-        {/* 3D Section */}
-        <section
-          id="viewer-3d"
-          aria-label="Penampil 3D"
-          className="rounded-xl shadow-sm border border-border bg-card/60 p-6 scroll-mt-24"
-        >
-          {(() => {
-            const p = SUBCULTURE_PROFILES[regionId]
-            if (!p?.model3dArray || p.model3dArray.length === 0) {
-              return (
-                <div className="text-center py-8">
-                  <p className="text-sm text-muted-foreground">
-                    3D models for this subculture are not yet available.
-                  </p>
-                </div>
-              )
-            }
-      
-            const currentModel = models3D[0]
-      
-            return (
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground mb-2">
-                  3D Cultural Artifacts & Environments
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Jelajahi model 3D interaktif dari artefak budaya dan lingkungan suku {p.displayName}.
-                </p>
-      
-                <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
-                  <iframe
-                    key={`model-${currentModel.id}`}
-                    className="w-full"
-                    style={{ height: "500px" }}
-                    src={`https://sketchfab.com/models/${currentModel.id}/embed?autospin=1&autostart=1`}
-                    title={`${currentModel.title}`}
-                    allow="autoplay; fullscreen; xr-spatial-tracking"
-                    allowFullScreen
-                  />
-                </div>
-              </div>
-            )
-          })()}
-        </section>
-
+        {/* Information Availability */}
         <section aria-label="Term summary" className="grid grid-cols-1 gap-4">
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Information Availability</CardTitle>
+              <CardTitle className="text-foreground">
+                Information Availability
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">
@@ -772,8 +896,8 @@ export default function CulturalWordDetailPage({
           </Card>
         </section>
       </main>
-      
+
       <Footer onNavClick={handleNavClick} />
     </div>
   );
-} 
+}

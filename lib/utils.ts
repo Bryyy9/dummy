@@ -109,3 +109,43 @@ export function throttle<T extends (...args: any[]) => any>(func: T, limit: numb
     }
   }
 }
+
+/**
+ * Extract YouTube video ID from various URL formats
+ */
+export function extractYouTubeId(url: string): string | null {
+  if (!url) return null
+  
+  // Handle berbagai format URL YouTube
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([^&\n?#]+)/, // https://www.youtube.com/watch?v=VIDEO_ID
+    /(?:youtu\.be\/)([^&\n?#]+)/, // https://youtu.be/VIDEO_ID
+    /(?:youtube\.com\/embed\/)([^&\n?#]+)/, // https://www.youtube.com/embed/VIDEO_ID
+    /(?:youtube\.com\/v\/)([^&\n?#]+)/, // https://www.youtube.com/v/VIDEO_ID
+    /^([a-zA-Z0-9_-]{11})$/ // Direct video ID
+  ]
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match && match[1]) {
+      return match[1]
+    }
+  }
+  
+  console.warn('Could not extract YouTube ID from URL:', url)
+  return null
+}
+
+/**
+ * Get YouTube thumbnail URL from video ID
+ */
+export function getYouTubeThumbnail(videoId: string, quality: 'default' | 'medium' | 'high' | 'maxres' = 'maxres'): string {
+  return `https://img.youtube.com/vi/${videoId}/${quality}default.jpg`
+}
+
+/**
+ * Validate YouTube video ID format
+ */
+export function isValidYouTubeId(videoId: string): boolean {
+  return /^[a-zA-Z0-9_-]{11}$/.test(videoId)
+}
