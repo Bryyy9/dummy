@@ -1,7 +1,7 @@
 // app/budaya/daerah/[id]/page.tsx
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -13,7 +13,6 @@ import { useNavigation } from "@/hooks/use-navigation";
 import { Footer } from "@/components/layout/footer";
 import { Model3DSection, type Model3D } from "@/components/sections/model-3d-section";
 import { YouTubeSection, type YouTubeVideo } from "@/components/sections/youtube-section";
-
 
 interface SearchResult {
   term: string;
@@ -117,32 +116,44 @@ export default function RegionDetailPage() {
     }
   }, [regionId]);
 
-  // Gallery images
-  const galleryImages = subcultureData?.galleryImages && subcultureData.galleryImages.length > 0
-    ? subcultureData.galleryImages.map((img, idx) => ({
-        url: img.url,
+  // Gallery images with safety checks
+  const galleryImages = useMemo(() => {
+    if (subcultureData?.galleryImages && subcultureData.galleryImages.length > 0) {
+      return subcultureData.galleryImages.map((img, idx) => ({
+        url: img.url || "/placeholder.svg",
         description: img.description || `${subcultureData.profile?.displayName} - Image ${idx + 1}`,
         caption: img.caption || `Cultural heritage of ${subcultureData.profile?.displayName}`
-      }))
-    : [
-        {
-          url: "/subculture-gallery-1.jpg",
-          description: "Traditional Architecture",
-          caption: "Historic buildings showcasing traditional design"
-        },
-        {
-          url: "/subculture-gallery-2.jpg",
-          description: "Cultural Ceremonies",
-          caption: "Local ceremonies and traditional practices"
-        },
-        {
-          url: "/subculture-gallery-3.jpg",
-          description: "Daily Life",
-          caption: "Everyday activities and community life"
-        },
-      ];
+      }));
+    }
+    
+    // Fallback images
+    return [
+      {
+        url: "/subculture-gallery-1.jpg",
+        description: "Traditional Architecture",
+        caption: "Historic buildings showcasing traditional design"
+      },
+      {
+        url: "/subculture-gallery-2.jpg",
+        description: "Cultural Ceremonies",
+        caption: "Local ceremonies and traditional practices"
+      },
+      {
+        url: "/subculture-gallery-3.jpg",
+        description: "Daily Life",
+        caption: "Everyday activities and community life"
+      },
+    ];
+  }, [subcultureData]);
 
-  // Auto-play functions
+  // Safety check for currentGalleryIndex
+  useEffect(() => {
+    if (currentGalleryIndex >= galleryImages.length) {
+      setCurrentGalleryIndex(0);
+    }
+  }, [galleryImages.length, currentGalleryIndex]);
+
+  // Auto-play functions with safety checks
   const startAutoPlay = useCallback(() => {
     if (autoPlayRef.current) {
       clearInterval(autoPlayRef.current);
@@ -156,7 +167,7 @@ export default function RegionDetailPage() {
     autoPlayRef.current = setInterval(() => {
       setCurrentGalleryIndex((prev) => {
         const nextIndex = (prev + 1) % galleryImages.length;
-        return nextIndex;
+        return Math.max(0, Math.min(nextIndex, galleryImages.length - 1));
       });
     }, AUTOPLAY_DURATION);
   }, [galleryImages.length]);
@@ -180,27 +191,30 @@ export default function RegionDetailPage() {
     };
   }, [isGalleryAutoPlaying, startAutoPlay, stopAutoPlay]);
 
-  // Gallery navigation functions
+  // Gallery navigation functions with safety checks
   const goToPreviousImage = () => {
     setIsGalleryAutoPlaying(false);
     stopAutoPlay();
-    setCurrentGalleryIndex((prev) => 
-      prev === 0 ? (galleryImages.length - 1) : prev - 1
-    );
+    setCurrentGalleryIndex((prev) => {
+      const newIndex = prev === 0 ? (galleryImages.length - 1) : prev - 1;
+      return Math.max(0, Math.min(newIndex, galleryImages.length - 1));
+    });
   };
 
   const goToNextImage = () => {
     setIsGalleryAutoPlaying(false);
     stopAutoPlay();
-    setCurrentGalleryIndex((prev) => 
-      (prev + 1) % galleryImages.length
-    );
+    setCurrentGalleryIndex((prev) => {
+      const newIndex = (prev + 1) % galleryImages.length;
+      return Math.max(0, Math.min(newIndex, galleryImages.length - 1));
+    });
   };
 
   const goToImage = (index: number) => {
     setIsGalleryAutoPlaying(false);
     stopAutoPlay();
-    setCurrentGalleryIndex(index);
+    const safeIndex = Math.max(0, Math.min(index, galleryImages.length - 1));
+    setCurrentGalleryIndex(safeIndex);
   };
 
   const toggleAutoPlay = () => {
@@ -208,26 +222,32 @@ export default function RegionDetailPage() {
   };
 
   // Transform model3dArray to Model3D format
-  const models3D: Model3D[] = subcultureData?.model3dArray && subcultureData.model3dArray.length > 0
-    ? subcultureData.model3dArray.map((model) => ({
+  const models3D: Model3D[] = useMemo(() => {
+    if (subcultureData?.model3dArray && subcultureData.model3dArray.length > 0) {
+      return subcultureData.model3dArray.map((model) => ({
         id: model.sketchfabId,
         title: model.title,
         description: model.description,
         artifactType: model.artifactType,
         tags: model.tags,
-      }))
-    : [];
+      }));
+    }
+    return [];
+  }, [subcultureData]);
 
   // Transform youtubeVideos to YouTubeVideo format
-  const youtubeVideos: YouTubeVideo[] = subcultureData?.youtubeVideos && subcultureData.youtubeVideos.length > 0
-    ? subcultureData.youtubeVideos.map((video) => ({
+  const youtubeVideos: YouTubeVideo[] = useMemo(() => {
+    if (subcultureData?.youtubeVideos && subcultureData.youtubeVideos.length > 0) {
+      return subcultureData.youtubeVideos.map((video) => ({
         videoId: video.videoId,
         title: video.title,
         description: video.description,
         thumbnail: video.thumbnail,
         duration: video.duration,
-      }))
-    : [];
+      }));
+    }
+    return [];
+  }, [subcultureData]);
 
   // Search functionality
   useEffect(() => {
@@ -374,6 +394,21 @@ export default function RegionDetailPage() {
     return pages;
   };
 
+  // Helper function for scrolling to sections
+  function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (!el) return;
+    const SCROLL_OFFSET = 96;
+    const top = el.getBoundingClientRect().top + window.pageYOffset - SCROLL_OFFSET;
+    window.scrollTo({ top, behavior: "smooth" });
+    if (history.replaceState) {
+      history.replaceState(null, "", `#${id}`);
+    } else {
+      window.location.hash = `#${id}`;
+    }
+  }
+
   // Loading state
   if (loading) {
     return (
@@ -401,6 +436,13 @@ export default function RegionDetailPage() {
       </div>
     );
   }
+
+  // Safe access to current gallery image
+  const currentGalleryImage = galleryImages[currentGalleryIndex] || galleryImages[0] || {
+    url: "/placeholder.svg",
+    description: "Gallery Image",
+    caption: "Cultural heritage image"
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
@@ -610,8 +652,8 @@ export default function RegionDetailPage() {
                     className="relative aspect-video"
                   >
                     <img
-                      src={galleryImages[currentGalleryIndex].url}
-                      alt={galleryImages[currentGalleryIndex].description}
+                      src={currentGalleryImage.url}
+                      alt={currentGalleryImage.description}
                       className="w-full h-full object-cover"
                       crossOrigin="anonymous"
                     />
@@ -625,7 +667,7 @@ export default function RegionDetailPage() {
                         transition={{ delay: 0.2 }}
                         className="text-2xl font-bold mb-2"
                       >
-                        {galleryImages[currentGalleryIndex].description}
+                        {currentGalleryImage.description}
                       </motion.h3>
                       <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -633,7 +675,7 @@ export default function RegionDetailPage() {
                         transition={{ delay: 0.3 }}
                         className="text-sm text-gray-200"
                       >
-                        {galleryImages[currentGalleryIndex].caption}
+                        {currentGalleryImage.caption}
                       </motion.p>
                     </div>
 
@@ -644,68 +686,76 @@ export default function RegionDetailPage() {
                 </AnimatePresence>
 
                 {/* Navigation Arrows */}
-                <button
-                  onClick={goToPreviousImage}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all hover:scale-110 z-10"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <button
-                  onClick={goToNextImage}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all hover:scale-110 z-10"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
+                {galleryImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={goToPreviousImage}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all hover:scale-110 z-10"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button
+                      onClick={goToNextImage}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all hover:scale-110 z-10"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                  </>
+                )}
 
                 {/* Auto-play toggle */}
-                <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
-                  <button
-                    onClick={toggleAutoPlay}
-                    className="bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm hover:bg-black/70 transition-colors"
-                  >
-                    {isGalleryAutoPlaying ? "⏸ Pause" : "▶ Play"}
-                  </button>
-                </div>
+                {galleryImages.length > 1 && (
+                  <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+                    <button
+                      onClick={toggleAutoPlay}
+                      className="bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm hover:bg-black/70 transition-colors"
+                    >
+                      {isGalleryAutoPlaying ? "⏸ Pause" : "▶ Play"}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Thumbnail Navigation */}
-              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {galleryImages.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => goToImage(idx)}
-                    className={`relative rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
-                      idx === currentGalleryIndex
-                        ? "border-primary shadow-lg scale-105"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                  >
-                    <div className="aspect-video">
-                      <img
-                        src={img.url}
-                        alt={img.description}
-                        className="w-full h-full object-cover"
-                        crossOrigin="anonymous"
-                      />
-                    </div>
-                    {idx === currentGalleryIndex && (
-                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+              {galleryImages.length > 1 && (
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {galleryImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => goToImage(idx)}
+                      className={`relative rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                        idx === currentGalleryIndex
+                          ? "border-primary shadow-lg scale-105"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="aspect-video">
+                        <img
+                          src={img.url || "/placeholder.svg"}
+                          alt={img.description || `Gallery image ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                          crossOrigin="anonymous"
+                        />
                       </div>
-                    )}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                      <p className="text-white text-xs truncate">
-                        {img.description}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+                      {idx === currentGalleryIndex && (
+                        <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                          <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                        <p className="text-white text-xs truncate">
+                          {img.description || `Image ${idx + 1}`}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Progress indicator */}
-              {isGalleryAutoPlaying && (
+              {isGalleryAutoPlaying && galleryImages.length > 1 && (
                 <div className="mt-4">
                   <div className="w-full bg-muted/30 rounded-full h-1 overflow-hidden">
                     <motion.div
@@ -820,7 +870,7 @@ export default function RegionDetailPage() {
                               >
                                 <Button
                                   size="lg"
-                                  className="w-full bg-primary text-white hover:bg-primary/90 rounded-md py-3"
+                                  className="w-full bg-primary text-white hover:bg-primary/90 rounded-md py-3 cursor-pointer"
                                 >
                                   Detail &nbsp;→
                                 </Button>
@@ -859,7 +909,7 @@ export default function RegionDetailPage() {
                           <button
                             onClick={goToPreviousPage}
                             disabled={currentPage === 1}
-                            className={`px-3 py-2 rounded-lg border transition-all ${
+                            className={`px-3 py-2 rounded-lg border transition-all cursor-pointer ${
                               currentPage === 1
                                 ? "border-border/50 text-muted-foreground cursor-not-allowed opacity-50"
                                 : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
@@ -888,7 +938,7 @@ export default function RegionDetailPage() {
                                 <button
                                   key={page}
                                   onClick={() => goToPage(page)}
-                                  className={`min-w-[40px] px-3 py-2 rounded-lg border transition-all ${
+                                  className={`min-w-[40px] px-3 py-2 rounded-lg border transition-all cursor-pointer ${
                                     currentPage === page
                                       ? "bg-primary text-primary-foreground border-primary font-semibold"
                                       : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
@@ -906,7 +956,7 @@ export default function RegionDetailPage() {
                           <button
                             onClick={goToNextPage}
                             disabled={currentPage === totalPages}
-                            className={`px-3 py-2 rounded-lg border transition-all ${
+                            className={`px-3 py-2 rounded-lg border transition-all cursor-pointer ${
                               currentPage === totalPages
                                 ? "border-border/50 text-muted-foreground cursor-not-allowed opacity-50"
                                 : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
@@ -934,18 +984,4 @@ export default function RegionDetailPage() {
       <Footer onNavClick={handleNavClick} />
     </div>
   );
-
-  function scrollToSection(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
-    e.preventDefault();
-    const el = document.getElementById(id);
-    if (!el) return;
-    const SCROLL_OFFSET = 96;
-    const top = el.getBoundingClientRect().top + window.pageYOffset - SCROLL_OFFSET;
-    window.scrollTo({ top, behavior: "smooth" });
-    if (history.replaceState) {
-      history.replaceState(null, "", `#${id}`);
-    } else {
-      window.location.hash = `#${id}`;
-    }
-  }
 }
