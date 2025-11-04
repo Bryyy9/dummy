@@ -2,8 +2,8 @@
 "use client";
 
 import type React from "react";
-
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation"; // ✅ Tambahkan usePathname
 import { Facebook, Instagram, Twitter, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -14,9 +14,24 @@ interface FooterProps {
 }
 
 export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
+  const router = useRouter();
+  const pathname = usePathname(); // ✅ Detect current page
+
+  // ✅ Smart navigation handler
+  const handleQuickLinkClick = (section: string) => {
+    const isHomepage = pathname === "/";
+    
+    if (isHomepage) {
+      // Jika di homepage, scroll ke section
+      onNavClick(section);
+    } else {
+      // Jika di halaman lain, redirect ke homepage dengan hash
+      router.push(`/#${section}`);
+    }
+  };
+
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle newsletter subscription
     console.log("Newsletter subscription");
   };
 
@@ -38,9 +53,21 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
   ];
 
   const resources = [
-    { label: "Documentation", href: "#" },
-    { label: "Research Team", href: "research" },
-    { label: "Gallery", href: "gallery" },
+    { 
+      label: "Documentation", 
+      type: "external" as const,
+      href: "#" 
+    },
+    { 
+      label: "Research Team", 
+      type: "internal" as const,
+      href: "/research"
+    },
+    { 
+      label: "Gallery", 
+      type: "internal" as const,
+      href: "/gallery"
+    },
   ];
 
   return (
@@ -50,7 +77,6 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
           {/* Brand Section */}
           <div className="space-y-4">
             <div className="relative w-40 h-20 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg">
-              {/* 🔧 FIX: Tambah width="auto" untuk maintain aspect ratio */}
               <Image
                 src="/Logo.png"
                 alt="UB Corpora Logo"
@@ -111,15 +137,15 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links - ✅ PERBAIKAN */}
           <div>
             <h3 className="font-semibold text-foreground mb-4">Quick Links</h3>
             <ul className="space-y-2">
               {quickLinks.map((link) => (
                 <li key={link.section}>
                   <button
-                    onClick={() => onNavClick(link.section)}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    onClick={() => handleQuickLinkClick(link.section)}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                   >
                     {link.label}
                   </button>
@@ -153,12 +179,21 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
             <ul className="space-y-2">
               {resources.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </a>
+                  {link.type === "internal" ? (
+                    <Link
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
