@@ -61,7 +61,7 @@ export default function PetaBudayaPage() {
     }
 
     try {
-      const url = `http://localhost:8000/api/v1/search/global?q=${encodeURIComponent(
+      const url = `https://be-corpora.vercel.app/api/v1/search/global?q=${encodeURIComponent(
         query
       )}&category=${encodeURIComponent(searchCategory)}`;
       const res = await fetch(url);

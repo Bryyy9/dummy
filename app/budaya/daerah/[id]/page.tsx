@@ -11,6 +11,9 @@ import { SearchInput } from "@/components/search-input";
 import { Navigation } from "@/components/layout/navigation";
 import { useNavigation } from "@/hooks/use-navigation";
 import { Footer } from "@/components/layout/footer";
+import { Model3DSection, type Model3D } from "@/components/sections/model-3d-section";
+import { YouTubeSection, type YouTubeVideo } from "@/components/sections/youtube-section";
+
 
 interface SearchResult {
   term: string;
@@ -44,6 +47,7 @@ interface SubcultureData {
     title: string;
     description: string;
     thumbnail: string;
+    duration?: string;
   }>;
   lexicon: Array<{
     term: string;
@@ -74,17 +78,11 @@ export default function RegionDetailPage() {
   const [isNavSticky, setIsNavSticky] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("region-profile");
 
-  const [current3DModelIndex, setCurrent3DModelIndex] = useState(0);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-
-  // State untuk toggle lexicon
   const [showLexiconOnly, setShowLexiconOnly] = useState(false);
 
-  // ===== PAGINATION STATE - BARU =====
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
-  // ===== Gallery carousel state =====
   const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0);
   const [isGalleryAutoPlaying, setIsGalleryAutoPlaying] = useState(true);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
@@ -209,8 +207,8 @@ export default function RegionDetailPage() {
     setIsGalleryAutoPlaying((prev) => !prev);
   };
 
-  // 3D Model navigation
-  const models3D = subcultureData?.model3dArray && subcultureData.model3dArray.length > 0
+  // Transform model3dArray to Model3D format
+  const models3D: Model3D[] = subcultureData?.model3dArray && subcultureData.model3dArray.length > 0
     ? subcultureData.model3dArray.map((model) => ({
         id: model.sketchfabId,
         title: model.title,
@@ -220,25 +218,16 @@ export default function RegionDetailPage() {
       }))
     : [];
 
-  const go3DPrev = () =>
-    setCurrent3DModelIndex((i) => (i - 1 + models3D.length) % models3D.length);
-  const go3DNext = () =>
-    setCurrent3DModelIndex((i) => (i + 1) % models3D.length);
-
-  // Video navigation
-  const youtubeVideos = subcultureData?.youtubeVideos && subcultureData.youtubeVideos.length > 0
+  // Transform youtubeVideos to YouTubeVideo format
+  const youtubeVideos: YouTubeVideo[] = subcultureData?.youtubeVideos && subcultureData.youtubeVideos.length > 0
     ? subcultureData.youtubeVideos.map((video) => ({
         videoId: video.videoId,
         title: video.title,
         description: video.description,
         thumbnail: video.thumbnail,
+        duration: video.duration,
       }))
     : [];
-
-  const goVideoPrev = () =>
-    setCurrentVideoIndex((i) => (i - 1 + youtubeVideos.length) % youtubeVideos.length);
-  const goVideoNext = () =>
-    setCurrentVideoIndex((i) => (i + 1) % youtubeVideos.length);
 
   // Search functionality
   useEffect(() => {
@@ -319,23 +308,19 @@ export default function RegionDetailPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ===== PAGINATION LOGIC - BARU =====
-  // Reset page saat search query berubah
+  // Pagination logic
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
 
-  // Calculate pagination
   const displayItems = searchQuery ? searchResults : subcultureData?.lexicon || [];
   const totalPages = Math.ceil(displayItems.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedItems = displayItems.slice(startIndex, endIndex);
 
-  // Pagination handlers
   const goToPage = (page: number) => {
     setCurrentPage(page);
-    // Scroll to top of lexicon section
     const element = document.getElementById("search-and-explore");
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
@@ -354,9 +339,8 @@ export default function RegionDetailPage() {
     }
   };
 
-  // Generate page numbers to display
   const getPageNumbers = () => {
-    const pages = [];
+    const pages: (number | string)[] = [];
     const maxPagesToShow = 5;
     
     if (totalPages <= maxPagesToShow) {
@@ -555,20 +539,20 @@ export default function RegionDetailPage() {
               </li>
               <li aria-hidden="true" className="text-muted-foreground">/</li>
               <li>
-                  <button
-                    onClick={() => {
-                      setShowLexiconOnly(true);
-                      setCurrentPage(1); // Reset page saat buka lexicon
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className={`px-3 py-2 rounded-md text-sm transition-colors inline-block ${
-                      showLexiconOnly
-                        ? "bg-primary/20 text-primary font-medium"
-                        : "hover:bg-accent/20 text-foreground"
-                    }`}
-                  >
-                    Kumpulan kata
-                  </button>
+                <button
+                  onClick={() => {
+                    setShowLexiconOnly(true);
+                    setCurrentPage(1);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm transition-colors inline-block ${
+                    showLexiconOnly
+                      ? "bg-primary/20 text-primary font-medium"
+                      : "hover:bg-accent/20 text-foreground"
+                  }`}
+                >
+                  Kumpulan kata
+                </button>
               </li>
             </ul>
           </div>
@@ -632,10 +616,8 @@ export default function RegionDetailPage() {
                       crossOrigin="anonymous"
                     />
                     
-                    {/* Gradient overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                     
-                    {/* Image description overlay */}
                     <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                       <motion.h3
                         initial={{ opacity: 0, y: 20 }}
@@ -655,7 +637,6 @@ export default function RegionDetailPage() {
                       </motion.p>
                     </div>
 
-                    {/* Image counter */}
                     <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
                       {currentGalleryIndex + 1} / {galleryImages.length}
                     </div>
@@ -745,208 +726,33 @@ export default function RegionDetailPage() {
             {/* 3D Model Section */}
             <section
               id="viewer-3d"
-              aria-label="Penampil 3D"
-              className="rounded-xl shadow-sm border border-border bg-card/60 p-6 scroll-mt-24"
+              className="scroll-mt-24"
             >
-              {(() => {
-                if (!subcultureData?.model3dArray || subcultureData.model3dArray.length === 0) {
-                  return (
-                    <div className="text-center py-8">
-                      <p className="text-sm text-muted-foreground">
-                        3D models for this subculture are not yet available.
-                      </p>
-                    </div>
-                  );
-                }
-
-                const currentModel = models3D[current3DModelIndex];
-
-                return (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-2xl font-bold text-foreground mb-2">
-                        3D Cultural Artifacts & Environments
-                      </h2>
-                      {models3D.length > 1 && (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={go3DPrev}
-                            className="px-3 py-1 bg-primary/20 hover:bg-primary/30 rounded text-sm"
-                            aria-label="Previous 3D model"
-                          >
-                            ← Prev
-                          </button>
-                          <button
-                            onClick={go3DNext}
-                            className="px-3 py-1 bg-primary/20 hover:bg-primary/30 rounded text-sm"
-                            aria-label="Next 3D model"
-                          >
-                            Next →
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <p className="text-sm text-muted-foreground">
-                      Jelajahi model 3D interaktif dari artefak budaya dan
-                      lingkungan suku {subcultureData.profile.displayName}.
-                      Model {current3DModelIndex + 1} dari {models3D.length}.
-                    </p>
-
-                    <div className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50">
-                      <iframe
-                        key={`model-${currentModel.id}`}
-                        className="w-full"
-                        style={{ height: "500px" }}
-                        src={`https://sketchfab.com/models/${currentModel.id}/embed?autospin=1&autostart=1`}
-                        title={`${currentModel.title}`}
-                        allow="autoplay; fullscreen; xr-spatial-tracking"
-                        allowFullScreen
-                      />
-                    </div>
-
-                    <div className="space-y-3">
-                      <div>
-                        <h3 className="font-semibold text-foreground mb-1">
-                          {currentModel.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {currentModel.description}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        {currentModel.tags.map((tag: string, idx: number) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 rounded-full text-xs border border-border bg-background/60 text-muted-foreground"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
+              <Model3DSection
+                models={models3D}
+                title="3D Cultural Artifacts & Environments"
+                description={`Jelajahi model 3D interaktif dari artefak budaya dan lingkungan suku ${subcultureData.profile?.displayName}.`}
+                subcultureName={subcultureData.profile?.displayName}
+                showControls={true}
+                autoRotate={true}
+                height="600px"
+              />
             </section>
 
             {/* YouTube Videos Section */}
             <section
               id="youtube-videos"
-              aria-label="Video YouTube"
-              className="rounded-xl shadow-sm border border-border bg-card/60 p-6 scroll-mt-24"
+              className="scroll-mt-24"
             >
-              {(() => {
-                if (!subcultureData?.youtubeVideos || subcultureData.youtubeVideos.length === 0) {
-                  return (
-                    <div className="text-center py-8">
-                      <p className="text-sm text-muted-foreground">
-                        YouTube videos for this subculture are not yet available.
-                      </p>
-                    </div>
-                  );
-                }
-
-                const currentVideo = youtubeVideos[currentVideoIndex];
-
-                return (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-2xl font-bold text-foreground mb-2">
-                        Video Dokumentasi Budaya
-                      </h2>
-                      {youtubeVideos.length > 1 && (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={goVideoPrev}
-                            className="px-3 py-1 bg-primary/20 hover:bg-primary/30 rounded text-sm"
-                            aria-label="Previous video"
-                          >
-                            ← Prev
-                          </button>
-                          <button
-                            onClick={goVideoNext}
-                            className="px-3 py-1 bg-primary/20 hover:bg-primary/30 rounded text-sm"
-                            aria-label="Next video"
-                          >
-                            Next →
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <p className="text-sm text-muted-foreground">
-                      Tonton video dokumentasi budaya dan kehidupan sehari-hari
-                      suku {subcultureData.profile.displayName}. Video{" "}
-                      {currentVideoIndex + 1} dari {youtubeVideos.length}.
-                    </p>
-
-                    <div
-                      className="relative w-full rounded-lg overflow-hidden border border-border bg-background/50"
-                      style={{ paddingBottom: "56.25%", height: 0 }}
-                    >
-                      <iframe
-                        key={`video-${currentVideo.videoId}`}
-                        className="absolute top-0 left-0 w-full h-full"
-                        src={`https://www.youtube.com/embed/${currentVideo.videoId}?rel=0`}
-                        title={currentVideo.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-
-                    <div className="space-y-3">
-                      <div>
-                        <h3 className="font-semibold text-foreground mb-1">
-                          {currentVideo.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {currentVideo.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Thumbnail Grid */}
-                    {youtubeVideos.length > 1 && (
-                      <div className="mt-6">
-                        <h4 className="text-sm font-semibold text-foreground mb-3">
-                          Video Lainnya:
-                        </h4>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                          {youtubeVideos.map((video, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => setCurrentVideoIndex(idx)}
-                              className={`relative rounded-lg overflow-hidden border-2 transition-all ${
-                                idx === currentVideoIndex
-                                  ? "border-primary shadow-lg scale-105"
-                                  : "border-border hover:border-primary/50"
-                              }`}
-                            >
-                              <img
-                                src={video.thumbnail || `https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`}
-                                alt={video.title}
-                                className="w-full aspect-video object-cover"
-                              />
-                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M8 5v14l11-7z" />
-                                </svg>
-                              </div>
-                              {idx === currentVideoIndex && (
-                                <div className="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded">
-                                  Playing
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
+              <YouTubeSection
+                videos={youtubeVideos}
+                title="Video Dokumentasi Budaya"
+                description={`Tonton video dokumentasi budaya dan kehidupan sehari-hari suku ${subcultureData.profile?.displayName}.`}
+                subcultureName={subcultureData.profile?.displayName}
+                autoPlay={false}
+                showThumbnails={true}
+                columns={3}
+              />
             </section>
           </>
         ) : (

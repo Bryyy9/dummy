@@ -116,7 +116,7 @@ const REGIONS: Region[] = [
   // 10. MADURA-BAWEAN - Pulau kecil atas tengah (#BB65BC)
   {
     id: "madura-base",
-    name: "Madura-Base",
+    name: "Madura",
     color: "#BB65BC",
     description: "Island subculture with maritime traditions",
     population: "~70K",
