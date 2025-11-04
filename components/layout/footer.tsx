@@ -54,11 +54,6 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
 
   const resources = [
     { 
-      label: "Documentation", 
-      type: "external" as const,
-      href: "#" 
-    },
-    { 
       label: "Research Team", 
       type: "internal" as const,
       href: "/research"

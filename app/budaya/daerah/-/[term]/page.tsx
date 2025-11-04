@@ -118,7 +118,6 @@ export default function CulturalWordDetailPage({
     const fetchEntry = async () => {
       try {
         setLoading(true);
-        setVideosLoading(true);
 
         // Fetch dari endpoint lexicons
         const response = await fetch(
@@ -132,9 +131,33 @@ export default function CulturalWordDetailPage({
         const result = await response.json();
 
         if (result.success) {
-          const foundEntry = result.data.find(
+          // 🔧 IMPROVED: Try multiple matching strategies
+          let foundEntry = null;
+
+          // Strategy 1: Exact slug match
+          foundEntry = result.data.find(
             (item: any) => slugify(item.term) === resolvedParams.term
           );
+
+          // Strategy 2: Try matching with the original term (case-insensitive)
+          if (!foundEntry) {
+            foundEntry = result.data.find(
+              (item: any) =>
+                item.term.toLowerCase() ===
+                resolvedParams.term.replace(/-/g, " ").toLowerCase()
+            );
+          }
+
+          // Strategy 3: Try partial match (contains)
+          if (!foundEntry) {
+            foundEntry = result.data.find((item: any) => {
+              const itemSlug = slugify(item.term);
+              const searchTerm = resolvedParams.term.toLowerCase();
+              return (
+                itemSlug.includes(searchTerm) || searchTerm.includes(itemSlug)
+              );
+            });
+          }
 
           if (foundEntry) {
             setEntry(foundEntry);
@@ -199,7 +222,18 @@ export default function CulturalWordDetailPage({
               setYoutubeVideos([]);
             }
           } else {
+            // 🔧 IMPROVED: Better error handling
             console.error("Entry not found for term:", resolvedParams.term);
+            console.log(
+              "Available terms:",
+              result.data
+                .map((item: any) => ({
+                  term: item.term,
+                  slug: slugify(item.term),
+                }))
+                .slice(0, 10)
+            ); // Log first 10 for debugging
+
             notFound();
           }
         } else {

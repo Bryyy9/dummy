@@ -1,4 +1,4 @@
-// components\layout\navigation\navbar.tsx
+// components/layout/navigation/navbar.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -60,10 +60,11 @@ export function Navbar({ className }: NavbarProps) {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-white/10 shadow-md",
         isScrolled
-          ? "bg-slate-900/90 backdrop-blur-md shadow-lg"
+          ? "bg-[rgba(31,31,31,0.4)] backdrop-blur-2xl backdrop-saturate-150"
           : "bg-transparent",
+        "hover:shadow-lg hover:shadow-gray-500/10",
         className
       )}
     >
@@ -75,9 +76,7 @@ export function Navbar({ className }: NavbarProps) {
               <div
                 className={cn(
                   "relative w-40 h-20 flex items-center justify-center hover:scale-105 transition-transform duration-200 rounded-2xl shadow-lg hover:shadow-xl cursor-pointer",
-                  isScrolled
-                    ? "bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20"
-                    : "bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30"
+                  "bg-white/10 backdrop-blur-sm border border-white/20"
                 )}
               >
                 <Image
@@ -94,29 +93,29 @@ export function Navbar({ className }: NavbarProps) {
 
           {/* Conditional Navigation */}
           {isSubculture ? (
-            // Navbar untuk Subculture - tombol Subculture Map dan Home
+            // Navbar untuk Subculture
             <>
               <div className="hidden md:flex items-center space-x-6">
                 <Link href="/">
                   <button
                     className={cn(
-                      "relative px-4 py-2 font-medium transition-colors duration-200 group",
-                      isScrolled ? "text-white" : "text-white"
+                      "relative px-4 py-2 font-medium transition-colors duration-300 text-white",
+                      "hover:text-gray-300",
+                      "after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:w-0 after:h-[2px] after:bg-white after:transition-all after:duration-300 hover:after:w-full"
                     )}
                   >
                     Home
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-white transition-all duration-300 group-hover:w-full" />
                   </button>
                 </Link>
                 <Link href="/peta-budaya">
                   <button
                     className={cn(
-                      "relative px-4 py-2 font-medium transition-colors duration-200 group",
-                      isScrolled ? "text-white" : "text-white"
+                      "relative px-4 py-2 font-medium transition-colors duration-300 text-white",
+                      "hover:text-gray-300",
+                      "after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:w-0 after:h-[2px] after:bg-white after:transition-all after:duration-300 hover:after:w-full"
                     )}
                   >
                     Subculture Map
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-white transition-all duration-300 group-hover:w-full" />
                   </button>
                 </Link>
               </div>
@@ -127,12 +126,7 @@ export function Navbar({ className }: NavbarProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={cn(
-                      "transition-colors duration-200",
-                      isScrolled
-                        ? "text-white hover:text-cyan-300"
-                        : "text-white hover:text-cyan-300"
-                    )}
+                    className="text-white hover:bg-white/10"
                   >
                     Map
                   </Button>
@@ -141,12 +135,7 @@ export function Navbar({ className }: NavbarProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={cn(
-                      "transition-colors duration-200",
-                      isScrolled
-                        ? "text-white hover:text-cyan-300"
-                        : "text-white hover:text-cyan-300"
-                    )}
+                    className="text-white hover:bg-white/10"
                   >
                     Home
                   </Button>
@@ -154,7 +143,7 @@ export function Navbar({ className }: NavbarProps) {
               </div>
             </>
           ) : (
-            // Navbar lengkap untuk halaman lain (termasuk peta-budaya)
+            // Navbar lengkap untuk halaman lain
             <>
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-8">
@@ -163,10 +152,9 @@ export function Navbar({ className }: NavbarProps) {
                     key={item.id}
                     onClick={() => smoothScrollTo(item.id)}
                     className={cn(
-                      "transition-colors duration-200 font-medium",
-                      isScrolled
-                        ? "text-white hover:text-cyan-300"
-                        : "text-white hover:text-yellow-600"
+                      "relative font-medium transition-colors duration-300 text-white",
+                      "hover:text-cyan-300",
+                      "after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:w-0 after:h-[2px] after:bg-cyan-300 after:transition-all after:duration-300 hover:after:w-full"
                     )}
                   >
                     {item.label}
@@ -178,10 +166,7 @@ export function Navbar({ className }: NavbarProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className={cn(
-                  "md:hidden",
-                  "text-white hover:text-cyan-300"
-                )}
+                className="md:hidden text-white hover:bg-white/10"
                 onClick={() => setIsOpen(!isOpen)}
               >
                 {isOpen ? (
@@ -194,9 +179,9 @@ export function Navbar({ className }: NavbarProps) {
           )}
         </div>
 
-        {/* Mobile Navigation - muncul di semua halaman kecuali subculture detail */}
+        {/* Mobile Navigation */}
         {!isSubculture && isOpen && (
-          <div className="md:hidden bg-[#1a4d5c]/98 backdrop-blur-sm border-t border-white/20">
+          <div className="md:hidden bg-[rgba(26,77,92,0.98)] backdrop-blur-sm border-t border-white/20">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navItems.map((item) => (
                 <button
