@@ -1,9 +1,9 @@
-// components/ui/model-3d-section.tsx
+// components/sections/model-3d-section.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion } from "framer-motion"
-import { ChevronLeft, ChevronRight, Maximize2, RotateCcw, ZoomIn, ZoomOut, Info } from "lucide-react"
+import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -36,13 +36,13 @@ export function Model3DSection({
   description,
   subcultureName,
   className,
-  showControls = true,
+  showControls = false, // Changed default to false
   autoRotate = true,
   height = "600px",
 }: Model3DSectionProps) {
   const [currentModelIndex, setCurrentModelIndex] = useState(0)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [showInfo, setShowInfo] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   if (!models || models.length === 0) {
     return (
@@ -64,15 +64,23 @@ export function Model3DSection({
 
   const goToPrevious = () => {
     setCurrentModelIndex((prev) => (prev === 0 ? models.length - 1 : prev - 1))
+    setIsLoading(true) // Reset loading when changing models
   }
 
   const goToNext = () => {
     setCurrentModelIndex((prev) => (prev + 1) % models.length)
+    setIsLoading(true) // Reset loading when changing models
   }
 
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen)
+  // Handle iframe load event
+  const handleIframeLoad = () => {
+    setIsLoading(false)
   }
+
+  // Reset loading when model changes
+  useEffect(() => {
+    setIsLoading(true)
+  }, [currentModelIndex])
 
   return (
     <section className={cn("space-y-6", className)}>
@@ -127,79 +135,33 @@ export function Model3DSection({
       >
         {/* Model Container */}
         <Card className="overflow-hidden border-border bg-card/60 backdrop-blur-sm">
-          <div className={cn(
-            "relative w-full bg-gradient-to-br from-muted/50 to-muted/20",
-            isFullscreen && "fixed inset-0 z-50 rounded-none"
-          )}>
+          <div className="relative w-full bg-gradient-to-br from-muted/50 to-muted/20">
             {/* 3D Iframe */}
             <div 
               className="relative w-full" 
-              style={{ height: isFullscreen ? '100vh' : height }}
+              style={{ height }}
             >
               <iframe
+                ref={iframeRef}
                 key={`model-${currentModel.id}`}
                 src={currentModel.embedUrl || getSketchfabEmbedUrl(currentModel.id)}
                 title={currentModel.title}
                 className="absolute top-0 left-0 w-full h-full border-0"
                 allow="autoplay; fullscreen; xr-spatial-tracking"
                 allowFullScreen
+                onLoad={handleIframeLoad}
               />
             </div>
 
-            {/* Floating Controls */}
-            {showControls && (
-              <div className="absolute top-4 right-4 flex flex-col gap-2">
-                <Button
-                  onClick={toggleFullscreen}
-                  variant="secondary"
-                  size="sm"
-                  className="cursor-pointer backdrop-blur-sm bg-background/80 hover:bg-background/90"
-                >
-                  <Maximize2 className="w-4 h-4" />
-                </Button>
-                <Button
-                  onClick={() => setShowInfo(!showInfo)}
-                  variant="secondary"
-                  size="sm"
-                  className="cursor-pointer backdrop-blur-sm bg-background/80 hover:bg-background/90"
-                >
-                  <Info className="w-4 h-4" />
-                </Button>
+            {/* Loading Indicator - Only show while loading */}
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-muted/20 pointer-events-none">
+                <div className="text-center space-y-4">
+                  <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                  <p className="text-sm text-muted-foreground font-medium">Loading 3D Model...</p>
+                </div>
               </div>
             )}
-
-            {/* Model Info Overlay */}
-            {showInfo && !isFullscreen && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute bottom-4 left-4 right-4 bg-background/90 backdrop-blur-md border border-border rounded-lg p-4"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-foreground mb-1">
-                      {currentModel.title}
-                    </h4>
-                    {currentModel.artifactType && (
-                      <Badge variant="outline" className="text-xs mb-2">
-                        {currentModel.artifactType}
-                      </Badge>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setShowInfo(false)}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    ×
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Loading Indicator */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-            </div>
           </div>
         </Card>
 
@@ -231,22 +193,22 @@ export function Model3DSection({
               <p className="text-xs text-muted-foreground mb-2 font-medium">
                 Interaction Tips:
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-muted-foreground">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <RotateCcw className="w-3 h-3" />
                   <span>Drag to rotate</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <ZoomIn className="w-3 h-3" />
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                  </svg>
                   <span>Scroll to zoom</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Maximize2 className="w-3 h-3" />
-                  <span>Click for fullscreen</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Info className="w-3 h-3" />
-                  <span>Toggle info</span>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                  </svg>
+                  <span>Right-click + drag to pan</span>
                 </div>
               </div>
             </div>
@@ -265,7 +227,10 @@ export function Model3DSection({
             {models.map((model, index) => (
               <motion.button
                 key={model.id}
-                onClick={() => setCurrentModelIndex(index)}
+                onClick={() => {
+                  setCurrentModelIndex(index)
+                  setIsLoading(true)
+                }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className={cn(
@@ -317,4 +282,4 @@ export function Model3DSection({
       )}
     </section>
   )
-}
+} 
