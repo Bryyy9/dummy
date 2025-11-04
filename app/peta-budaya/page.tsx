@@ -1,190 +1,254 @@
 // app/peta-budaya/page.tsx
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Search } from "lucide-react";
-import { AnimatedReveal } from "@/components/common/animated-reveal";
-import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import Image from "next/image";
 import { ParallaxBackground } from "@/components/common/parallax-background";
-import { LEXICON, type LexiconEntry } from "@/data/lexicon";
 import { Navigation } from "@/components/layout/navigation";
-import { Navbar } from "@/components/layout/navigation/navbar";
-import {
-  AdvancedPopupMap,
-  REGIONS,
-  type Region,
-} from "@/components/cultural/advanced-popup-map";
+import { AdvancedPopupMap, REGIONS } from "@/components/cultural/advanced-popup-map";
+import { GlobalSearchBar } from "@/components/cultural/global-search-bar";
+import { GlobalSearchResults } from "@/components/cultural/global-search-results";
+
+interface SearchResult {
+  term: string
+  definition: string
+  transliterasi?: string
+  termCode: string
+  type: "lexicon" | "region"
+  name?: string
+  description?: string
+  highlights?: string[]
+  color?: string
+  id?: string
+}
+
+interface GlobalSearchResponse {
+  success: boolean
+  message: string
+  data: {
+    results: SearchResult[]
+    lexiconRegionMap: Record<string, string>
+    total: number
+  }
+}
 
 export default function PetaBudayaPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchCategory, setSearchCategory] = useState<
-    "subculture" | "lexicon" | "all"
-  >("all");
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const [searchResults, setSearchResults] = useState<(Region | LexiconEntry)[]>(
-    []
-  );
-  const [lexiconRegionMap, setLexiconRegionMap] = useState<
-    Record<string, string>
-  >({});
   const router = useRouter();
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchCategory, setSearchCategory] = useState<"subculture" | "lexicon" | "all">("all");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [lexiconRegionMap, setLexiconRegionMap] = useState<Record<string, string>>({});
+  const [isSearching, setIsSearching] = useState(false);
+  
+  // Ref untuk tracking search query yang sedang diproses
+  const searchQueryRef = useRef<string>("");
+  const searchAbortControllerRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      handleSearch(searchQuery);
-    }
-  }, [searchCategory]);
-
-  const handleSearch = async (query: string) => {
+  // Global Search Handler dengan debounce dan abort controller
+  const handleSearch = useCallback(async (query: string) => {
+    const trimmedQuery = query.trim();
     setSearchQuery(query);
+    searchQueryRef.current = trimmedQuery;
 
-    if (!query.trim()) {
+    // Abort previous search request
+    if (searchAbortControllerRef.current) {
+      searchAbortControllerRef.current.abort();
+    }
+
+    // Reset jika query kosong
+    if (!trimmedQuery) {
+      console.log('🔍 Empty query - resetting search');
       setShowSearchResults(false);
       setSearchResults([]);
       setLexiconRegionMap({});
       setSelectedRegion(null);
+      setIsSearching(false);
+      return;
+    }
+
+    // Validasi minimum length
+    if (trimmedQuery.length < 2) {
+      console.log('🔍 Query too short - minimum 2 characters');
       return;
     }
 
     try {
+      setIsSearching(true);
+      
+      // Create new abort controller
+      const abortController = new AbortController();
+      searchAbortControllerRef.current = abortController;
+
       const url = `https://be-corpora.vercel.app/api/v1/search/global?q=${encodeURIComponent(
-        query
+        trimmedQuery
       )}&category=${encodeURIComponent(searchCategory)}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Global search request failed");
-      const json = await res.json();
+      
+      console.log('🔍 Searching:', { query: trimmedQuery, category: searchCategory });
+      
+      const res = await fetch(url, {
+        signal: abortController.signal,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      if (json && json.success && json.data) {
-        const results = json.data.results || [];
-        setSearchResults(results);
-        setLexiconRegionMap(json.data.lexiconRegionMap || {});
-        setShowSearchResults(true);
-
-        const firstRegion = results.find(
-          (r: any) => r.type === "region" || r.type === "region"
-        );
-        if (firstRegion && (firstRegion as any).id) {
-          setSelectedRegion((firstRegion as any).id);
-        } else {
-          setSelectedRegion(null);
-        }
-
+      // Check if query changed during fetch
+      if (searchQueryRef.current !== trimmedQuery) {
+        console.log('⚠️ Query changed during fetch, ignoring results');
         return;
       }
 
-      throw new Error(json?.message || "Invalid search response");
-    } catch (err) {
-      console.warn("Global search failed, falling back to local search:", err);
+      if (!res.ok) {
+        throw new Error(`Search request failed: ${res.status}`);
+      }
+      
+      const json: GlobalSearchResponse = await res.json();
 
-      if (searchCategory === "subculture") {
-        const results = REGIONS.filter(
-          (region) =>
-            region.name.toLowerCase().includes(query.toLowerCase()) ||
-            region.highlights.some((element) =>
-              element.toLowerCase().includes(query.toLowerCase())
-            )
-        );
-        setSearchResults(results as Region[]);
-        setShowSearchResults(true);
-        if (results.length > 0) setSelectedRegion((results[0] as Region).id);
-      } else if (searchCategory === "lexicon") {
-        const results: LexiconEntry[] = [];
-        const regionMap: Record<string, string> = {};
-        const lowerQuery = query.toLowerCase();
+      // Double check query hasn't changed
+      if (searchQueryRef.current !== trimmedQuery) {
+        console.log('⚠️ Query changed after fetch, ignoring results');
+        return;
+      }
 
-        for (const [regionKey, entries] of Object.entries(LEXICON)) {
-          const region = REGIONS.find((r) => r.id === regionKey);
-          const regionName = region?.name || regionKey;
+      console.log('✅ Search response:', json);
 
-          for (const entry of entries) {
-            if (
-              entry.term.toLowerCase().includes(lowerQuery) ||
-              entry.definition.toLowerCase().includes(lowerQuery)
-            ) {
-              results.push(entry);
-              regionMap[entry.termCode] = regionName;
-            }
-          }
+      if (json && json.success && json.data) {
+        const results = json.data.results || [];
+        
+        // Filter results based on category
+        let filteredResults = results;
+        if (searchCategory === "lexicon") {
+          filteredResults = results.filter(r => r.type === "lexicon");
+        } else if (searchCategory === "subculture") {
+          filteredResults = results.filter(r => r.type === "region");
         }
 
-        setSearchResults(results);
-        setLexiconRegionMap(regionMap);
+        console.log('📊 Filtered results:', {
+          total: results.length,
+          filtered: filteredResults.length,
+          category: searchCategory
+        });
+
+        setSearchResults(filteredResults);
+        setLexiconRegionMap(json.data.lexiconRegionMap || {});
         setShowSearchResults(true);
+
+        // Auto-select first region if available
+        const firstRegion = filteredResults.find((r) => r.type === "region");
+        if (firstRegion && firstRegion.id) {
+          setSelectedRegion(firstRegion.id);
+        } else {
+          setSelectedRegion(null);
+        }
       } else {
-        const regionResults = REGIONS.filter(
-          (region) =>
-            region.name.toLowerCase().includes(query.toLowerCase()) ||
-            region.highlights.some((element) =>
-              element.toLowerCase().includes(query.toLowerCase())
-            )
-        );
-
-        const lexiconResults: LexiconEntry[] = [];
-        const regionMap: Record<string, string> = {};
-        const lowerQuery = query.toLowerCase();
-        for (const [regionKey, entries] of Object.entries(LEXICON)) {
-          const region = REGIONS.find((r) => r.id === regionKey);
-          const regionName = region?.name || regionKey;
-
-          for (const entry of entries) {
-            if (
-              entry.term.toLowerCase().includes(lowerQuery) ||
-              entry.definition.toLowerCase().includes(lowerQuery)
-            ) {
-              lexiconResults.push(entry);
-              regionMap[entry.termCode] = regionName;
-            }
-          }
-        }
-
-        const combinedResults = [...regionResults, ...lexiconResults] as (
-          | Region
-          | LexiconEntry
-        )[];
-        setSearchResults(combinedResults);
-        setLexiconRegionMap(regionMap);
+        console.warn('⚠️ Invalid search response:', json);
+        setSearchResults([]);
+        setLexiconRegionMap({});
         setShowSearchResults(true);
-        if (regionResults.length > 0)
-          setSelectedRegion((regionResults[0] as Region).id);
+      }
+    } catch (err) {
+      // Ignore abort errors
+      if (err instanceof Error && err.name === 'AbortError') {
+        console.log('🚫 Search aborted');
+        return;
+      }
+
+      console.error('❌ Global search failed:', err);
+      
+      // Only show error if query hasn't changed
+      if (searchQueryRef.current === trimmedQuery) {
+        setSearchResults([]);
+        setLexiconRegionMap({});
+        setShowSearchResults(true);
+      }
+    } finally {
+      // Only stop loading if query hasn't changed
+      if (searchQueryRef.current === trimmedQuery) {
+        setIsSearching(false);
       }
     }
-  };
+  }, [searchCategory]);
 
-  const handleCategoryChange = (category: "subculture" | "lexicon" | "all") => {
+  // Debounced search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleSearch(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, handleSearch]);
+
+  // Category Change Handler
+  const handleCategoryChange = useCallback((category: "subculture" | "lexicon" | "all") => {
+    console.log('🏷️ Category changed:', category);
     setSearchCategory(category);
-  };
+    
+    // Re-filter existing results
+    if (searchResults.length > 0) {
+      let filteredResults = searchResults;
+      if (category === "lexicon") {
+        filteredResults = searchResults.filter(r => r.type === "lexicon");
+      } else if (category === "subculture") {
+        filteredResults = searchResults.filter(r => r.type === "region");
+      }
+      setSearchResults(filteredResults);
+    }
+  }, [searchResults]);
 
-  const handleClearSearch = () => {
+  // Clear Search Handler
+  const handleClearSearch = useCallback(() => {
+    console.log('🧹 Clearing search');
     setSearchQuery("");
+    searchQueryRef.current = "";
     setShowSearchResults(false);
     setSearchResults([]);
+    setLexiconRegionMap({});
     setSelectedRegion(null);
-  };
+    
+    // Abort any ongoing search
+    if (searchAbortControllerRef.current) {
+      searchAbortControllerRef.current.abort();
+    }
+  }, []);
 
-  const handleRegionClick = (regionId: string) => {
+  // Navigation Handlers
+  const handleRegionClick = useCallback((regionId: string) => {
+    console.log('🗺️ Region clicked:', regionId);
     router.push(`/budaya/daerah/${regionId}`);
-  };
+  }, [router]);
+
+  const handleLexiconClick = useCallback((termCode: string, term: string) => {
+    console.log('📖 Lexicon clicked:', { termCode, term });
+    const slug = term
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    router.push(`/budaya/daerah/-/${slug}`);
+  }, [router]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (searchAbortControllerRef.current) {
+        searchAbortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return (
     <TooltipProvider>
-      <div
-        className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background"
-        style={{ scrollBehavior: "smooth" }}
-      >
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
         <Navigation
           onNavClick={(section) => {
             const element = document.getElementById(section);
@@ -193,7 +257,7 @@ export default function PetaBudayaPage() {
         />
 
         {/* Hero Section */}
-        <section aria-labelledby="hero-title" className="relative">
+        <section className="relative">
           <ParallaxBackground className="relative h-[320px] md:h-[420px] overflow-hidden">
             <Image
               src="/east-java-temple-sunset-landscape-with-traditional.jpg"
@@ -209,7 +273,6 @@ export default function PetaBudayaPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
                 className="text-sm text-gray-200 mb-3"
-                aria-label="Breadcrumb"
               >
                 <ol className="flex items-center space-x-2">
                   <li>
@@ -225,285 +288,96 @@ export default function PetaBudayaPage() {
                   </li>
                 </ol>
               </motion.nav>
+              
               <motion.h1
-                id="hero-title"
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                className="text-balance text-3xl md:text-5xl font-bold tracking-tight text-white"
+                transition={{ duration: 0.6 }}
+                className="text-3xl md:text-5xl font-bold text-white"
               >
                 Discover the Living Tapestry of East Java
               </motion.h1>
+              
               <motion.p
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.05, ease: "easeOut" }}
-                className="mt-2 md:mt-3 text-pretty text-sm md:text-base text-gray-200 max-w-2xl"
+                transition={{ duration: 0.6, delay: 0.05 }}
+                className="mt-2 md:mt-3 text-sm md:text-base text-gray-200 max-w-2xl"
               >
                 Navigate an elegant cultural map to explore regions, traditions,
                 artifacts, and events—curated to reveal identity, history, and
                 significance with clarity and beauty.
               </motion.p>
 
-              {/* LAYOUT BARU - Button dan Search Bar Sejajar */}
+              {/* Search Bar - Hero Section */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-                className="mt-4"
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="mt-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center"
               >
-                {/* Container untuk Button dan Search - Sejajar */}
-                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-                  {/* Button Lexicons Glosarium */}
-                  <div className="flex-shrink-0">
-                    <Link href="/budaya/daerah/-?from=/peta-budaya">
-                      <Button
-                        variant="outline"
-                        className="w-full sm:w-auto bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 cursor-pointer whitespace-nowrap"
-                      >
-                        Lexicons Glosarium
-                      </Button>
-                    </Link>
-                  </div>
+                <Link href="/budaya/daerah/-?from=/peta-budaya" className="flex-shrink-0">
+                  <Button 
+                    variant="outline" 
+                    className="w-full sm:w-auto bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 cursor-pointer whitespace-nowrap"
+                  >
+                    Lexicons Glosarium
+                  </Button>
+                </Link>
 
-                  {/* Search Bar - Flex Grow */}
-                  <AnimatedReveal animation="fade-up" delay={150} className="flex-1">
-                    <div className="relative w-full">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                      <Input
-                        placeholder="Cari istilah budaya..."
-                        value={searchQuery}
-                        onChange={(e) => handleSearch(e.target.value)}
-                        className="w-full pl-10 bg-background/50 border-border focus:ring-primary/20"
-                      />
-                    </div>
-                  </AnimatedReveal>
-                </div>
+                <GlobalSearchBar
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  isSearching={isSearching}
+                  className="flex-1"
+                />
               </motion.div>
+
+              {/* Results Info - Hero Section */}
+              {searchQuery && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-3 text-sm text-gray-200"
+                >
+                  {isSearching ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin">⏳</span> Searching...
+                    </span>
+                  ) : (
+                    <>
+                      {searchResults.length > 0 ? (
+                        <>Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchQuery}"</>
+                      ) : (
+                        <>No results found for "{searchQuery}"</>
+                      )}
+                    </>
+                  )}
+                </motion.div>
+              )}
             </div>
           </ParallaxBackground>
         </section>
 
-        {/* Main content with map */}
-        <div id="map" className="container mx-auto px-4 py-6">
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-6">
           <div className="w-full">
-            {showSearchResults && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-6 bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border p-4"
-              >
-                <div className="flex gap-2 mb-4 items-center justify-between">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleCategoryChange("all")}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        searchCategory === "all"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      All
-                    </button>
-                    <button
-                      onClick={() => handleCategoryChange("subculture")}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        searchCategory === "subculture"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      Subculture
-                    </button>
-                    <button
-                      onClick={() => handleCategoryChange("lexicon")}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        searchCategory === "lexicon"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      }`}
-                    >
-                      Lexicon
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-sm font-medium text-foreground bg-primary/10 px-3 py-1 rounded-full">
-                      {searchResults.length}{" "}
-                      {searchResults.length === 1 ? "result" : "results"} found
-                    </div>
-                    <button
-                      onClick={handleClearSearch}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      ✕ Close
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  {searchCategory === "all" ? (
-                    searchResults.length > 0 ? (
-                      <>
-                        {(searchResults as (Region | LexiconEntry)[]).map(
-                          (item, idx) => {
-                            const isRegion = "highlights" in item;
-                            return (
-                              <motion.div
-                                key={`search-all-${
-                                  isRegion ? "region" : "lexicon"
-                                }-${idx}`}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className={`rounded-lg border border-border bg-card/60 p-4 ${
-                                  isRegion
-                                    ? "cursor-pointer hover:bg-card/80 transition-colors"
-                                    : ""
-                                }`}
-                                onClick={() =>
-                                  isRegion &&
-                                  handleRegionClick((item as Region).id)
-                                }
-                              >
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <div className="font-semibold text-foreground">
-                                      {"highlights" in item
-                                        ? (item as Region).name
-                                        : (item as LexiconEntry).term}
-                                    </div>
-                                    <div className="text-sm text-muted-foreground mt-1">
-                                      {isRegion
-                                        ? (item as Region).highlights &&
-                                          Array.isArray(
-                                            (item as Region).highlights
-                                          ) &&
-                                          (item as Region).highlights.length > 0
-                                          ? (item as Region).highlights.join(
-                                              " • "
-                                            )
-                                          : "No highlights available"
-                                        : (item as LexiconEntry).definition}
-                                    </div>
-                                    {!isRegion && (
-                                      <>
-                                        {(item as LexiconEntry)
-                                          .transliterasi && (
-                                          <div className="text-xs text-muted-foreground mt-2">
-                                            Transliterasi:{" "}
-                                            <span className="italic">
-                                              {
-                                                (item as LexiconEntry)
-                                                  .transliterasi
-                                              }
-                                            </span>
-                                          </div>
-                                        )}
-                                        {lexiconRegionMap[
-                                          (item as LexiconEntry).termCode
-                                        ] && (
-                                          <div className="text-xs text-primary mt-2 font-medium">
-                                            📍 From:{" "}
-                                            <span className="font-semibold">
-                                              {
-                                                lexiconRegionMap[
-                                                  (item as LexiconEntry)
-                                                    .termCode
-                                                ]
-                                              }
-                                            </span>
-                                          </div>
-                                        )}
-                                      </>
-                                    )}
-                                  </div>
-                                  <span className="ml-2 px-2 py-1 text-xs font-medium rounded bg-primary/10 text-primary whitespace-nowrap">
-                                    {isRegion ? "Region" : "Term"}
-                                  </span>
-                                </div>
-                              </motion.div>
-                            );
-                          }
-                        )}
-                      </>
-                    ) : (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No results found matching "{searchQuery}"
-                      </p>
-                    )
-                  ) : searchCategory === "subculture" ? (
-                    (searchResults as Region[]).length > 0 ? (
-                      <>
-                        {(searchResults as Region[]).map((region) => (
-                          <motion.div
-                            key={`search-region-${region.id}`}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="rounded-lg border border-border bg-card/60 p-4 cursor-pointer hover:bg-card/80 transition-colors"
-                            onClick={() => handleRegionClick(region.id)}
-                          >
-                            <div className="font-semibold text-foreground">
-                              {region.name}
-                            </div>
-                            <div className="text-sm text-muted-foreground mt-1">
-                              {region.highlights &&
-                              Array.isArray(region.highlights) &&
-                              region.highlights.length > 0
-                                ? region.highlights.join(" • ")
-                                : "No highlights available"}
-                            </div>
-                          </motion.div>
-                        ))}
-                      </>
-                    ) : (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No subcultures found matching "{searchQuery}"
-                      </p>
-                    )
-                  ) : (searchResults as LexiconEntry[]).length > 0 ? (
-                    <>
-                      {(searchResults as LexiconEntry[]).map((entry, idx) => (
-                        <motion.div
-                          key={`search-lexicon-${entry.termCode}-${idx}`}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="rounded-lg border border-border bg-card/60 p-4"
-                        >
-                          <div className="font-semibold text-foreground">
-                            {entry.term}
-                          </div>
-                          <div className="text-sm text-muted-foreground mt-1">
-                            {entry.definition}
-                          </div>
-                          {entry.transliterasi && (
-                            <div className="text-xs text-muted-foreground mt-2">
-                              Transliterasi:{" "}
-                              <span className="italic">
-                                {entry.transliterasi}
-                              </span>
-                            </div>
-                          )}
-                          {lexiconRegionMap[entry.termCode] && (
-                            <div className="text-xs text-primary mt-2 font-medium">
-                              📍 From:{" "}
-                              <span className="font-semibold">
-                                {lexiconRegionMap[entry.termCode]}
-                              </span>
-                            </div>
-                          )}
-                        </motion.div>
-                      ))}
-                    </>
-                  ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      No lexicon entries found matching "{searchQuery}"
-                    </p>
-                  )}
-                </div>
-              </motion.div>
+            {/* Search Results - Main Content Area */}
+            {showSearchResults && searchQuery && (
+              <GlobalSearchResults
+                searchQuery={searchQuery}
+                searchResults={searchResults}
+                lexiconRegionMap={lexiconRegionMap}
+                isSearching={isSearching}
+                selectedCategory={searchCategory}
+                onCategoryChange={handleCategoryChange}
+                onClear={handleClearSearch}
+                onRegionClick={handleRegionClick}
+                onLexiconClick={handleLexiconClick}
+              />
             )}
 
-            {/* Map section */}
+            {/* Map Section */}
             <div className="bg-card/50 backdrop-blur-sm rounded-xl shadow-sm border border-border overflow-hidden">
               <div className="p-4 border-b border-border bg-gradient-to-r from-primary/5 to-accent/5">
                 <div className="flex items-center justify-between">
@@ -512,7 +386,10 @@ export default function PetaBudayaPage() {
                       Interactive Map of East Java
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      Hover over regions to explore their cultural heritage
+                      {searchQuery ? 
+                        `Showing results for "${searchQuery}"` : 
+                        'Hover over regions to explore their cultural heritage'
+                      }
                     </p>
                   </div>
                 </div>
@@ -523,7 +400,7 @@ export default function PetaBudayaPage() {
               </div>
             </div>
 
-            {/* Selected region glossary preview */}
+            {/* Selected Region Preview */}
             <AnimatePresence>
               {selectedRegion && !showSearchResults && (
                 <motion.div
@@ -535,7 +412,6 @@ export default function PetaBudayaPage() {
                   {(() => {
                     const region = REGIONS.find((r) => r.id === selectedRegion);
                     if (!region) return null;
-                    const terms = LEXICON[selectedRegion] || [];
 
                     return (
                       <div>
@@ -544,43 +420,14 @@ export default function PetaBudayaPage() {
                             {region.name} — Cultural Glossary
                           </h3>
                           <Link href={`/budaya/daerah/${region.id}`}>
-                            <Button className="bg-primary hover:bg-primary/90">
+                            <Button className="bg-primary hover:bg-primary/90 cursor-pointer">
                               View Full Glossary
                             </Button>
                           </Link>
                         </div>
-
-                        <div className="space-y-3">
-                          {terms.slice(0, 6).map((entry, idx) => (
-                            <div
-                              key={`preview-${selectedRegion}-${entry.termCode}-${idx}`}
-                              className="rounded-lg border border-border bg-card/60 p-3"
-                            >
-                              <div className="font-semibold text-foreground">
-                                {entry.term}
-                              </div>
-                              <div className="text-sm text-muted-foreground mt-1">
-                                {entry.definition}
-                              </div>
-                            </div>
-                          ))}
-
-                          {terms.length === 0 && (
-                            <p className="text-sm text-muted-foreground text-center py-4">
-                              No glossary entries available for this region yet.
-                            </p>
-                          )}
-
-                          {terms.length > 6 && (
-                            <div className="text-center pt-2">
-                              <Link href={`/budaya/daerah/${region.id}`}>
-                                <Button variant="outline" size="sm">
-                                  View All ({terms.length} terms)
-                                </Button>
-                              </Link>
-                            </div>
-                          )}
-                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Click to explore the full cultural glossary and traditions.
+                        </p>
                       </div>
                     );
                   })()}
@@ -590,48 +437,35 @@ export default function PetaBudayaPage() {
           </div>
         </div>
 
-        {/* How it works section */}
-        <section
-          id="how-to"
-          aria-label="How it works"
-          className="container mx-auto px-4 py-6"
-        >
+        {/* How it Works Section */}
+        <section className="container mx-auto px-4 py-6">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            viewport={{ once: true }}
             className="rounded-xl border border-border bg-card/60 backdrop-blur-sm p-4 md:p-5"
           >
             <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 text-sm text-muted-foreground">
-              <li key="how-to-1" className="flex items-start gap-3">
+              <li className="flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
                   1
                 </span>
-                Hover over any region on the map to see detailed information
-                instantly.
+                Hover over any region on the map to see detailed information instantly.
               </li>
-              <li key="how-to-2" className="flex items-start gap-3">
+              <li className="flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
                   2
                 </span>
-                Use the search box to find specific regions and their cultural
-                highlights.
+                Use the search box to find specific regions and their cultural highlights.
               </li>
-              <li key="how-to-3" className="flex items-start gap-3">
+              <li className="flex items-start gap-3">
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-foreground text-xs font-semibold">
                   3
                 </span>
-                Click on a region to explore its full cultural glossary and
-                traditions.
+                Click on a region to explore its full cultural glossary and traditions.
               </li>
             </ul>
           </motion.div>
-        </section>
-
-        {/* Bottom divider */}
-        <section aria-hidden="true" className="container mx-auto px-4 pb-10">
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
         </section>
       </div>
     </TooltipProvider>

@@ -27,7 +27,6 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
     { label: "Contact", section: "kontak" },
   ];
 
-  // components/layout/footer.tsx
   const culturalLinks = [
     { label: "Cultural Map", href: "/peta-budaya" },
     { label: "Sub-regions", href: "/budaya" },
@@ -42,7 +41,6 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
     { label: "Documentation", href: "#" },
     { label: "Research Team", href: "research" },
     { label: "Gallery", href: "gallery" },
-   
   ];
 
   return (
@@ -52,12 +50,14 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
           {/* Brand Section */}
           <div className="space-y-4">
             <div className="relative w-40 h-20 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg">
+              {/* 🔧 FIX: Tambah width="auto" untuk maintain aspect ratio */}
               <Image
                 src="/Logo.png"
                 alt="UB Corpora Logo"
                 width={150}
                 height={75}
-                className="object-contain"
+                style={{ width: "auto", height: "auto" }}
+                className="object-contain max-w-full max-h-full"
                 priority
               />
             </div>
