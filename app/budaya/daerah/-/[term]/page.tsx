@@ -1,6 +1,7 @@
-"use client";
+// app/budaya/daerah/-/[term]/page.tsx
+"use client"
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,11 +17,19 @@ import {
   Maximize2,
   AlertCircle,
   Play,
+  BookOpen,
+  FileText,
+  ExternalLink,
+  Quote,
+  ChevronLeft,
+  ChevronRight,
+  X,
 } from "lucide-react";
 import { Footer } from "@/components/layout/footer";
 import { useNavigation } from "@/hooks/use-navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { YouTubeSection } from "@/components/sections/youtube-section";
+import { Model3DSection } from "@/components/sections/model-3d-section";
 import { extractYouTubeId, getYouTubeThumbnail } from "@/lib/utils";
 
 interface LexiconAsset {
@@ -41,6 +50,32 @@ interface LexiconAsset {
     createdAt: string;
     updatedAt: string;
   };
+}
+
+interface LexiconReference {
+  leksikonId: number;
+  referensiId: number;
+  citationNote: string;
+  createdAt: string;
+  referensi: {
+    referensiId: number;
+    judul: string;
+    tipeReferensi: string;
+    penjelasan: string;
+    url: string;
+    penulis: string;
+    tahunTerbit: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+interface GalleryImage {
+  url: string;
+  description?: string;
+  caption?: string;
+  assetId?: number;
 }
 
 interface LexiconEntry {
@@ -64,8 +99,9 @@ interface LexiconEntry {
     translationVariants: string;
     otherDescription: string;
   };
-  audioFile?: string;
+  galleryImages?: GalleryImage[];
   leksikonAssets?: LexiconAsset[];
+  leksikonReferensis?: LexiconReference[];
 }
 
 interface YouTubeVideo {
@@ -74,6 +110,14 @@ interface YouTubeVideo {
   description: string;
   thumbnail: string;
   duration?: string;
+}
+
+interface Model3D {
+  id: string;
+  title: string;
+  description: string;
+  artifactType?: string;
+  tags?: string[];
 }
 
 function slugify(input: string) {
@@ -101,25 +145,27 @@ export default function CulturalWordDetailPage({
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
-  const [audioInstance, setAudioInstance] = useState<HTMLAudioElement | null>(
-    null
-  );
+  const [audioInstance, setAudioInstance] = useState<HTMLAudioElement | null>(null);
   const [hasAudioFile, setHasAudioFile] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
-  // Image gallery states
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  // Gallery states
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0);
+  const [isGalleryAutoPlaying, setIsGalleryAutoPlaying] = useState(true);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const AUTOPLAY_DURATION = 5000;
 
-  // YouTube videos state
+  // Media states
   const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
-  const [videosLoading, setVideosLoading] = useState(false);
+  const [models3D, setModels3D] = useState<Model3D[]>([]);
 
   useEffect(() => {
     const fetchEntry = async () => {
       try {
         setLoading(true);
 
-        // Fetch dari endpoint lexicons
         const response = await fetch(
           "https://be-corpora.vercel.app/api/v1/public/lexicons"
         );
@@ -131,7 +177,6 @@ export default function CulturalWordDetailPage({
         const result = await response.json();
 
         if (result.success) {
-          // 🔧 IMPROVED: Try multiple matching strategies
           let foundEntry = null;
 
           // Strategy 1: Exact slug match
@@ -139,7 +184,7 @@ export default function CulturalWordDetailPage({
             (item: any) => slugify(item.term) === resolvedParams.term
           );
 
-          // Strategy 2: Try matching with the original term (case-insensitive)
+          // Strategy 2: Case-insensitive match
           if (!foundEntry) {
             foundEntry = result.data.find(
               (item: any) =>
@@ -148,7 +193,7 @@ export default function CulturalWordDetailPage({
             );
           }
 
-          // Strategy 3: Try partial match (contains)
+          // Strategy 3: Partial match
           if (!foundEntry) {
             foundEntry = result.data.find((item: any) => {
               const itemSlug = slugify(item.term);
@@ -160,53 +205,107 @@ export default function CulturalWordDetailPage({
           }
 
           if (foundEntry) {
+            console.log("📦 Raw Entry Data:", foundEntry);
+            console.log("🖼️ Gallery Images Field:", foundEntry.galleryImages);
+            console.log("📁 Lexikon Assets:", foundEntry.leksikonAssets);
+
             setEntry(foundEntry);
 
-            // Check audio file
-            if (foundEntry.audioFile && foundEntry.audioFile.trim() !== "") {
-              setHasAudioFile(true);
-              console.log("Audio file found:", foundEntry.audioFile);
-            } else {
-              console.log("No audio file available for this term");
+            // 🎨 Process Gallery Images
+            const processedImages: GalleryImage[] = [];
+
+            // 1. Extract dari galleryImages field (prioritas pertama)
+            if (foundEntry.galleryImages && Array.isArray(foundEntry.galleryImages)) {
+              const directImages: GalleryImage[] = foundEntry.galleryImages.map((img: any, idx: number) => ({
+                url: img.url || img,
+                description: img.description || `${foundEntry.term} - Image ${idx + 1}`,
+                caption: img.caption || `Cultural heritage of ${foundEntry.term}`,
+              }));
+              console.log("📸 Direct Gallery Images:", directImages);
+              processedImages.push(...directImages);
             }
 
-            // Transform leksikonAssets ke format YouTubeVideo
+            // 2. Extract dari leksikonAssets
             if (
               foundEntry.leksikonAssets &&
               Array.isArray(foundEntry.leksikonAssets)
             ) {
-              console.log("Raw leksikonAssets:", foundEntry.leksikonAssets);
+              console.log("🔍 Processing leksikonAssets:", foundEntry.leksikonAssets);
 
-              const videos: YouTubeVideo[] = foundEntry.leksikonAssets
-                .filter((asset: LexiconAsset) => {
-                  const isVideo = asset.asset.tipe === "VIDEO";
-                  console.log(
-                    "Asset type:",
-                    asset.asset.tipe,
-                    "Is video:",
-                    isVideo
-                  );
-                  return isVideo;
-                })
+              // Extract audio (PRONUNCIATION)
+              const audioAsset = foundEntry.leksikonAssets.find(
+                (asset: LexiconAsset) =>
+                  asset.assetRole === "PRONUNCIATION" &&
+                  asset.asset.tipe === "AUDIO"
+              );
+
+              if (audioAsset && audioAsset.asset.url) {
+                setHasAudioFile(true);
+                setAudioUrl(audioAsset.asset.url);
+                console.log("🔊 Audio found:", audioAsset.asset.url);
+              }
+
+              // 🎨 Extract images (FOTO atau IMAGE atau GALLERY role) - PERBAIKAN
+              const imageAssets = foundEntry.leksikonAssets.filter(
+                (asset: LexiconAsset) => {
+                  // Check if it's an image type
+                  const isImageType = 
+                    asset.asset.tipe === "FOTO" || 
+                    asset.asset.tipe === "IMAGE" ||
+                    asset.asset.tipe === "GAMBAR" ||
+                    asset.asset.tipe === "PHOTO";
+                  
+                  // Check if it has gallery role
+                  const isGalleryRole = 
+                    asset.assetRole === "GALLERY" || 
+                    asset.assetRole === "FOTO" ||
+                    asset.assetRole === "IMAGE" ||
+                    asset.assetRole === "PHOTO";
+                  
+                  // Debug log untuk setiap asset
+                  console.log(`🔍 Asset ${asset.asset.assetId}:`, {
+                    name: asset.asset.namaFile,
+                    tipe: asset.asset.tipe,
+                    role: asset.assetRole,
+                    isImageType,
+                    isGalleryRole,
+                    willInclude: isImageType || isGalleryRole,
+                    url: asset.asset.url
+                  });
+                  
+                  // Return true if either condition is met
+                  return isImageType || isGalleryRole;
+                }
+              );
+
+              console.log("🎨 Found Image Assets:", imageAssets);
+
+              const assetImages: GalleryImage[] = imageAssets.map((asset: LexiconAsset) => ({
+                url: asset.asset.url,
+                description: asset.asset.namaFile || foundEntry.term,
+                caption: asset.asset.penjelasan || `Cultural heritage of ${foundEntry.term}`,
+                assetId: asset.asset.assetId,
+              }));
+
+              console.log("🖼️ Processed Asset Images:", assetImages);
+              processedImages.push(...assetImages);
+
+              // Extract videos
+              const videoAssets = foundEntry.leksikonAssets.filter(
+                (asset: LexiconAsset) => asset.asset.tipe === "VIDEO"
+              );
+
+              const videos: YouTubeVideo[] = videoAssets
                 .map((asset: LexiconAsset): YouTubeVideo | null => {
                   const videoId = extractYouTubeId(asset.asset.url);
-                  console.log(
-                    "Extracting video ID from:",
-                    asset.asset.url,
-                    "Result:",
-                    videoId
-                  );
-
                   if (videoId) {
-                    const video: YouTubeVideo = {
+                    return {
                       videoId: videoId,
                       title: asset.asset.namaFile || "Video",
                       description: asset.asset.penjelasan || "",
                       thumbnail: getYouTubeThumbnail(videoId, "maxres"),
                       duration: "",
                     };
-                    console.log("Created video object:", video);
-                    return video;
                   }
                   return null;
                 })
@@ -215,25 +314,58 @@ export default function CulturalWordDetailPage({
                     video !== null
                 );
 
-              console.log("Transformed videos:", videos);
               setYoutubeVideos(videos);
-            } else {
-              console.log("No leksikonAssets found or not an array");
-              setYoutubeVideos([]);
+              console.log("🎬 YouTube Videos:", videos);
+
+              // Extract 3D models
+              const modelAssets = foundEntry.leksikonAssets.filter(
+                (asset: LexiconAsset) => asset.asset.tipe === "MODEL_3D"
+              );
+
+              const models: Model3D[] = modelAssets.map(
+                (asset: LexiconAsset) => {
+                  const urlMatch = asset.asset.url.match(
+                    /\/3d-models\/[^/]+-([a-f0-9]+)/
+                  );
+                  const sketchfabId = urlMatch ? urlMatch[1] : "";
+
+                  return {
+                    id: sketchfabId || asset.asset.assetId.toString(),
+                    title: asset.asset.namaFile || "3D Model",
+                    description: asset.asset.penjelasan || "",
+                    artifactType: "Cultural Artifact",
+                    tags: [],
+                  };
+                }
+              );
+
+              setModels3D(models);
+              console.log("🎭 3D Models:", models);
+            }
+
+            // Remove duplicates based on URL
+            const uniqueImages = processedImages.filter((img, index, self) =>
+              index === self.findIndex((t) => t.url === img.url)
+            );
+
+            console.log("✅ Final Gallery Images:", uniqueImages);
+            console.log("📊 Total unique images:", uniqueImages.length);
+
+            setGalleryImages(uniqueImages);
+
+            // Fallback: Jika tidak ada gambar sama sekali
+            if (uniqueImages.length === 0) {
+              console.log("⚠️ No gallery images found, using placeholder");
+              setGalleryImages([
+                {
+                  url: "/placeholder.svg",
+                  description: foundEntry.term,
+                  caption: `Cultural heritage of ${foundEntry.term}`,
+                }
+              ]);
             }
           } else {
-            // 🔧 IMPROVED: Better error handling
             console.error("Entry not found for term:", resolvedParams.term);
-            console.log(
-              "Available terms:",
-              result.data
-                .map((item: any) => ({
-                  term: item.term,
-                  slug: slugify(item.term),
-                }))
-                .slice(0, 10)
-            ); // Log first 10 for debugging
-
             notFound();
           }
         } else {
@@ -244,7 +376,6 @@ export default function CulturalWordDetailPage({
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);
-        setVideosLoading(false);
       }
     };
 
@@ -264,18 +395,12 @@ export default function CulturalWordDetailPage({
 
   // Audio handler
   const handlePlayAudio = async () => {
-    console.log("Play audio clicked");
-    console.log("Entry:", entry);
-    console.log("Audio file:", entry?.audioFile);
-
-    if (!entry?.audioFile || entry.audioFile.trim() === "") {
+    if (!audioUrl) {
       setAudioError("Audio file not available for this term");
-      console.error("No audio file available");
       return;
     }
 
     if (isPlaying && audioInstance) {
-      console.log("Stopping current playback");
       audioInstance.pause();
       audioInstance.currentTime = 0;
       setIsPlaying(false);
@@ -285,7 +410,6 @@ export default function CulturalWordDetailPage({
     try {
       setAudioError(null);
       setAudioLoading(true);
-      console.log("Creating audio instance with URL:", entry.audioFile);
 
       if (audioInstance) {
         audioInstance.pause();
@@ -295,149 +419,118 @@ export default function CulturalWordDetailPage({
 
       const audio = new Audio();
 
-      audio.onloadstart = () => {
-        console.log("Audio loading started");
-        setAudioLoading(true);
-      };
-
-      audio.oncanplay = () => {
-        console.log("Audio can play");
-        setAudioLoading(false);
-      };
-
-      audio.oncanplaythrough = () => {
-        console.log("Audio can play through");
-        setAudioLoading(false);
-      };
-
+      audio.onloadstart = () => setAudioLoading(true);
+      audio.oncanplay = () => setAudioLoading(false);
       audio.onplay = () => {
-        console.log("Audio playing");
         setIsPlaying(true);
         setAudioLoading(false);
       };
-
       audio.onended = () => {
-        console.log("Audio ended");
+        setIsPlaying(false);
+        setAudioLoading(false);
+      };
+      audio.onpause = () => setIsPlaying(false);
+      audio.onerror = () => {
+        setAudioError("Failed to load audio file");
         setIsPlaying(false);
         setAudioLoading(false);
       };
 
-      audio.onpause = () => {
-        console.log("Audio paused");
-        setIsPlaying(false);
-      };
-
-      audio.onerror = (e) => {
-        console.error("Audio error:", e);
-        console.error("Audio error details:", {
-          error: audio.error,
-          code: audio.error?.code,
-          message: audio.error?.message,
-          src: audio.src,
-        });
-
-        let errorMessage = "Failed to load audio file";
-        if (audio.error) {
-          switch (audio.error.code) {
-            case MediaError.MEDIA_ERR_ABORTED:
-              errorMessage = "Audio loading was aborted";
-              break;
-            case MediaError.MEDIA_ERR_NETWORK:
-              errorMessage = "Network error while loading audio";
-              break;
-            case MediaError.MEDIA_ERR_DECODE:
-              errorMessage = "Audio file format not supported";
-              break;
-            case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-              errorMessage = "Audio source not supported";
-              break;
-          }
-        }
-
-        setAudioError(errorMessage);
-        setIsPlaying(false);
-        setAudioLoading(false);
-      };
-
-      audio.src = entry.audioFile;
+      audio.src = audioUrl;
       audio.load();
-
       setAudioInstance(audio);
 
-      const playPromise = audio.play();
-
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log("Audio playback started successfully");
-          })
-          .catch((err) => {
-            console.error("Play promise rejected:", err);
-            setAudioError("Failed to play audio: " + err.message);
-            setIsPlaying(false);
-            setAudioLoading(false);
-          });
-      }
+      await audio.play();
     } catch (err) {
       console.error("Audio playback error:", err);
-      setAudioError(
-        "Failed to play audio: " +
-          (err instanceof Error ? err.message : "Unknown error")
-      );
+      setAudioError("Failed to play audio");
       setIsPlaying(false);
       setAudioLoading(false);
     }
   };
 
-  // Image gallery functions
-  const galleryImages = [
-    {
-      url: `/placeholder.svg?height=600&width=800&query=${encodeURIComponent(
-        `${entry?.term || "cultural term"} illustration 1`
-      )}`,
-      alt: `${entry?.term || "Cultural term"} - Main illustration`,
-      caption: `Visual representation of ${entry?.term || "the term"}`,
-    },
-    {
-      url: `/placeholder.svg?height=600&width=800&query=${encodeURIComponent(
-        `${entry?.term || "cultural term"} context 1`
-      )}`,
-      alt: `${entry?.term || "Cultural term"} - Context view 1`,
-      caption: `${entry?.term || "Term"} in traditional context`,
-    },
-    {
-      url: `/placeholder.svg?height=600&width=800&query=${encodeURIComponent(
-        `${entry?.term || "cultural term"} context 2`
-      )}`,
-      alt: `${entry?.term || "Cultural term"} - Context view 2`,
-      caption: `Cultural significance of ${entry?.term || "the term"}`,
-    },
-    {
-      url: `/placeholder.svg?height=600&width=800&query=${encodeURIComponent(
-        `${entry?.term || "cultural term"} detail`
-      )}`,
-      alt: `${entry?.term || "Cultural term"} - Detail view`,
-      caption: `Detailed view of ${entry?.term || "the term"}`,
-    },
-  ];
+  // Gallery auto-play logic
+  const startAutoPlay = useCallback(() => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+      autoPlayRef.current = null;
+    }
 
+    if (galleryImages.length <= 1) {
+      return;
+    }
+
+    autoPlayRef.current = setInterval(() => {
+      setCurrentGalleryIndex((prev) => {
+        const nextIndex = (prev + 1) % galleryImages.length;
+        return Math.max(0, Math.min(nextIndex, galleryImages.length - 1));
+      });
+    }, AUTOPLAY_DURATION);
+  }, [galleryImages.length]);
+
+  const stopAutoPlay = useCallback(() => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+      autoPlayRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isGalleryAutoPlaying && galleryImages.length > 1) {
+      startAutoPlay();
+    } else {
+      stopAutoPlay();
+    }
+
+    return () => {
+      stopAutoPlay();
+    };
+  }, [isGalleryAutoPlaying, startAutoPlay, stopAutoPlay, galleryImages.length]);
+
+  // Reset gallery index if out of bounds
+  useEffect(() => {
+    if (currentGalleryIndex >= galleryImages.length && galleryImages.length > 0) {
+      setCurrentGalleryIndex(0);
+    }
+  }, [galleryImages.length, currentGalleryIndex]);
+
+  const goToPreviousImage = () => {
+    setIsGalleryAutoPlaying(false);
+    stopAutoPlay();
+    setCurrentGalleryIndex((prev) => {
+      const newIndex = prev === 0 ? (galleryImages.length - 1) : prev - 1;
+      return Math.max(0, Math.min(newIndex, galleryImages.length - 1));
+    });
+  };
+
+  const goToNextImage = () => {
+    setIsGalleryAutoPlaying(false);
+    stopAutoPlay();
+    setCurrentGalleryIndex((prev) => {
+      const newIndex = (prev + 1) % galleryImages.length;
+      return Math.max(0, Math.min(newIndex, galleryImages.length - 1));
+    });
+  };
+
+  const goToImage = (index: number) => {
+    setIsGalleryAutoPlaying(false);
+    stopAutoPlay();
+    const safeIndex = Math.max(0, Math.min(index, galleryImages.length - 1));
+    setCurrentGalleryIndex(safeIndex);
+  };
+
+  const toggleAutoPlay = () => {
+    setIsGalleryAutoPlaying((prev) => !prev);
+  };
+
+  // Lightbox functions
   const openLightbox = (index: number) => {
-    setSelectedImageIndex(index);
+    setCurrentGalleryIndex(index);
     setIsLightboxOpen(true);
   };
 
   const closeLightbox = () => {
     setIsLightboxOpen(false);
-  };
-
-  const goToPreviousImage = () => {
-    setSelectedImageIndex((prev) =>
-      prev === 0 ? galleryImages.length - 1 : prev - 1
-    );
-  };
-
-  const goToNextImage = () => {
-    setSelectedImageIndex((prev) => (prev + 1) % galleryImages.length);
   };
 
   if (loading) {
@@ -456,12 +549,20 @@ export default function CulturalWordDetailPage({
   }
 
   const regionId = entry.regionKey;
+  const currentGalleryImage = galleryImages[currentGalleryIndex] || {
+    url: "/placeholder.svg",
+    description: entry.term,
+    caption: `Cultural heritage of ${entry.term}`
+  };
+
+  console.log("🎬 Render - Gallery Images Count:", galleryImages.length);
+  console.log("🎬 Render - Current Image:", currentGalleryImage);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4 flex flex-col gap-4 relative">
-          {/* Back button */}
+          {/* Navigation */}
           <div className="flex items-center justify-between">
             <Link
               href={`/budaya/daerah/${regionId}`}
@@ -489,7 +590,7 @@ export default function CulturalWordDetailPage({
             </Link>
           </div>
 
-          {/* Header content with term and audio button */}
+          {/* Header content */}
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
@@ -517,9 +618,6 @@ export default function CulturalWordDetailPage({
                           ? "Stop pronunciation"
                           : "Play pronunciation"
                       }
-                      aria-label={`${
-                        isPlaying ? "Stop" : "Play"
-                      } pronunciation for ${entry.term}`}
                     >
                       {audioLoading ? (
                         <Loader2 className="w-5 h-5 animate-spin text-primary" />
@@ -537,12 +635,6 @@ export default function CulturalWordDetailPage({
                         <Volume2 className="w-5 h-5 text-foreground hover:text-primary transition-colors" />
                       )}
                     </Button>
-
-                    {!hasAudioFile && (
-                      <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 whitespace-nowrap bg-muted/90 backdrop-blur-sm text-xs text-muted-foreground px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                        No audio available
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -592,154 +684,200 @@ export default function CulturalWordDetailPage({
                 </div>
               )}
 
-              {hasAudioFile && !isPlaying && !audioError && (
-                <div className="mt-2 flex items-center gap-2">
-                  <div className="h-1 w-1 rounded-full bg-emerald-500" />
-                  <p className="text-xs text-muted-foreground">
-                    Audio pronunciation available - Click speaker icon to play
-                  </p>
-                </div>
-              )}
-
               <p className="text-sm text-muted-foreground mt-1">
-                Subculture: {entry.subculture.name} ({entry.subculture.province}
-                )
+                Subculture: {entry.subculture.name} ({entry.subculture.province})
               </p>
               <p className="text-sm text-muted-foreground">
                 Contributor: {entry.contributor}
               </p>
             </div>
-
-            <div aria-hidden className="w-10" />
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 space-y-6 scroll-smooth">
+      <main className="container mx-auto px-4 py-6 space-y-8 scroll-smooth">
         {/* Definition */}
-        <section aria-label="Term summary" className="grid grid-cols-1 gap-4">
+        <section className="grid grid-cols-1 gap-4">
           <Card className="bg-card/60 border-border">
             <CardHeader>
-              <CardTitle className="text-foreground">Definition</CardTitle>
+              <CardTitle className="text-foreground flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-primary" />
+                Definition
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
                 {entry.definition}
               </p>
             </CardContent>
           </Card>
         </section>
 
-        {/* Image Gallery Section */}
-        <section aria-label="Visual Gallery" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-primary" />
-                Visual Gallery
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Explore visual representations and contexts
-              </p>
-            </div>
-            <Badge variant="secondary" className="text-xs">
-              {galleryImages.length} Images
-            </Badge>
-          </div>
-
-          {/* Main Featured Image */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="relative group"
-          >
-            <div
-              className="rounded-xl overflow-hidden border border-border bg-card/60 aspect-video cursor-pointer"
-              onClick={() => openLightbox(selectedImageIndex)}
-            >
-              <div className="relative w-full h-full">
-                <img
-                  src={galleryImages[selectedImageIndex].url}
-                  alt={galleryImages[selectedImageIndex].alt}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="bg-black/50 backdrop-blur-sm rounded-full p-3">
-                    <Maximize2 className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                  <p className="text-white text-sm font-medium">
-                    {galleryImages[selectedImageIndex].caption}
-                  </p>
-                </div>
-
-                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {selectedImageIndex + 1} / {galleryImages.length}
-                </div>
+        {/* 🎨 Photo Gallery Section */}
+        {galleryImages.length > 0 && (
+          <section id="photo-gallery" aria-label="Visual Gallery" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-primary" />
+                  Visual Gallery
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Explore visual representations and contexts
+                </p>
               </div>
+              <Badge variant="secondary" className="text-xs">
+                {galleryImages.length} Images
+              </Badge>
             </div>
-          </motion.div>
 
-          {/* Thumbnail Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {galleryImages.map((image, idx) => (
-              <motion.button
-                key={idx}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: idx * 0.1 }}
-                onClick={() => setSelectedImageIndex(idx)}
-                className={`relative rounded-lg overflow-hidden border-2 transition-all duration-300 hover:scale-105 ${
-                  idx === selectedImageIndex
-                    ? "border-primary shadow-lg shadow-primary/20 scale-105"
-                    : "border-border hover:border-primary/50"
-                }`}
-              >
-                <div className="aspect-video relative">
+            {/* Main Carousel Display */}
+            <div className="relative rounded-xl overflow-hidden border border-border bg-background/50 mb-4 group">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentGalleryIndex}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.5 }}
+                  className="relative aspect-video cursor-pointer"
+                  onClick={() => openLightbox(currentGalleryIndex)}
+                >
                   <img
-                    src={image.url}
-                    alt={image.alt}
+                    src={currentGalleryImage.url || "/placeholder.svg"}
+                    alt={currentGalleryImage.description || `${entry.term} - Image ${currentGalleryIndex + 1}`}
                     className="w-full h-full object-cover"
                   />
-
-                  {idx !== selectedImageIndex && (
-                    <div className="absolute inset-0 bg-black/20 hover:bg-black/0 transition-colors duration-300" />
-                  )}
-
-                  {idx === selectedImageIndex && (
-                    <div className="absolute inset-0 bg-primary/10">
-                      <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
-                        <svg
-                          className="w-3 h-3"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                    <p className="text-white text-xs truncate">
-                      Image {idx + 1}
-                    </p>
+                  
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                    <motion.h3
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="text-2xl font-bold mb-2"
+                    >
+                      {currentGalleryImage.description || entry.term}
+                    </motion.h3>
+                    <motion.p
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-sm text-gray-200"
+                    >
+                      {currentGalleryImage.caption || `Cultural heritage of ${entry.subculture.name}`}
+                    </motion.p>
                   </div>
+
+                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm">
+                    {currentGalleryIndex + 1} / {galleryImages.length}
+                  </div>
+
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="bg-black/50 backdrop-blur-sm rounded-full p-3">
+                      <Maximize2 className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Navigation Arrows */}
+              {galleryImages.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToPreviousImage();
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all hover:scale-110 z-10"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToNextImage();
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all hover:scale-110 z-10"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+
+              {/* Auto-play toggle */}
+              {galleryImages.length > 1 && (
+                <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleAutoPlay();
+                    }}
+                    className="bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm hover:bg-black/70 transition-colors"
+                  >
+                    {isGalleryAutoPlaying ? "⏸ Pause" : "▶ Play"}
+                  </button>
                 </div>
-              </motion.button>
-            ))}
-          </div>
-        </section>
+              )}
+            </div>
+
+            {/* Thumbnail Navigation */}
+            {galleryImages.length > 1 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {galleryImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => goToImage(idx)}
+                    className={`relative rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                      idx === currentGalleryIndex
+                        ? "border-primary shadow-lg scale-105"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <div className="aspect-video">
+                      <img
+                        src={img.url || "/placeholder.svg"}
+                        alt={img.description || `${entry.term} - Thumbnail ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    {idx === currentGalleryIndex && (
+                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                      <p className="text-white text-xs truncate">
+                        {img.description || `Image ${idx + 1}`}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Progress indicator */}
+            {isGalleryAutoPlaying && galleryImages.length > 1 && (
+              <div className="mt-4">
+                <div className="w-full bg-muted/30 rounded-full h-1 overflow-hidden">
+                  <motion.div
+                    key={`progress-${currentGalleryIndex}`}
+                    className="h-full bg-primary"
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{
+                      duration: AUTOPLAY_DURATION / 1000,
+                      ease: "linear",
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Lightbox Modal */}
         <AnimatePresence>
@@ -756,19 +894,7 @@ export default function CulturalWordDetailPage({
                 className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition-colors z-10"
                 aria-label="Close lightbox"
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <X className="w-6 h-6" />
               </button>
 
               <button
@@ -779,19 +905,7 @@ export default function CulturalWordDetailPage({
                 className="absolute left-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors z-10"
                 aria-label="Previous image"
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
+                <ChevronLeft className="w-6 h-6" />
               </button>
 
               <button
@@ -802,19 +916,7 @@ export default function CulturalWordDetailPage({
                 className="absolute right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors z-10"
                 aria-label="Next image"
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
+                <ChevronRight className="w-6 h-6" />
               </button>
 
               <motion.div
@@ -825,17 +927,17 @@ export default function CulturalWordDetailPage({
                 onClick={(e) => e.stopPropagation()}
               >
                 <img
-                  src={galleryImages[selectedImageIndex].url}
-                  alt={galleryImages[selectedImageIndex].alt}
+                  src={currentGalleryImage.url || "/placeholder.svg"}
+                  alt={`${entry.term} - Full size`}
                   className="w-full h-auto rounded-lg"
                 />
 
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-lg">
                   <p className="text-white text-lg font-medium">
-                    {galleryImages[selectedImageIndex].caption}
+                    {entry.term}
                   </p>
                   <p className="text-white/70 text-sm mt-1">
-                    {selectedImageIndex + 1} of {galleryImages.length}
+                    {currentGalleryIndex + 1} of {galleryImages.length}
                   </p>
                 </div>
               </motion.div>
@@ -843,92 +945,132 @@ export default function CulturalWordDetailPage({
           )}
         </AnimatePresence>
 
+        {/* 3D Models Section */}
+        {models3D.length > 0 && (
+          <section id="viewer-3d" className="scroll-mt-24">
+            <Model3DSection
+              models={models3D}
+              title="3D Cultural Artifacts & Environments"
+              description={`Jelajahi model 3D interaktif terkait "${entry.term}"`}
+              subcultureName={entry.subculture.name}
+              showControls={true}
+              autoRotate={true}
+              height="600px"
+            />
+          </section>
+        )}
+
         {/* YouTube Videos Section */}
-        <section
-          id="youtube-videos"
-          aria-label="Cultural Videos"
-          className="scroll-mt-24"
-        >
-          {videosLoading ? (
-            <div className="bg-card/60 rounded-xl shadow-sm border border-border p-12">
-              <div className="flex flex-col items-center justify-center">
-                <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-                <p className="text-muted-foreground">Loading videos...</p>
-              </div>
-            </div>
-          ) : youtubeVideos && youtubeVideos.length > 0 ? (
+        {youtubeVideos.length > 0 && (
+          <section id="youtube-videos" className="scroll-mt-24">
             <YouTubeSection
               videos={youtubeVideos}
               title="Video Dokumentasi Budaya"
-              description={`Tonton video dokumentasi terkait istilah "${entry.term}" dan budaya ${entry.subculture.name}.`}
+              description={`Tonton video dokumentasi terkait "${entry.term}"`}
               subcultureName={entry.subculture.name}
               autoPlay={false}
               showThumbnails={true}
               columns={3}
             />
-          ) : (
+          </section>
+        )}
+
+        {/* Reference Section (Cultural Meaning) */}
+        {entry.details.culturalMeaning && (
+          <section aria-label="Reference" className="grid grid-cols-1 gap-4">
             <Card className="bg-card/60 border-border">
-              <CardContent className="p-12">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Play className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    No Videos Available
-                  </h3>
-                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    Video dokumentasi untuk istilah "{entry.term}" belum
-                    tersedia saat ini.
+              <CardHeader>
+                <CardTitle className="text-foreground flex items-center gap-2">
+                  <Quote className="w-5 h-5 text-primary" />
+                  Reference
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="relative pl-4 border-l-2 border-primary/30">
+                  <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
+                    {entry.details.culturalMeaning}
                   </p>
                 </div>
               </CardContent>
             </Card>
-          )}
-        </section>
+          </section>
+        )}
 
-        {/* Additional Information */}
-        <section
-          aria-label="Additional information"
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
-        >
-          <Card className="bg-card/60 border-border">
-            <CardHeader>
-              <CardTitle className="text-foreground">Variants</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {entry.details.variants || "—"}
-              </p>
-            </CardContent>
-          </Card>
+        {/* Variants Section (Translation Variants) */}
+        {entry.details.translationVariants && (
+          <section aria-label="Variants" className="grid grid-cols-1 gap-4">
+            <Card className="bg-card/60 border-border">
+              <CardHeader>
+                <CardTitle className="text-foreground">Variants</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
+                  {entry.details.translationVariants}
+                </p>
+              </CardContent>
+            </Card>
+          </section>
+        )}
 
-          <Card className="bg-card/60 border-border">
-            <CardHeader>
-              <CardTitle className="text-foreground">Reference</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {entry.details.culturalMeaning || "—"}
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* Information Availability */}
-        <section aria-label="Term summary" className="grid grid-cols-1 gap-4">
-          <Card className="bg-card/60 border-border">
-            <CardHeader>
-              <CardTitle className="text-foreground">
-                Information Availability
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Available through cultural database
-              </p>
-            </CardContent>
-          </Card>
-        </section>
+        {/* Information Availability Section (leksikonReferensis) */}
+        {entry.leksikonReferensis && entry.leksikonReferensis.length > 0 && (
+          <section aria-label="Information Availability" className="grid grid-cols-1 gap-4">
+            <Card className="bg-card/60 border-border">
+              <CardHeader>
+                <CardTitle className="text-foreground flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-primary" />
+                  Information Availability
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {entry.leksikonReferensis.map((ref, idx) => (
+                    <div
+                      key={idx}
+                      className="p-4 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-foreground mb-1">
+                            {ref.referensi.judul}
+                          </h4>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {ref.referensi.penulis} ({ref.referensi.tahunTerbit})
+                          </p>
+                          {ref.referensi.penjelasan && (
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {ref.referensi.penjelasan}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge variant="outline" className="text-xs">
+                              {ref.referensi.tipeReferensi}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {ref.citationNote}
+                            </Badge>
+                          </div>
+                        </div>
+                        {ref.referensi.url && (
+                          <a
+                            href={ref.referensi.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-shrink-0"
+                          >
+                            <Button variant="ghost" size="sm">
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+        )}
       </main>
 
       <Footer onNavClick={handleNavClick} />
