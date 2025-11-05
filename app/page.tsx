@@ -9,7 +9,8 @@ import { ContactSection } from "@/components/sections/contact-section"
 import { Footer } from "@/components/layout/footer"
 import { useNavigation } from "@/hooks/use-navigation"
 import { ShowcaseSection } from "@/components/sections/showcase-section"
-import { NewsletterSection } from "@/components/sections/newsletter-section"
+// import { NewsletterSection } from "@/components/sections/newsletter-section"
+// import { ExplorationSection } from "@/components/sections/exploration-section"
 import { useState, useEffect } from "react"
 
 interface LandingData {
@@ -260,6 +261,8 @@ export default function CulturalHeritagePage() {
               onNavClick={handleNavClick} 
               subcultures={landingData.subcultures} 
             />
+
+            {/* <ExplorationSection /> */}
 
             <ShowcaseSection collaborationAssets={landingData.collaborationAssets} />
 

@@ -36,6 +36,12 @@ export default function SubculturesGalleryPage() {
   // ===== PAGINATION STATE =====
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 8
+  const [pagination, setPagination] = useState<{
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  } | null>(null)
 
   // Get referrer from URL params
   const referrer = searchParams.get('from')
@@ -43,25 +49,45 @@ export default function SubculturesGalleryPage() {
   useEffect(() => {
     const fetchSubcultures = async () => {
       try {
-        const response = await fetch('https://be-corpora.vercel.app/api/v1/public/subcultures')
-        if (!response.ok) {
-          throw new Error('Failed to fetch subcultures')
+        setLoading(true);
+        setError(null);
+
+        const params = new URLSearchParams();
+        if (searchQuery.trim()) {
+          params.append('search', searchQuery.trim());
         }
-        const result = await response.json()
-        if (result.success) {
-          setSubcultures(result.data)
+        params.append('page', currentPage.toString());
+        params.append('limit', ITEMS_PER_PAGE.toString());
+
+                const response = await fetch(`https://be-corpora.vercel.app/api/v1/public/subcultures?${params.toString()}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          setSubcultures(result.data || []);
+          setPagination(result.pagination);
+          // Sync currentPage with server response
+          if (result.pagination && result.pagination.page !== currentPage) {
+            setCurrentPage(result.pagination.page);
+          }
         } else {
-          throw new Error(result.message || 'Failed to fetch data')
+          throw new Error(result.message || 'Failed to fetch data');
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        setSubcultures([]);
+        setPagination(null);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchSubcultures()
-  }, [])
+    fetchSubcultures();
+  }, [searchQuery, currentPage]);
 
   // Smart back navigation
   const handleBack = () => {
@@ -94,17 +120,13 @@ export default function SubculturesGalleryPage() {
     setCurrentPage(1) // Reset to page 1 when searching
   }
 
-  // Filter subcultures based on search
-  const filteredSubcultures = subcultures.filter((sc) =>
-    sc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    sc.description.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
   // ===== PAGINATION LOGIC =====
-  const totalPages = Math.ceil(filteredSubcultures.length / ITEMS_PER_PAGE)
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const endIndex = startIndex + ITEMS_PER_PAGE
-  const paginatedSubcultures = filteredSubcultures.slice(startIndex, endIndex)
+  const totalPages = pagination?.totalPages || 0;
+  const paginatedSubcultures = subcultures; // Already paginated from server
+
+  // Computed pagination helpers
+  const hasPrev = pagination ? pagination.page > 1 : false;
+  const hasNext = pagination ? pagination.page < pagination.totalPages : false;
 
   // Reset page when search query changes
   useEffect(() => {
@@ -228,15 +250,15 @@ export default function SubculturesGalleryPage() {
         </AnimatedReveal>
 
         {/* Results info */}
-        {(searchQuery || filteredSubcultures.length > 0) && (
+        {(searchQuery || subcultures.length > 0) && (
           <div className="mt-4 text-sm text-muted-foreground">
             {searchQuery ? (
               <>
-                Menampilkan {filteredSubcultures.length} hasil
+                Menampilkan {pagination?.total || 0} hasil
                 {searchQuery && ` untuk "${searchQuery}"`}
               </>
             ) : (
-              <>Total {filteredSubcultures.length} subkultur</>
+              <>Total {pagination?.total || 0} subkultur</>
             )}
           </div>
         )}
@@ -324,13 +346,13 @@ export default function SubculturesGalleryPage() {
             )}
 
             {/* Pagination */}
-            {filteredSubcultures.length > 0 && totalPages > 1 && (
+            {subcultures.length > 0 && totalPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-card/40 backdrop-blur-sm rounded-xl border border-border">
                 {/* Info */}
                 <div className="text-sm text-muted-foreground order-2 sm:order-1">
-                  Menampilkan <span className="font-medium text-foreground">{startIndex + 1}</span>-
-                  <span className="font-medium text-foreground">{Math.min(endIndex, filteredSubcultures.length)}</span> dari{' '}
-                  <span className="font-medium text-foreground">{filteredSubcultures.length}</span> subkultur
+                  Menampilkan <span className="font-medium text-foreground">{pagination ? (pagination.page - 1) * pagination.limit + 1 : 0}</span>-
+                  <span className="font-medium text-foreground">{pagination ? Math.min(pagination.page * pagination.limit, pagination.total) : 0}</span> dari{' '}
+                  <span className="font-medium text-foreground">{pagination?.total || 0}</span> subkultur
                 </div>
 
                 {/* Pagination Controls */}
@@ -338,11 +360,11 @@ export default function SubculturesGalleryPage() {
                   {/* Previous Button */}
                   <Button
                     onClick={goToPreviousPage}
-                    disabled={currentPage === 1}
+                    disabled={!hasPrev}
                     variant="outline"
                     size="sm"
                     className={`cursor-pointer transition-all ${
-                      currentPage === 1
+                      !hasPrev
                         ? 'opacity-50 cursor-not-allowed'
                         : 'hover:bg-primary/10'
                     }`}
@@ -387,11 +409,11 @@ export default function SubculturesGalleryPage() {
                   {/* Next Button */}
                   <Button
                     onClick={goToNextPage}
-                    disabled={currentPage === totalPages}
+                    disabled={!hasNext}
                     variant="outline"
                     size="sm"
                     className={`cursor-pointer transition-all ${
-                      currentPage === totalPages
+                      !hasNext
                         ? 'opacity-50 cursor-not-allowed'
                         : 'hover:bg-primary/10'
                     }`}
@@ -403,7 +425,7 @@ export default function SubculturesGalleryPage() {
 
                 {/* Mobile: Page Info */}
                 <div className="sm:hidden text-sm text-muted-foreground order-3">
-                  Halaman {currentPage} dari {totalPages}
+                  Halaman {pagination?.page || 1} dari {totalPages}
                 </div>
               </div>
             )}

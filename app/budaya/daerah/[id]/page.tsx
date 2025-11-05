@@ -93,6 +93,16 @@ export default function RegionDetailPage() {
 
   const [showLexiconOnly, setShowLexiconOnly] = useState(false);
 
+  // Lexicon state for server-side search
+  const [lexiconItems, setLexiconItems] = useState<SearchResult[]>([]);
+  const [lexiconLoading, setLexiconLoading] = useState(false);
+  const [lexiconPagination, setLexiconPagination] = useState<{
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  } | null>(null);
+
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
@@ -309,52 +319,71 @@ export default function RegionDetailPage() {
     return videos;
   }, [subcultureData]);
 
-  // Search functionality
+  // Search functionality - server-side
   useEffect(() => {
-    const runClientFilter = () => {
-      if (!searchQuery.trim()) {
-        setSearchResults([]);
-        return;
-      }
+    const fetchLexiconData = async () => {
+      if (!regionId) return;
 
-      const lexicon = subcultureData?.lexicon || [];
-      if (Array.isArray(lexicon) && lexicon.length > 0) {
-        const q = searchQuery.trim().toLowerCase();
+      setLexiconLoading(true);
 
-        const filtered = lexicon.filter((entry: any) => {
-          const term = (entry.term || "").toString().toLowerCase();
-          const def = (entry.definition || "").toString().toLowerCase();
-          const category = (entry.category || "").toString().toLowerCase();
+      try {
+        const params = new URLSearchParams();
+        if (searchQuery.trim()) {
+          params.append('search', searchQuery.trim());
+        }
+        params.append('page', currentPage.toString());
+        params.append('limit', ITEMS_PER_PAGE.toString());
 
-          return (
-            term.includes(q) ||
-            def.includes(q) ||
-            category.includes(q)
-          );
-        });
+        const response = await fetch(
+          `https://be-corpora.vercel.app/api/v1/public/subcultures/${regionId}/lexicon?${params.toString()}`
+        );
 
-        const mapped = filtered.map((entry: any) => ({
-          term: entry.term,
-          definition: entry.definition,
-          category: entry.category || "",
-          region: subcultureData?.culture?.name || subcultureData?.culture?.region || regionId,
-          slug: entry.slug ||
-            (entry.term || "")
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-              .replace(/[^\w\s-]/g, "")
-              .toLowerCase()
-              .replace(/\s+/g, "-")
-              .replace(/(^-|-$)/g, ""),
-        }));
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
 
-        setSearchResults(mapped);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const lexicons = result.data.lexicons || [];
+          const mappedItems = lexicons.map((entry: any) => ({
+            term: entry.term,
+            definition: entry.definition,
+            category: entry.category || "",
+            region: subcultureData?.culture?.name || subcultureData?.culture?.region || regionId,
+            slug: entry.slug ||
+              (entry.term || "")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^\w\s-]/g, "")
+                .toLowerCase()
+                .replace(/\s+/g, "-")
+                .replace(/(^-|-$)/g, ""),
+          }));
+
+          setLexiconItems(mappedItems);
+          setLexiconPagination({
+            total: result.data.total,
+            page: result.data.page,
+            limit: result.data.limit,
+            totalPages: Math.ceil(result.data.total / result.data.limit)
+          });
+        } else {
+          setLexiconItems([]);
+          setLexiconPagination(null);
+        }
+      } catch (error) {
+        console.error('Lexicon search error:', error);
+        setLexiconItems([]);
+        setLexiconPagination(null);
+      } finally {
+        setLexiconLoading(false);
       }
     };
 
-    const debounceTimer = setTimeout(runClientFilter, 300);
+    const debounceTimer = setTimeout(fetchLexiconData, searchQuery ? 300 : 0);
     return () => clearTimeout(debounceTimer);
-  }, [searchQuery, regionId, subcultureData]);
+  }, [searchQuery, currentPage, regionId, subcultureData]);
 
   // Scroll handling
   useEffect(() => {
@@ -388,11 +417,13 @@ export default function RegionDetailPage() {
     setCurrentPage(1);
   }, [searchQuery]);
 
-  const displayItems = searchQuery ? searchResults : subcultureData?.lexicon || [];
-  const totalPages = Math.ceil(displayItems.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedItems = displayItems.slice(startIndex, endIndex);
+  // Use server-side data for display
+  const displayItems = lexiconItems;
+  const paginatedItems = displayItems; // Already paginated from server
+
+  // Computed pagination helpers
+  const hasPrev = lexiconPagination ? lexiconPagination.page > 1 : false;
+  const hasNext = lexiconPagination ? lexiconPagination.page < lexiconPagination.totalPages : false;
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
@@ -403,20 +434,22 @@ export default function RegionDetailPage() {
   };
 
   const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      goToPage(currentPage - 1);
+    if (lexiconPagination && lexiconPagination.page > 1) {
+      goToPage(lexiconPagination.page - 1);
     }
   };
 
   const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      goToPage(currentPage + 1);
+    if (lexiconPagination && lexiconPagination.page < lexiconPagination.totalPages) {
+      goToPage(lexiconPagination.page + 1);
     }
   };
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
     const maxPagesToShow = 5;
+    const currentPage = lexiconPagination?.page || 1;
+    const totalPages = lexiconPagination?.totalPages || 0;
     
     if (totalPages <= maxPagesToShow) {
       for (let i = 1; i <= totalPages; i++) {
@@ -955,7 +988,7 @@ export default function RegionDetailPage() {
                   value={searchQuery}
                   onChange={setSearchQuery}
                   onClear={() => setSearchQuery("")}
-                  resultCount={searchResults.length}
+                  resultCount={lexiconPagination?.total || 0}
                   showResultCount={true}
                 />
               </div>
@@ -963,6 +996,17 @@ export default function RegionDetailPage() {
 
             <section aria-label="Daftar istilah" className="scroll-mt-24">
               {(() => {
+                if (lexiconLoading) {
+                  return (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                        <p className="text-muted-foreground">Searching lexicon...</p>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
                   <>
                     {/* Items Grid */}
@@ -1023,11 +1067,11 @@ export default function RegionDetailPage() {
                     </div>
 
                     {/* Pagination Controls */}
-                    {displayItems.length > 0 && totalPages > 1 && (
+                    {displayItems.length > 0 && (lexiconPagination?.totalPages || 0) > 1 && (
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 p-4 bg-card/40 rounded-xl border border-border">
                         {/* Info */}
                         <div className="text-sm text-muted-foreground">
-                          Showing {startIndex + 1}-{Math.min(endIndex, displayItems.length)} of {displayItems.length} entries
+                          Showing {lexiconPagination ? (lexiconPagination.page - 1) * lexiconPagination.limit + 1 : 0}-{lexiconPagination ? Math.min(lexiconPagination.page * lexiconPagination.limit, lexiconPagination.total) : 0} of {lexiconPagination?.total || 0} entries
                         </div>
 
                         {/* Pagination Buttons */}
@@ -1035,9 +1079,9 @@ export default function RegionDetailPage() {
                           {/* Previous Button */}
                           <button
                             onClick={goToPreviousPage}
-                            disabled={currentPage === 1}
+                            disabled={!hasPrev}
                             className={`px-3 py-2 rounded-lg border transition-all cursor-pointer ${
-                              currentPage === 1
+                              !hasPrev
                                 ? "border-border/50 text-muted-foreground cursor-not-allowed opacity-50"
                                 : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
                             }`}
@@ -1066,12 +1110,12 @@ export default function RegionDetailPage() {
                                   key={page}
                                   onClick={() => goToPage(page)}
                                   className={`min-w-[40px] px-3 py-2 rounded-lg border transition-all cursor-pointer ${
-                                    currentPage === page
+                                    lexiconPagination?.page === page
                                       ? "bg-primary text-primary-foreground border-primary font-semibold"
                                       : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
                                   }`}
                                   aria-label={`Go to page ${page}`}
-                                  aria-current={currentPage === page ? "page" : undefined}
+                                  aria-current={lexiconPagination?.page === page ? "page" : undefined}
                                 >
                                   {page}
                                 </button>
@@ -1082,9 +1126,9 @@ export default function RegionDetailPage() {
                           {/* Next Button */}
                           <button
                             onClick={goToNextPage}
-                            disabled={currentPage === totalPages}
+                            disabled={!hasNext}
                             className={`px-3 py-2 rounded-lg border transition-all cursor-pointer ${
-                              currentPage === totalPages
+                              !hasNext
                                 ? "border-border/50 text-muted-foreground cursor-not-allowed opacity-50"
                                 : "border-border hover:bg-primary/10 hover:border-primary text-foreground"
                             }`}
@@ -1096,7 +1140,7 @@ export default function RegionDetailPage() {
 
                         {/* Mobile: Page Info */}
                         <div className="sm:hidden text-sm text-muted-foreground">
-                          Page {currentPage} of {totalPages}
+                          Page {lexiconPagination?.page || 0} of {lexiconPagination?.totalPages || 0}
                         </div>
                       </div>
                     )}

@@ -1,5 +1,5 @@
 export * from "./lexicon"
-// export * from "./categories"
+export * from "./categories"
 // export * from "./cultural-items"
 // export * from "./regions"
 // export * from "./regions-complete"

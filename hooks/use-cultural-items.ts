@@ -1,69 +1,91 @@
-"use client"
+// "use client"
 
-import { useState, useEffect, useMemo } from "react"
-import {
-  culturalItems,
-  searchCulturalItems,
-  getCulturalItemsByCategory,
-  type CulturalItem,
-} from "@/data/cultural-items"
+// import { useState, useEffect } from "react"
+// import { type CulturalItem } from "@/data/cultural-items"
 
-export function useCulturalItems() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("semua")
-  const [filteredItems, setFilteredItems] = useState<CulturalItem[]>([])
+// export function useCulturalItems() {
+//   const [searchQuery, setSearchQuery] = useState("")
+//   const [selectedCategory, setSelectedCategory] = useState("semua")
+//   const [items, setItems] = useState<CulturalItem[]>([])
+//   const [loading, setLoading] = useState(false)
+//   const [pagination, setPagination] = useState<{
+//     currentPage: number;
+//     totalPages: number;
+//     totalItems: number;
+//     hasNext: boolean;
+//     hasPrev: boolean;
+//   } | null>(null)
 
-  // Compute filtered items based on search and category
-  const displayItems = useMemo(() => {
-    let items = culturalItems
+//   // Fetch cultural items from backend
+//   useEffect(() => {
+//     const fetchCulturalItems = async () => {
+//       setLoading(true);
 
-    // Apply category filter
-    if (selectedCategory !== "semua") {
-      items = getCulturalItemsByCategory(selectedCategory)
-    }
+//       try {
+//         const params = new URLSearchParams();
+//         if (searchQuery.trim()) {
+//           params.append('search', searchQuery.trim());
+//         }
+//         if (selectedCategory !== "semua") {
+//           params.append('category', selectedCategory);
+//         }
 
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const searchResults = searchCulturalItems(searchQuery)
-      items = items.filter((item) => searchResults.some((searchItem) => searchItem.id === item.id))
-    }
+//         const response = await fetch(`https://be-corpora.vercel.app/api/v1/public/cultural-items?${params.toString()}`);
 
-    return items
-  }, [searchQuery, selectedCategory])
+//         if (!response.ok) {
+//           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+//         }
 
-  // Update filtered items when display items change
-  useEffect(() => {
-    setFilteredItems(displayItems)
-  }, [displayItems])
+//         const result = await response.json();
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query)
-  }
+//         if (result.success && result.data) {
+//           setItems(result.data.items || []);
+//           setPagination(result.data.pagination);
+//         } else {
+//           setItems([]);
+//           setPagination(null);
+//         }
+//       } catch (error) {
+//         console.error('Cultural items fetch error:', error);
+//         setItems([]);
+//         setPagination(null);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
 
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category)
-  }
+//     fetchCulturalItems();
+//   }, [searchQuery, selectedCategory]);
 
-  const clearFilters = () => {
-    setSearchQuery("")
-    setSelectedCategory("semua")
-  }
+//   const handleSearch = (query: string) => {
+//     setSearchQuery(query)
+//   }
 
-  return {
-    // State
-    searchQuery,
-    selectedCategory,
-    filteredItems,
-    displayItems,
+//   const handleCategoryChange = (category: string) => {
+//     setSelectedCategory(category)
+//   }
 
-    // Actions
-    handleSearch,
-    handleCategoryChange,
-    clearFilters,
+//   const clearFilters = () => {
+//     setSearchQuery("")
+//     setSelectedCategory("semua")
+//   }
 
-    // Computed
-    hasFilters: searchQuery.trim() !== "" || selectedCategory !== "semua",
-    itemCount: displayItems.length,
-    totalItems: culturalItems.length,
-  }
-}
+//   return {
+//     // State
+//     searchQuery,
+//     selectedCategory,
+//     items,
+//     loading,
+//     pagination,
+
+//     // Actions
+//     handleSearch,
+//     handleCategoryChange,
+//     clearFilters,
+
+//     // Computed
+//     hasFilters: searchQuery.trim() !== "" || selectedCategory !== "semua",
+//     itemCount: pagination?.totalItems || 0,
+//     displayItems: items, // For backward compatibility
+//   }
+// }
