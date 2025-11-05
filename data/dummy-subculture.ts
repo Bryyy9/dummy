@@ -4,138 +4,138 @@ export const DUMMY_SUBCULTURE_DATA = {
   subcultureId: 1,
   profile: {
     displayName: "Mataraman",
-    history: "Mataraman adalah salah satu subkultur Jawa yang berkembang di wilayah bekas Kerajaan Mataram. Subkultur ini memiliki ciri khas dalam hal bahasa, adat istiadat, dan kesenian yang sangat kental dengan nilai-nilai Jawa klasik. Masyarakat Mataraman dikenal dengan kehalusan budi pekerti, tata krama yang sangat dijunjung tinggi, dan filosofi hidup yang mendalam.",
+    history: "Mataraman is a Javanese subculture that developed in the region of the former Mataram Kingdom. It is characterized by its refined language, traditional customs, and arts deeply rooted in classic Javanese values. The Mataraman community is known for its refined manners, strong etiquette, and profound philosophical traditions.",
     highlights: [
-      "Bahasa Jawa halus",
-      "Gamelan tradisional",
-      "Wayang kulit",
-      "Batik klasik",
-      "Tari Bedhaya"
+      "Refined Javanese language",
+      "Traditional gamelan",
+      "Wayang kulit (shadow puppetry)",
+      "Classic batik",
+      "Bedhaya dance"
     ]
   },
   galleryImages: [
     {
       url: "/subculture-mataraman-1.jpg",
       description: "Keraton Surakarta",
-      caption: "Istana kerajaan yang menjadi pusat budaya Mataraman"
+      caption: "The royal palace which serves as the cultural center of Mataraman"
     },
     {
       url: "/subculture-mataraman-2.jpg",
-      description: "Pertunjukan Wayang Kulit",
-      caption: "Seni wayang yang menjadi warisan budaya dunia"
+      description: "Wayang Kulit Performance",
+      caption: "Wayang shadow-puppet art recognized as a world cultural heritage"
     },
     {
       url: "/subculture-mataraman-3.jpg",
-      description: "Batik Tulis Klasik",
-      caption: "Motif batik tradisional dengan makna filosofis"
+      description: "Classic Handwritten Batik",
+      caption: "Traditional batik motifs carrying deep philosophical meanings"
     },
     {
       url: "/subculture-mataraman-4.jpg",
-      description: "Upacara Adat",
-      caption: "Ritual tradisional yang masih dilestarikan"
+      description: "Traditional Ceremony",
+      caption: "A traditional ritual that is still preserved"
     },
     {
       url: "/subculture-mataraman-5.jpg",
       description: "Gamelan Orchestra",
-      caption: "Ensemble musik gamelan dalam pertunjukan"
+      caption: "A gamelan ensemble during a traditional performance"
     },
     {
       url: "/subculture-mataraman-6.jpg",
-      description: "Tari Bedhaya Ketawang",
-      caption: "Tarian sakral dari keraton"
+      description: "Bedhaya Ketawang Dance",
+      caption: "A sacred court dance tradition"
     }
   ],
   model3dArray: [
     {
       sketchfabId: "3f9cae70284f4ab5a2a8e1f7e6b0c9e8",
       title: "Candi Prambanan",
-      description: "Model 3D kompleks candi Hindu terbesar di Indonesia. Candi ini dibangun pada abad ke-9 dan merupakan masterpiece arsitektur Hindu di Jawa. Terdiri dari 240 candi dengan tiga candi utama yang didedikasikan untuk Trimurti: Brahma, Wisnu, dan Siwa.",
-      artifactType: "Arsitektur Candi",
+  description: "A 3D model of the largest Hindu temple complex in Indonesia. Built in the 9th century, it is a masterpiece of Hindu architecture in Java, consisting of 240 temples with three main temples dedicated to the Trimurti: Brahma, Vishnu, and Shiva.",
+  artifactType: "Temple Architecture",
       tags: ["candi", "hindu", "arsitektur", "warisan dunia", "prambanan", "abad ke-9"]
     },
     {
       sketchfabId: "2e8bdf60173e3ba4b1b7d0e6f5a9c8d7",
       title: "Gamelan Jawa Set Lengkap",
-      description: "Replika digital gamelan Jawa lengkap dengan semua instrumen tradisional. Termasuk gong, kenong, saron, bonang, dan instrumen lainnya. Model ini menunjukkan detail ukiran dan ornamen khas Jawa pada setiap instrumen.",
-      artifactType: "Instrumen Musik",
+  description: "A digital replica of a complete Javanese gamelan set with traditional instruments such as gongs, kenong, saron, and bonang. The model highlights carved details and typical Javanese ornamentation on each instrument.",
+  artifactType: "Musical Instrument",
       tags: ["gamelan", "musik", "instrumen", "tradisional", "perunggu", "orkestra"]
     },
     {
       sketchfabId: "1d7ace50062d2a93a0a6c9d5e4b8b7c6",
       title: "Keris Pusaka Jawa",
-      description: "Model 3D keris pusaka dengan pamor (pola besi) yang indah. Keris adalah senjata tradisional Jawa yang memiliki nilai spiritual dan filosofis tinggi. Model ini menampilkan detail ukiran warangka (sarung) dan bilah keris dengan pamor khas.",
-      artifactType: "Senjata Tradisional",
+  description: "A 3D model of a keris heirloom featuring beautiful pamor (iron pattern). The keris is a traditional Javanese dagger with high spiritual and philosophical significance. This model shows detailed sheath carvings and the characteristic pamor pattern on the blade.",
+  artifactType: "Traditional Weapon",
       tags: ["keris", "pusaka", "senjata", "spiritual", "pamor", "ukiran"]
     },
     {
       sketchfabId: "0c6bcd40951c1982909b8c4d3a7b6c5",
       title: "Rumah Joglo Tradisional",
-      description: "Arsitektur rumah Joglo khas Jawa dengan atap limasan yang khas. Rumah ini menampilkan struktur kayu tradisional dengan tiang-tiang penyangga (soko guru) dan sistem konstruksi tanpa paku. Model lengkap dengan ornamen ukiran khas Jawa.",
-      artifactType: "Arsitektur Rumah",
+  description: "Traditional Joglo house architecture with a distinctive limasan roof. The house features traditional timber framing with central support posts (soko guru) and nail-less joinery. The model includes characteristic Javanese carved ornamentation.",
+  artifactType: "House Architecture",
       tags: ["joglo", "rumah", "arsitektur", "kayu", "tradisional", "limasan"]
     },
     {
       sketchfabId: "f5a4dc39840b0871808a7b3c2969b5a4",
       title: "Topeng Wayang Orang",
-      description: "Koleksi topeng wayang orang dengan berbagai karakter dari cerita Ramayana dan Mahabharata. Setiap topeng memiliki ekspresi dan warna yang melambangkan karakter tokoh. Detail ukiran dan cat menunjukkan keahlian pengrajin tradisional.",
-      artifactType: "Topeng Seni",
+  description: "A collection of wayang orang masks representing characters from the Ramayana and Mahabharata. Each mask carries expressions and colors that symbolize character traits. The carved details and painting demonstrate traditional craftmanship.",
+  artifactType: "Artistic Masks",
       tags: ["topeng", "wayang", "ramayana", "mahabharata", "seni", "karakter"]
     }
   ],
   youtubeVideos: [
     {
       videoId: "dQw4w9WgXcQ",
-      title: "Dokumenter Kehidupan Masyarakat Mataraman",
-      description: "Film dokumenter yang mengeksplorasi kehidupan sehari-hari masyarakat Mataraman, dari upacara adat, kesenian, hingga filosofi hidup yang dianut. Menampilkan wawancara dengan tokoh budaya dan masyarakat lokal.",
+  title: "Documentary: Daily Life of the Mataraman Community",
+  description: "A documentary exploring the everyday life of the Mataraman people, from traditional rituals and arts to the community's underlying philosophies. Features interviews with cultural figures and local residents.",
       thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
       duration: "45:30"
     },
     {
       videoId: "9bZkp7q19f0",
-      title: "Pertunjukan Wayang Kulit Lengkap - Lakon Ramayana",
-      description: "Rekaman pertunjukan wayang kulit semalam suntuk dengan lakon Ramayana. Dipentaskan oleh dalang terkenal Ki Manteb Soedharsono dengan gamelan lengkap dan sinden. Menampilkan keindahan seni pewayangan tradisional Jawa.",
+  title: "Full Wayang Kulit Performance — Ramayana",
+  description: "A recorded all-night wayang kulit performance of the Ramayana epic. Performed by renowned dalang Ki Manteb Soedharsono with a full gamelan orchestra and vocalists, showcasing the beauty of traditional Javanese puppetry.",
       thumbnail: "https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg",
       duration: "8:12:45"
     },
     {
       videoId: "kJQP7kiw5Fk",
-      title: "Proses Pembuatan Batik Tulis Tradisional",
-      description: "Video tutorial lengkap proses pembuatan batik tulis dari awal hingga akhir. Menjelaskan teknik membatik, pewarnaan alami, dan filosofi motif batik klasik. Dipandu oleh pengrajin batik turun temurun.",
+  title: "Traditional Handwritten Batik Making Process",
+  description: "A complete tutorial showing the traditional process of making hand-drawn batik from start to finish. Explains batik techniques, natural dyeing, and the philosophy behind classic batik motifs, guided by a hereditary batik artisan.",
       thumbnail: "https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg",
       duration: "28:15"
     },
     {
       videoId: "L_jWHffIx5E",
-      title: "Gamelan Jawa - Gending Klasik Koleksi",
-      description: "Koleksi gending (lagu) gamelan Jawa klasik yang dimainkan oleh grup gamelan profesional. Termasuk Ketawang Puspawarna, Ladrang Wilujeng, dan gending-gending sakral lainnya. Audio berkualitas tinggi dengan visual pertunjukan.",
+  title: "Javanese Gamelan — Classic Tunes Collection",
+  description: "A collection of classic Javanese gamelan pieces performed by a professional gamelan ensemble. Includes Ketawang Puspawarna, Ladrang Wilujeng, and other sacred pieces. High-quality audio with performance visuals.",
       thumbnail: "https://img.youtube.com/vi/L_jWHffIx5E/maxresdefault.jpg",
       duration: "1:15:20"
     },
     {
       videoId: "fJ9rUzIMcZQ",
-      title: "Upacara Sekaten di Keraton Surakarta",
-      description: "Dokumentasi upacara Sekaten, perayaan tradisional Jawa yang diadakan setiap tahun untuk memperingati Maulid Nabi Muhammad SAW. Menampilkan prosesi gamelan sekaten, kirab pusaka, dan berbagai ritual adat.",
+  title: "Sekaten Ceremony at Keraton Surakarta",
+  description: "Documentation of the Sekaten ceremony, an annual Javanese celebration commemorating the Prophet Muhammad's birthday, featuring the sekaten gamelan procession, regalia parades, and traditional rituals.",
       thumbnail: "https://img.youtube.com/vi/fJ9rUzIMcZQ/maxresdefault.jpg",
       duration: "52:40"
     },
     {
       videoId: "oHg5SJYRHA0",
-      title: "Tari Bedhaya Ketawang - Tarian Sakral Keraton",
-      description: "Pertunjukan Tari Bedhaya Ketawang, tarian sakral yang hanya dipentaskan pada acara-acara tertentu di keraton. Tarian ini dipercaya sebagai tarian cinta antara Sultan dengan Kanjeng Ratu Kidul. Menampilkan keindahan gerakan dan filosofi mendalam.",
+  title: "Bedhaya Ketawang — Sacred Court Dance",
+  description: "A performance of the Bedhaya Ketawang, a sacred court dance performed only on specific royal occasions. Believed to symbolize a spiritual union between the Sultan and the Queen of the South Sea, it showcases refined movement and deep symbolic meaning.",
       thumbnail: "https://img.youtube.com/vi/oHg5SJYRHA0/maxresdefault.jpg",
       duration: "35:25"
     },
     {
       videoId: "M7lc1UVf-VE",
-      title: "Filosofi Hidup Masyarakat Jawa - Wisdom of Java",
-      description: "Penjelasan mendalam tentang filosofi hidup masyarakat Jawa seperti konsep 'memayu hayuning bawana' (memperindah dunia), 'ngono yo ngono ning ojo ngono' (begitu ya begitu tapi jangan begitu), dan ajaran-ajaran luhur lainnya.",
+  title: "Wisdom of Java — Life Philosophy",
+  description: "An in-depth explanation of Javanese life philosophies such as 'memayu hayuning bawana' (beautifying the world), 'ngono yo ngono ning ojo ngono' (accept but do not replicate harmful ways), and other traditional ethical teachings.",
       thumbnail: "https://img.youtube.com/vi/M7lc1UVf-VE/maxresdefault.jpg",
       duration: "42:10"
     },
     {
       videoId: "ZZ5LpwO-An4",
-      title: "Kuliner Tradisional Mataraman - Food Heritage",
-      description: "Eksplorasi kuliner tradisional khas Mataraman seperti Nasi Liwet, Gudeg, Tengkleng, dan berbagai jajanan pasar tradisional. Menampilkan proses pembuatan dan filosofi di balik setiap hidangan.",
+  title: "Mataraman Traditional Cuisine — Food Heritage",
+  description: "An exploration of traditional Mataraman cuisine such as Nasi Liwet, Gudeg, Tengkleng, and various market snacks. Features preparation processes and the cultural philosophy behind each dish.",
       thumbnail: "https://img.youtube.com/vi/ZZ5LpwO-An4/maxresdefault.jpg",
       duration: "32:55"
     },
@@ -170,8 +170,8 @@ export const DUMMY_SUBCULTURE_DATA = {
   heroImage: "/hero-mataraman.jpg",
   culture: {
     name: "Mataraman",
-    province: "Jawa Timur",
-    region: "Jawa Tengah dan Jawa Timur"
+    province: "East Java",
+    region: "Central and East Java"
   }
 };
 

@@ -169,8 +169,9 @@ export default function AboutPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              UB Corpora adalah platform digital inovatif yang didedikasikan untuk mendokumentasikan, 
-              melestarikan, dan memperkenalkan kekayaan budaya Jawa Timur kepada generasi masa kini dan mendatang.
+              UB Corpora is an innovative digital platform dedicated to documenting,
+              preserving, and introducing the cultural heritage of East Java to present
+              and future generations.
             </motion.p>
           </div>
         </div>
@@ -178,7 +179,7 @@ export default function AboutPage() {
 
       {/* Navigation Tabs - Similar to Subculture */}
       <nav
-        aria-label="Halaman sub-bab"
+        aria-label="Section navigation"
         className="sticky top-0 z-40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border"
       >
         <div className="container mx-auto px-4">
@@ -197,7 +198,7 @@ export default function AboutPage() {
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <button
+                <button
                 onClick={() => scrollToSection("about")}
                 className={`px-3 py-2 rounded-md text-sm transition-colors ${
                   activeSection === "about"
@@ -205,12 +206,12 @@ export default function AboutPage() {
                     : "hover:bg-accent/20 text-foreground"
                 }`}
               >
-                Tentang UB Corpora
+                About UB Corpora
               </button>
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <button
+                <button
                 onClick={() => scrollToSection("team")}
                 className={`px-3 py-2 rounded-md text-sm transition-colors ${
                   activeSection === "team"
@@ -218,12 +219,12 @@ export default function AboutPage() {
                     : "hover:bg-accent/20 text-foreground"
                 }`}
               >
-                Tim Kami
+                Our Team
               </button>
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <button
+                <button
                 onClick={() => scrollToSection("gallery")}
                 className={`px-3 py-2 rounded-md text-sm transition-colors ${
                   activeSection === "gallery"
@@ -231,12 +232,12 @@ export default function AboutPage() {
                     : "hover:bg-accent/20 text-foreground"
                 }`}
               >
-                Galeri Kegiatan
+                Activity Gallery
               </button>
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <button
+                <button
                 onClick={() => scrollToSection("video")}
                 className={`px-3 py-2 rounded-md text-sm transition-colors ${
                   activeSection === "video"
@@ -244,7 +245,7 @@ export default function AboutPage() {
                     : "hover:bg-accent/20 text-foreground"
                 }`}
               >
-                Video
+                Videos
               </button>
             </li>
           </ul>
@@ -331,21 +332,21 @@ export default function AboutPage() {
 
         {/* About UB Corpora Section */}
         <section id="about" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Apa itu UB Corpora?</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">What is UB Corpora?</h2>
           
           <div className="space-y-6">
             <div className="space-y-4">
               <p className="text-muted-foreground leading-relaxed">
-                UB Corpora adalah inisiatif digital dari Universitas Brawijaya yang bertujuan untuk 
-                mendokumentasikan dan melestarikan warisan budaya Jawa Timur. Platform ini menggabungkan 
-                teknologi modern dengan kearifan lokal untuk menciptakan pengalaman eksplorasi budaya 
-                yang interaktif dan mendalam.
+                UB Corpora is a digital initiative from Universitas Brawijaya aimed at
+                documenting and preserving the cultural heritage of East Java. The platform
+                combines modern technology with local wisdom to create an interactive and
+                immersive cultural exploration experience.
               </p>
 
               <p className="text-muted-foreground leading-relaxed">
-                Melalui kolaborasi dengan komunitas lokal, praktisi budaya, dan akademisi, kami 
-                menghadirkan konten yang autentik, komprehensif, dan mudah diakses oleh siapa saja, 
-                di mana saja.
+                Through collaboration with local communities, cultural practitioners, and
+                academics, we provide authentic, comprehensive, and easily accessible
+                content for anyone, anywhere.
               </p>
             </div>
 
@@ -395,10 +396,10 @@ export default function AboutPage() {
 
         {/* Team Section */}
         <section id="team" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Pencetus & Kontributor UB Corpora</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">Founders & Contributors</h2>
           <p className="text-muted-foreground mb-8">
-            Tim multidisipliner yang berdedikasi untuk melestarikan dan memperkenalkan 
-            warisan budaya Jawa Timur kepada dunia.
+            A multidisciplinary team dedicated to preserving and introducing the cultural
+            heritage of East Java to the world.
           </p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -435,10 +436,10 @@ export default function AboutPage() {
 
         {/* Gallery Section */}
         <section id="gallery" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Galeri Kegiatan UB Corpora</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">UB Corpora Activity Gallery</h2>
           <p className="text-muted-foreground mb-8">
-            Dokumentasi kegiatan penelitian, dokumentasi, dan kolaborasi dengan 
-            komunitas budaya di Jawa Timur.
+            Documentation of research activities and collaborations with cultural
+            communities in East Java.
           </p>
 
           {galleryImages.length > 0 ? (
@@ -475,17 +476,17 @@ export default function AboutPage() {
               <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="w-8 h-8 text-muted-foreground" />
               </div>
-              <p className="text-muted-foreground">Galeri kegiatan akan segera ditambahkan</p>
+              <p className="text-muted-foreground">Activity gallery coming soon</p>
             </div>
           )}
         </section>
 
         {/* Video Section */}
         <section id="video" className="bg-card/60 rounded-xl shadow-sm border border-border p-6 scroll-mt-24">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Mengenal UB Corpora Lebih Dekat</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">Get to Know UB Corpora</h2>
           <p className="text-muted-foreground mb-8">
-            Tonton video pengenalan untuk memahami visi, misi, dan dampak UB Corpora 
-            dalam pelestarian budaya Jawa Timur.
+            Watch an introductory video to learn about UB Corpora's vision, mission,
+            and impact on cultural preservation in East Java.
           </p>
 
           <div className="max-w-4xl mx-auto">
@@ -496,7 +497,7 @@ export default function AboutPage() {
                   <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Play className="h-10 w-10 text-primary" />
                   </div>
-                  <p className="text-muted-foreground">Video akan segera tersedia</p>
+                  <p className="text-muted-foreground">Video will be available soon</p>
                   <p className="text-sm text-muted-foreground mt-2">Coming Soon</p>
                 </div>
               </div>
@@ -507,12 +508,12 @@ export default function AboutPage() {
         {/* CTA Section */}
         <section className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 rounded-xl p-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Mulai Jelajahi Budaya Jawa Timur
+            Start Exploring East Java Culture
           </h2>
           
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Bergabunglah dengan ribuan pengguna lain dalam melestarikan dan 
-            mengenal warisan budaya yang kaya dari Jawa Timur.
+            Join thousands of other users in preserving and discovering the rich
+            cultural heritage of East Java.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -522,7 +523,7 @@ export default function AboutPage() {
               onClick={() => handleNavClick("eksplorasi")}
             >
               <Globe className="h-5 w-5" />
-              Jelajahi Sekarang
+              Explore Now
             </Button>
             
             <Button 
@@ -530,7 +531,7 @@ export default function AboutPage() {
               variant="outline"
               onClick={() => handleNavClick("kontak")}
             >
-              Hubungi Kami
+              Contact Us
             </Button>
           </div>
         </section>
