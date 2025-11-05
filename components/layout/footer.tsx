@@ -197,33 +197,13 @@ export function Footer({ onNavClick, onCategoryClick }: FooterProps) {
 
         {/* Bottom Bar */}
         <div className="border-t border-border pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <span>© 2025 UB Corpora. All rights reserved.</span>
               <span className="hidden md:inline">•</span>
               <span className="hidden md:inline">Made with</span>
               <Heart className="h-4 w-4 text-red-500 fill-current hidden md:inline" />
               <span className="hidden md:inline">by Universitas Brawijaya</span>
-            </div>
-            <div className="flex space-x-6 text-sm">
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                Terms of Service
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                Sitemap
-              </a>
             </div>
           </div>
         </div>

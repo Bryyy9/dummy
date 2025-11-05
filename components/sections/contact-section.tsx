@@ -121,15 +121,21 @@ export function ContactSection() {
                   <p className="text-muted-foreground mb-4 text-pretty">
                     Follow us on social media for the latest updates on East Java's culture and community activities.
                   </p>
-                  <div className="flex space-x-3">
+                    <div className="flex space-x-3">
                     <Button variant="outline" size="sm">
-                      Facebook
+                      <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
+                        Facebook
+                      </a>
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" asChild>
+                      <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">
                       Instagram
+                      </a>
                     </Button>
                     <Button variant="outline" size="sm">
-                      Twitter
+                      <a href="https://x.com" target="_blank" rel="noopener noreferrer">
+                        X (Twitter)
+                      </a>
                     </Button>
                   </div>
                 </CardContent>
